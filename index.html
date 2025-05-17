@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會考序位分享平台</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-chart-line"></i> 會考序位分享平台</h1>
+        
+        <div class="form-container">
+            <h2><i class="fas fa-plus-circle"></i> 新增成績資料</h2>
+            <form id="scoreForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="region"><i class="fas fa-map-marker-alt"></i> 區域</label>
+                        <select id="region" name="region" required>
+                            <option value="">請選擇區域</option>
+                            <option value="基北區">基北區</option>
+                            <option value="桃連區">桃連區</option>
+                            <option value="竹苗區">竹苗區</option>
+                            <option value="中投區">中投區</option>
+                            <option value="雲林區">雲林區</option>
+                            <option value="彰化區">彰化區</option>
+                            <option value="嘉義區">嘉義區</option>
+                            <option value="台南區">台南區</option>
+                            <option value="高雄區">高雄區</option>
+                            <option value="屏東區">屏東區</option>
+                            <option value="宜蘭區">宜蘭區</option>
+                            <option value="花蓮區">花蓮區</option>
+                            <option value="澎湖區">澎湖區</option>
+                            <option value="金門區">金門區</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="chinese"><i class="fas fa-book"></i> 國文成績</label>
+                        <select id="chinese" name="chinese" required>
+                            <option value="">請選擇</option>
+                            <option value="A++">A++</option>
+                            <option value="A+">A+</option>
+                            <option value="A">A</option>
+                            <option value="B++">B++</option>
+                            <option value="B+">B+</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="math"><i class="fas fa-calculator"></i> 數學成績</label>
+                        <select id="math" name="math" required>
+                            <option value="">請選擇</option>
+                            <option value="A++">A++</option>
+                            <option value="A+">A+</option>
+                            <option value="A">A</option>
+                            <option value="B++">B++</option>
+                            <option value="B+">B+</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="english"><i class="fas fa-language"></i> 英文成績</label>
+                        <select id="english" name="english" required>
+                            <option value="">請選擇</option>
+                            <option value="A++">A++</option>
+                            <option value="A+">A+</option>
+                            <option value="A">A</option>
+                            <option value="B++">B++</option>
+                            <option value="B+">B+</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="social"><i class="fas fa-globe-asia"></i> 社會成績</label>
+                        <select id="social" name="social" required>
+                            <option value="">請選擇</option>
+                            <option value="A++">A++</option>
+                            <option value="A+">A+</option>
+                            <option value="A">A</option>
+                            <option value="B++">B++</option>
+                            <option value="B+">B+</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="science"><i class="fas fa-flask"></i> 自然成績</label>
+                        <select id="science" name="science" required>
+                            <option value="">請選擇</option>
+                            <option value="A++">A++</option>
+                            <option value="A+">A+</option>
+                            <option value="A">A</option>
+                            <option value="B++">B++</option>
+                            <option value="B+">B+</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="writing"><i class="fas fa-pen-fancy"></i> 作文成績</label>
+                        <select id="writing" name="writing" required>
+                            <option value="">請選擇</option>
+                            <option value="6級分">6級分</option>
+                            <option value="5級分">5級分</option>
+                            <option value="4級分">4級分</option>
+                            <option value="3級分">3級分</option>
+                            <option value="2級分">2級分</option>
+                            <option value="1級分">1級分</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="minPercent"><i class="fas fa-percentage"></i> 全區序位最小比率(%)</label>
+                        <input type="number" id="minPercent" name="minPercent" min="0" max="100" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="minRange"><i class="fas fa-sort-numeric-down"></i> 全區序位最小區間</label>
+                        <input type="text" id="minRange" name="minRange" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxPercent"><i class="fas fa-percentage"></i> 全區序位最大比率(%)</label>
+                        <input type="number" id="maxPercent" name="maxPercent" min="0" max="100" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxRange"><i class="fas fa-sort-numeric-up"></i> 全區序位最大區間</label>
+                        <input type="text" id="maxRange" name="maxRange" required>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit"><i class="fas fa-share-alt"></i> 分享成績</button>
+                    <button type="button" class="btn-clear" id="clearForm"><i class="fas fa-eraser"></i> 清除表單</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="results-container">
+            <h2><i class="fas fa-list"></i> 已分享的成績資料</h2>
+            <div class="filter-container">
+                <input type="text" id="searchInput" placeholder="搜尋...">
+                <select id="sortField">
+                    <option value="">排序依據...</option>
+                    <option value="region">區域</option>
+                    <option value="minPercent">最小比率</option>
+                    <option value="maxPercent">最大比率</option>
+                </select>
+                <button id="sortBtn"><i class="fas fa-sort"></i> 排序</button>
+                <button id="exportBtn"><i class="fas fa-file-export"></i> 匯出資料</button>
+            </div>
+            <div class="table-container">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>區域</th>
+                            <th>國文</th>
+                            <th>數學</th>
+                            <th>英文</th>
+                            <th>社會</th>
+                            <th>自然</th>
+                            <th>作文</th>
+                            <th>最小比率(%)</th>
+                            <th>最小區間</th>
+                            <th>最大比率(%)</th>
+                            <th>最大區間</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                        <!-- 資料將由 JavaScript 動態加入 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <p>&copy; 2023 會考序位分享平台 | <a href="#" id="privacyLink">隱私聲明</a></p>
+        </footer>
+    </div>
+    
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>隱私聲明</h3>
+            <p>所有資料僅儲存在您的瀏覽器本地儲存中，不會上傳至任何伺服器。清除瀏覽器快取將會刪除所有資料。</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
