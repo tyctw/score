@@ -1,879 +1,696 @@
-// DOM 元素
-const scoreForm = document.getElementById('scoreForm');
-const resultsBody = document.getElementById('resultsBody');
-const clearFormBtn = document.getElementById('clearForm');
-const searchInput = document.getElementById('searchInput');
-const sortField = document.getElementById('sortField');
-const sortBtn = document.getElementById('sortBtn');
-const privacyLink = document.getElementById('privacyLink');
-const privacyModal = document.getElementById('privacyModal');
-const closeModalBtn = document.querySelector('.close');
+// 替換為您的 Google Apps Script 網頁應用程式 URL
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqzSCNkZp5zi6MOa-N2kE470X8OVGlHIuNZw7x25UarqIGg6N18XoJRQyxyy5z--LZ/exec';
 
-// App Script 設定
-const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxz5mUSeKkuqHR0hQv_VaUJzz2G87FJheTYuwb6yQl2rRGybv5loCSXHQN4dCsXCTDc/exec';
-const LOADING_DELAY = 300; // 載入延遲時間（毫秒）
+// 定義成績等級的顏色映射
+const GRADE_COLORS = {
+    'A++': '#FF4D4D',  // 深紅色
+    'A+': '#FF7F7F',   // 紅色
+    'A': '#FFB2B2',    // 淺紅色
+    'B++': '#4D4DFF',  // 深藍色
+    'B+': '#7F7FFF',   // 藍色
+    'B': '#B2B2FF',    // 淺藍色
+    'C': '#808080'     // 灰色
+};
 
-// 儲存資料
-let scores = [];
-let isLoading = false;
-
-// 頁面載入時顯示已儲存的資料
+// 側邊欄控制
 document.addEventListener('DOMContentLoaded', () => {
-    showLoading();
-    fetchScores()
-        .then(() => {
-            hideLoading();
-            renderScores();
-            initializeAnimations();
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const fullscreenMenu = document.querySelector('.fullscreen-menu');
+    const loadDataBtn = document.getElementById('loadDataBtn');
+    const dataTable = document.getElementById('dataTable');
+    const regionFilter = document.getElementById('regionFilter');
+    const yearFilter = document.getElementById('yearFilter');
+    
+    // 新增進階篩選相關元素
+    const toggleAdvancedFiltersBtn = document.getElementById('toggleAdvancedFilters');
+    const advancedFiltersContainer = document.getElementById('advancedFiltersContainer');
+    const chineseScoreFilter = document.getElementById('chineseScoreFilter');
+    const mathScoreFilter = document.getElementById('mathScoreFilter');
+    const englishScoreFilter = document.getElementById('englishScoreFilter');
+    const socialScoreFilter = document.getElementById('socialScoreFilter');
+    const scienceScoreFilter = document.getElementById('scienceScoreFilter');
+    const minRatioFilter = document.getElementById('minRatioFilter');
+    const maxRatioFilter = document.getElementById('maxRatioFilter');
+    const sortByFilter = document.getElementById('sortByFilter');
+    const sortOrderFilter = document.getElementById('sortOrderFilter');
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+    const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+    
+    // 設置頁腳版權年份
+    const currentYearElement = document.getElementById('currentYear');
+    if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+    }
+    
+    // 彈窗元素
+    const usageGuideModal = document.getElementById('usageGuideModal');
+    const disclaimerModal = document.getElementById('disclaimerModal');
+    const contactModal = document.getElementById('contactModal');
+    const openUsageGuideLinks = document.querySelectorAll('.open-usage-guide-modal');
+    const openDisclaimerLinks = document.querySelectorAll('.open-disclaimer-modal');
+    const openContactModalBtn = document.getElementById('openContactModal');
+    const closeModalButtons = document.querySelectorAll('.close-modal');
+    const contactForm = document.getElementById('contactForm');
+    const contactSuccess = document.getElementById('contactSuccess');
+    
+    let currentData = []; // 儲存當前數據
+    
+    // 進階篩選顯示/隱藏切換
+    if (toggleAdvancedFiltersBtn && advancedFiltersContainer) {
+        toggleAdvancedFiltersBtn.addEventListener('click', () => {
+            advancedFiltersContainer.classList.toggle('active');
+            toggleAdvancedFiltersBtn.classList.toggle('active');
+        });
+    }
+    
+    // 重置篩選按鈕
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', () => {
+            // 重置基本篩選
+            regionFilter.value = '';
+            yearFilter.value = '';
             
-            // 添加匯出按鈕事件監聽器
-            const exportBtn = document.getElementById('exportBtn');
-            if (exportBtn) {
-                exportBtn.addEventListener('click', exportData);
-            }
-        })
-        .catch(error => {
-            hideLoading();
-            showNotification('載入資料時發生錯誤: ' + error.message, 'error');
-            console.error('Error fetching scores:', error);
-        });
-});
-
-// 顯示載入中動畫
-function showLoading() {
-    isLoading = true;
-    
-    // 創建載入中元素
-    const loadingEl = document.createElement('div');
-    loadingEl.className = 'loading-overlay';
-    loadingEl.innerHTML = `
-        <div class="loading-spinner"></div>
-        <p>載入中...</p>
-    `;
-    
-    document.body.appendChild(loadingEl);
-    
-    // 淡入效果
-    setTimeout(() => {
-        loadingEl.classList.add('show');
-    }, 10);
-}
-
-// 隱藏載入中動畫
-function hideLoading() {
-    isLoading = false;
-    const loadingEl = document.querySelector('.loading-overlay');
-    
-    if (loadingEl) {
-        loadingEl.classList.remove('show');
-        setTimeout(() => {
-            document.body.removeChild(loadingEl);
-        }, 300);
-    }
-}
-
-// 從 App Script 獲取分數資料
-async function fetchScores() {
-    try {
-        const response = await fetch(`${APP_SCRIPT_URL}?action=getScores`);
-        const result = await response.json();
-        
-        if (result.status === 'success') {
-            scores = result.data;
-            return scores;
-        } else {
-            throw new Error(result.message || '獲取資料失敗');
-        }
-    } catch (error) {
-        console.error('Error fetching scores:', error);
-        throw error;
-    }
-}
-
-// 增加平滑動畫效果
-function addSmoothAnimation() {
-    const formGroup = document.querySelectorAll('.form-group');
-    formGroup.forEach((elem, index) => {
-        elem.classList.add('smoothFade');
-        elem.style.animationDelay = `${index * 0.05}s`;
-    });
-    
-    // 為按鈕添加漣漪效果
-    document.querySelectorAll('button').forEach(button => {
-        button.addEventListener('click', function(e) {
-            const x = e.clientX - e.target.getBoundingClientRect().left;
-            const y = e.clientY - e.target.getBoundingClientRect().top;
+            // 重置科目篩選
+            chineseScoreFilter.value = '';
+            mathScoreFilter.value = '';
+            englishScoreFilter.value = '';
+            socialScoreFilter.value = '';
+            scienceScoreFilter.value = '';
             
-            const ripple = document.createElement('span');
-            ripple.classList.add('ripple');
-            ripple.style.left = `${x}px`;
-            ripple.style.top = `${y}px`;
+            // 重置序位比率篩選
+            minRatioFilter.value = '';
+            maxRatioFilter.value = '';
             
-            this.appendChild(ripple);
+            // 重置排序
+            sortByFilter.value = 'timestamp';
+            sortOrderFilter.value = 'desc';
             
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-        });
-    });
-}
-
-// 初始化動畫效果
-function initializeAnimations() {
-    // 標題文字動畫
-    const title = document.querySelector('h1');
-    title.classList.add('animate-title');
-    
-    // 表單輸入欄位聚焦效果
-    const formInputs = document.querySelectorAll('input, select');
-    formInputs.forEach(input => {
-        input.addEventListener('focus', () => {
-            input.parentElement.classList.add('input-focused');
-        });
-        
-        input.addEventListener('blur', () => {
-            input.parentElement.classList.remove('input-focused');
-        });
-    });
-    
-    // 添加平滑動畫
-    addSmoothAnimation();
-    
-    // 為表格行添加延遲載入動畫
-    setTimeout(() => {
-        document.querySelectorAll('#resultsTable tbody tr').forEach((row, index) => {
-            row.classList.add('smoothFade');
-            row.style.animationDelay = `${index * 0.05}s`;
-        });
-    }, 300);
-}
-
-// 表單提交事件處理
-scoreForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    if (isLoading) return;
-    
-    try {
-        // 獲取表單資料
-        const formData = new FormData(scoreForm);
-        const scoreData = {
-            id: Date.now(), // 使用時間戳作為唯一ID
-            region: formData.get('region'),
-            chinese: formData.get('chinese'),
-            math: formData.get('math'),
-            english: formData.get('english'),
-            social: formData.get('social'),
-            science: formData.get('science'),
-            writing: formData.get('writing'),
-            minPercent: parseFloat(formData.get('minPercent')),
-            minRange: formData.get('minRange'),
-            maxPercent: parseFloat(formData.get('maxPercent')),
-            maxRange: formData.get('maxRange')
-        };
-        
-        console.log('準備提交成績資料:', scoreData);
-        
-        // 資料驗證
-        const requiredFields = ['region', 'chinese', 'math', 'english', 'social', 'science', 'writing', 'minPercent', 'minRange', 'maxPercent', 'maxRange'];
-        const missingFields = requiredFields.filter(field => !scoreData[field]);
-        
-        if (missingFields.length > 0) {
-            throw new Error(`請填寫所有必填欄位: ${missingFields.join(', ')}`);
-        }
-        
-        showLoading();
-        
-        // 嘗試保存到本地儲存，作為備份
-        try {
-            const localScores = JSON.parse(localStorage.getItem('examScores')) || [];
-            localScores.push(scoreData);
-            localStorage.setItem('examScores', JSON.stringify(localScores));
-            console.log('已將資料備份到本地儲存');
-        } catch (localError) {
-            console.warn('本地備份失敗:', localError);
-        }
-        
-        // 將資料傳送到 App Script
-        await addScore(scoreData);
-        
-        // 重新載入資料
-        await fetchScores();
-        
-        // 重新渲染列表
-        renderScores();
-        
-        // 重設表單
-        scoreForm.reset();
-        
-        hideLoading();
-        
-        // 顯示成功訊息
-        showNotification('成績資料已成功分享！');
-    } catch (error) {
-        hideLoading();
-        
-        let errorMessage = '分享成績時發生錯誤: ' + error.message;
-        
-        // 添加使用者指引建議
-        if (error.message.includes('未設定 Google App Script 網址')) {
-            errorMessage += ' 請參考 README.md 中的後端設置說明。';
-        } else if (error.message.includes('跨域請求錯誤')) {
-            errorMessage += ' 請確保在 App Script 中已正確設定 CORS。';
-        } else if (error.message.includes('Failed to fetch') || error.message.includes('網絡請求失敗')) {
-            errorMessage += ' 請檢查網絡連接和 App Script URL 是否正確。';
-        }
-        
-        showNotification(errorMessage, 'error');
-        console.error('Error adding score:', error);
-        
-        // 顯示恢復資料的選項
-        if (localStorage.getItem('examScores')) {
-            const restoreBtn = document.createElement('button');
-            restoreBtn.textContent = '從本地備份恢復資料';
-            restoreBtn.className = 'restore-btn';
-            restoreBtn.onclick = restoreFromLocalBackup;
-            
-            const notificationDiv = document.querySelector('.notification.error');
-            if (notificationDiv) {
-                notificationDiv.appendChild(document.createElement('br'));
-                notificationDiv.appendChild(restoreBtn);
-            }
-        }
-    }
-});
-
-// 向 App Script 添加分數資料
-async function addScore(data) {
-    try {
-        console.log('開始提交資料到後端', data);
-        console.log('使用的 API URL:', APP_SCRIPT_URL);
-        
-        // 檢查 APP_SCRIPT_URL 是否設定
-        if (!APP_SCRIPT_URL || APP_SCRIPT_URL === '在此填入部署的Google App Script網址') {
-            throw new Error('未設定 Google App Script 網址。請在script.js檔案中設定 APP_SCRIPT_URL 變數。');
-        }
-        
-        // 發送請求到 App Script
-        const response = await fetch(`${APP_SCRIPT_URL}?action=addScore`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-        
-        console.log('收到後端回應', response);
-        
-        // 檢查網絡請求是否成功
-        if (!response.ok) {
-            throw new Error(`網絡請求失敗: ${response.status} ${response.statusText}`);
-        }
-        
-        const result = await response.json();
-        console.log('解析後端回應', result);
-        
-        if (result.status === 'success') {
-            return result.data;
-        } else {
-            throw new Error(result.message || '添加資料失敗');
-        }
-    } catch (error) {
-        console.error('添加資料時出錯:', error);
-        // 檢查是否為 CORS 相關錯誤
-        if (error.message.includes('CORS') || error.message.includes('Cross-Origin')) {
-            throw new Error('跨域請求錯誤: 請確保 Google App Script 已啟用跨域請求 (CORS)');
-        }
-        
-        throw error;
-    }
-}
-
-// 向 App Script 刪除分數資料
-async function apiDeleteScore(id) {
-    try {
-        const response = await fetch(`${APP_SCRIPT_URL}?action=deleteScore`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id: id })
-        });
-        
-        const result = await response.json();
-        
-        if (result.status === 'success') {
-            return true;
-        } else {
-            throw new Error(result.message || '刪除資料失敗');
-        }
-    } catch (error) {
-        console.error('Error deleting score:', error);
-        throw error;
-    }
-}
-
-// 顯示通知訊息
-function showNotification(message, type = 'success') {
-    // 建立通知元素
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <div class="notification-content">
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-            <span>${message}</span>
-        </div>
-    `;
-    
-    // 添加到頁面
-    document.body.appendChild(notification);
-    
-    // 顯示通知
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
-    
-    // 自動關閉通知
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
-    }, 3000);
-}
-
-// 清除表單按鈕
-clearFormBtn.addEventListener('click', () => {
-    scoreForm.reset();
-});
-
-// 搜尋功能
-searchInput.addEventListener('input', () => {
-    renderScores();
-});
-
-// 排序按鈕
-sortBtn.addEventListener('click', () => {
-    renderScores();
-});
-
-// 隱私聲明模態框處理
-privacyLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    privacyModal.style.display = 'block';
-    
-    // 淡入效果
-    setTimeout(() => {
-        privacyModal.classList.add('show');
-    }, 10);
-});
-
-closeModalBtn.addEventListener('click', () => {
-    closeModal();
-});
-
-window.addEventListener('click', (e) => {
-    if (e.target === privacyModal) {
-        closeModal();
-    }
-});
-
-function closeModal() {
-    privacyModal.classList.remove('show');
-    setTimeout(() => {
-        privacyModal.style.display = 'none';
-    }, 300);
-}
-
-// 渲染分數列表
-function renderScores() {
-    // 清空列表
-    resultsBody.innerHTML = '';
-    
-    // 獲取過濾和排序條件
-    const searchTerm = searchInput.value.toLowerCase();
-    const sortBy = sortField.value;
-    
-    // 過濾資料
-    let filteredScores = scores.filter(score => {
-        return Object.values(score).some(value => {
-            if (value === null || value === undefined) return false;
-            return value.toString().toLowerCase().includes(searchTerm);
-        });
-    });
-    
-    // 排序資料
-    if (sortBy) {
-        filteredScores.sort((a, b) => {
-            if (sortBy === 'minPercent' || sortBy === 'maxPercent') {
-                return a[sortBy] - b[sortBy];
-            }
-            return a[sortBy].localeCompare(b[sortBy]);
+            // 重新篩選並顯示數據
+            filterAndRenderData();
         });
     }
     
-    // 顯示結果數量
-    const resultsCount = document.createElement('div');
-    resultsCount.className = 'results-count';
-    resultsCount.textContent = `共 ${filteredScores.length} 筆資料`;
-    
-    const tableContainer = document.querySelector('.table-container');
-    const existingCount = document.querySelector('.results-count');
-    
-    if (existingCount) {
-        tableContainer.parentElement.replaceChild(resultsCount, existingCount);
-    } else {
-        tableContainer.parentElement.insertBefore(resultsCount, tableContainer);
-    }
-    
-    // 渲染每一行
-    filteredScores.forEach(score => {
-        const row = document.createElement('tr');
-        
-        row.innerHTML = `
-            <td>${score.region || '-'}</td>
-            <td>${score.chinese}</td>
-            <td>${score.math}</td>
-            <td>${score.english}</td>
-            <td>${score.social}</td>
-            <td>${score.science}</td>
-            <td>${score.writing}</td>
-            <td>${score.minPercent}</td>
-            <td>${score.minRange}</td>
-            <td>${score.maxPercent}</td>
-            <td>${score.maxRange}</td>
-            <td>
-                <button class="btn-delete" data-id="${score.id}"><i class="fas fa-trash-alt"></i></button>
-            </td>
-        `;
-        
-        resultsBody.appendChild(row);
-    });
-    
-    // 添加刪除按鈕事件
-    document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const id = e.target.closest('.btn-delete').getAttribute('data-id');
-            deleteScore(id);
+    // 套用篩選按鈕
+    if (applyFiltersBtn) {
+        applyFiltersBtn.addEventListener('click', () => {
+            filterAndRenderData();
         });
-    });
-    
-    // 若無資料顯示提示
-    if (filteredScores.length === 0) {
-        const noDataRow = document.createElement('tr');
-        noDataRow.innerHTML = `
-            <td colspan="12" class="no-data">
-                <i class="fas fa-info-circle"></i> 沒有符合條件的資料
-            </td>
-        `;
-        resultsBody.appendChild(noDataRow);
     }
-}
-
-// 刪除分數
-async function deleteScore(id) {
-    // 確認刪除
-    if (confirm('確定要刪除這筆資料嗎？')) {
-        try {
-            showLoading();
-            
-            // 發送刪除請求到 App Script
-            await apiDeleteScore(id);
-            
-            // 重新載入資料
-            await fetchScores();
-            
-            // 重新渲染列表
-            renderScores();
-            
-            hideLoading();
-            showNotification('資料已成功刪除');
-        } catch (error) {
-            hideLoading();
-            showNotification('刪除資料時發生錯誤: ' + error.message, 'error');
-            console.error('Error deleting score:', error);
+    
+    // 彈窗控制
+    function openModal(modal) {
+        if (!modal) return;
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // 防止背景滾動
+    }
+    
+    function closeModal(modal) {
+        if (!modal) return;
+        modal.style.display = 'none';
+        
+        // 如果選單沒有開啟，才恢復背景滾動
+        if (!fullscreenMenu.classList.contains('active')) {
+            document.body.style.overflow = '';
         }
     }
-}
-
-// 導出資料功能
-function exportData() {
-    console.log('點擊匯出按鈕');
-    // 顯示匯出選項模態框
-    showExportOptionsModal();
-}
-
-// 顯示匯出選項模態框
-function showExportOptionsModal() {
-    console.log('開始顯示匯出選項模態框');
     
-    // 創建模態框
-    const modal = document.createElement('div');
-    modal.className = 'modal export-modal';
-    modal.id = 'exportModal';
+    function closeAllModals() {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+        });
+        
+        // 如果選單沒有開啟，才恢復背景滾動
+        if (!fullscreenMenu.classList.contains('active')) {
+            document.body.style.overflow = '';
+        }
+    }
     
-    modal.innerHTML = `
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3><i class="fas fa-file-export"></i> 匯出資料選項</h3>
-            <div class="export-options">
-                <div class="export-option" data-format="json">
-                    <i class="fas fa-file-code"></i>
-                    <span>JSON 格式</span>
-                    <p>適合開發人員或進階用戶</p>
-                </div>
-                <div class="export-option" data-format="csv">
-                    <i class="fas fa-file-csv"></i>
-                    <span>CSV 格式</span>
-                    <p>可用 Excel 或其他試算表軟體開啟</p>
-                </div>
-                <div class="export-option" data-format="excel">
-                    <i class="fas fa-file-excel"></i>
-                    <span>Excel 格式</span>
-                    <p>直接產生 Excel 文件</p>
-                </div>
-                <div class="export-option" data-format="print">
-                    <i class="fas fa-print"></i>
-                    <span>列印資料</span>
-                    <p>直接列印目前顯示的資料</p>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    console.log('模態框已添加到文檔中');
-    
-    // 淡入效果
-    setTimeout(() => {
-        modal.classList.add('show');
-        console.log('模態框已顯示');
-    }, 10);
-    
-    // 關閉按鈕事件
-    const closeBtn = modal.querySelector('.close');
-    closeBtn.addEventListener('click', () => {
-        console.log('點擊關閉按鈕');
-        closeExportModal();
-    });
-    
-    // 點擊模態框外部關閉
+    // 點擊彈窗外部關閉彈窗
     window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            console.log('點擊模態框外部區域');
-            closeExportModal();
+        if (e.target.classList.contains('modal')) {
+            closeModal(e.target);
         }
     });
     
-    // 選項點擊事件
-    const options = modal.querySelectorAll('.export-option');
-    options.forEach(option => {
-        option.addEventListener('click', () => {
-            const format = option.getAttribute('data-format');
-            console.log('選擇匯出格式:', format);
-            handleExport(format);
-            closeExportModal();
-        });
+    // ESC 鍵關閉彈窗和選單
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            // 檢查是否有打開的彈窗
+            const openModals = Array.from(document.querySelectorAll('.modal')).filter(
+                modal => modal.style.display === 'block'
+            );
+            
+            if (openModals.length > 0) {
+                // 有彈窗開啟，關閉彈窗
+                closeAllModals();
+            } else if (fullscreenMenu.classList.contains('active')) {
+                // 沒有彈窗但選單開啟，關閉選單
+                toggleMenu();
+            }
+        }
     });
-}
-
-// 關閉匯出模態框
-function closeExportModal() {
-    const modal = document.getElementById('exportModal');
-    modal.classList.remove('show');
-    setTimeout(() => {
-        document.body.removeChild(modal);
-    }, 300);
-}
-
-// 處理不同格式的匯出
-function handleExport(format) {
-    // 獲取當前過濾後的資料
-    const searchTerm = searchInput.value.toLowerCase();
-    const sortBy = sortField.value;
     
-    let filteredScores = scores.filter(score => {
-        return Object.values(score).some(value => {
-            if (value === null || value === undefined) return false;
-            return value.toString().toLowerCase().includes(searchTerm);
+    // 開啟使用說明彈窗
+    openUsageGuideLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal(usageGuideModal);
+            
+            // 如果是從選單開啟，則同時關閉選單
+            if (fullscreenMenu.classList.contains('active')) {
+                toggleMenu();
+            }
         });
     });
     
-    // 排序資料
-    if (sortBy) {
-        filteredScores.sort((a, b) => {
-            if (sortBy === 'minPercent' || sortBy === 'maxPercent') {
-                return a[sortBy] - b[sortBy];
+    // 開啟免責聲明彈窗
+    openDisclaimerLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal(disclaimerModal);
+            
+            // 如果是從選單開啟，則同時關閉選單
+            if (fullscreenMenu.classList.contains('active')) {
+                toggleMenu();
             }
-            return String(a[sortBy]).localeCompare(String(b[sortBy]));
         });
-    }
-    
-    switch (format) {
-        case 'json':
-            exportAsJSON(filteredScores);
-            break;
-        case 'csv':
-            exportAsCSV(filteredScores);
-            break;
-        case 'excel':
-            exportAsExcel(filteredScores);
-            break;
-        case 'print':
-            printData(filteredScores);
-            break;
-    }
-}
-
-// 以 JSON 格式匯出
-function exportAsJSON(data) {
-    const dataStr = JSON.stringify(data, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = '會考序位資料.json';
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-    
-    showNotification('資料已成功匯出為 JSON 格式');
-}
-
-// 以 CSV 格式匯出
-function exportAsCSV(data) {
-    // CSV 標題行
-    const headers = [
-        '區域', '國文成績', '數學成績', '英文成績', 
-        '社會成績', '自然成績', '作文成績', 
-        '最小比率(%)', '最小區間', '最大比率(%)', '最大區間'
-    ];
-    
-    let csvContent = headers.join(',') + '\n';
-    
-    // 添加每一行資料
-    data.forEach(item => {
-        const row = [
-            `"${item.region || ''}"`,
-            `"${item.chinese || ''}"`,
-            `"${item.math || ''}"`,
-            `"${item.english || ''}"`,
-            `"${item.social || ''}"`,
-            `"${item.science || ''}"`,
-            `"${item.writing || ''}"`,
-            `"${item.minPercent || ''}"`,
-            `"${item.minRange || ''}"`,
-            `"${item.maxPercent || ''}"`,
-            `"${item.maxRange || ''}"`
-        ];
-        
-        csvContent += row.join(',') + '\n';
     });
     
-    const encodedUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', '會考序位資料.csv');
-    link.click();
-    
-    showNotification('資料已成功匯出為 CSV 格式');
-}
-
-// 以 Excel 格式匯出 (使用 SheetJS 庫)
-function exportAsExcel(data) {
-    // 檢查是否已載入 SheetJS 庫
-    if (typeof XLSX === 'undefined') {
-        // 動態載入 SheetJS 庫
-        loadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js', () => {
-            // 庫載入完成後再次呼叫匯出函數
-            exportAsExcelWithLibrary(data);
+    // 開啟意見回饋彈窗
+    if (openContactModalBtn) {
+        openContactModalBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal(contactModal);
+            
+            // 如果是從選單開啟，則同時關閉選單
+            if (fullscreenMenu.classList.contains('active')) {
+                toggleMenu();
+            }
         });
-    } else {
-        exportAsExcelWithLibrary(data);
     }
-}
-
-// 動態載入腳本
-function loadScript(url, callback) {
-    showNotification('正在準備 Excel 匯出功能...', 'info');
     
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = url;
-    script.onload = callback;
-    script.onerror = () => {
-        showNotification('無法載入必要的函式庫，請稍後再試', 'error');
-    };
-    document.head.appendChild(script);
-}
-
-// 使用 SheetJS 庫匯出 Excel
-function exportAsExcelWithLibrary(data) {
-    try {
-        // 準備 Excel 格式的資料
-        const excelData = data.map(item => ({
-            '區域': item.region || '',
-            '國文成績': item.chinese || '',
-            '數學成績': item.math || '',
-            '英文成績': item.english || '',
-            '社會成績': item.social || '',
-            '自然成績': item.science || '',
-            '作文成績': item.writing || '',
-            '最小比率(%)': item.minPercent || '',
-            '最小區間': item.minRange || '',
-            '最大比率(%)': item.maxPercent || '',
-            '最大區間': item.maxRange || ''
-        }));
-        
-        // 創建工作表
-        const worksheet = XLSX.utils.json_to_sheet(excelData);
-        
-        // 創建工作簿
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, '會考序位資料');
-        
-        // 寫入檔案
-        XLSX.writeFile(workbook, '會考序位資料.xlsx');
-        
-        showNotification('資料已成功匯出為 Excel 格式');
-    } catch (error) {
-        console.error('Excel 匯出錯誤:', error);
-        showNotification('匯出 Excel 時發生錯誤', 'error');
+    // 選單中的聯絡按鈕
+    const menuContactBtn = document.getElementById('menuContactBtn');
+    if (menuContactBtn) {
+        menuContactBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal(contactModal);
+            
+            // 關閉選單
+            if (fullscreenMenu.classList.contains('active')) {
+                toggleMenu();
+            }
+        });
     }
-}
-
-// 列印資料
-function printData(data) {
-    // 創建列印用的臨時窗口
-    const printWindow = window.open('', '_blank');
     
-    // 準備列印的 HTML 內容
-    let printContent = `
-    <!DOCTYPE html>
-    <html lang="zh-Hant-TW">
-    <head>
-        <meta charset="UTF-8">
-        <title>會考序位資料</title>
-        <style>
-            body {
-                font-family: 'Microsoft JhengHei', Arial, sans-serif;
-                margin: 0;
-                padding: 20px;
-            }
-            h1 {
-                color: #2c3e50;
-                text-align: center;
-                margin-bottom: 20px;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
-            }
-            th, td {
-                border: 1px solid #ddd;
-                padding: 8px;
-                text-align: left;
-            }
-            th {
-                background-color: #4a6cb3;
-                color: white;
-            }
-            tr:nth-child(even) {
-                background-color: #f2f2f2;
-            }
-            .print-info {
-                text-align: center;
-                font-size: 12px;
-                color: #888;
-                margin-top: 30px;
-            }
-            @media print {
-                .no-print {
-                    display: none;
-                }
-                body {
-                    padding: 0;
-                }
-                button {
-                    display: none;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <h1>會考序位資料</h1>
-        <button class="no-print" onclick="window.print()" style="padding: 8px 15px; background: #4a6cb3; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 15px;">列印此頁</button>
-        <table>
-            <thead>
-                <tr>
-                    <th>區域</th>
-                    <th>國文</th>
-                    <th>數學</th>
-                    <th>英文</th>
-                    <th>社會</th>
-                    <th>自然</th>
-                    <th>作文</th>
-                    <th>最小比率(%)</th>
-                    <th>最小區間</th>
-                    <th>最大比率(%)</th>
-                    <th>最大區間</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+    // 關閉彈窗按鈕
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const modal = button.closest('.modal');
+            closeModal(modal);
+        });
+    });
     
-    // 添加資料行
-    data.forEach(item => {
-        printContent += `
-            <tr>
-                <td>${item.region || '-'}</td>
-                <td>${item.chinese || '-'}</td>
-                <td>${item.math || '-'}</td>
-                <td>${item.english || '-'}</td>
-                <td>${item.social || '-'}</td>
-                <td>${item.science || '-'}</td>
-                <td>${item.writing || '-'}</td>
-                <td>${item.minPercent || '-'}</td>
-                <td>${item.minRange || '-'}</td>
-                <td>${item.maxPercent || '-'}</td>
-                <td>${item.maxRange || '-'}</td>
-            </tr>
+    // 處理意見回饋表單提交
+    if (contactForm) {
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // 獲取表單數據
+            const formData = {
+                name: contactForm.querySelector('#contactName').value,
+                email: contactForm.querySelector('#contactEmail').value,
+                subject: contactForm.querySelector('#contactSubject').value,
+                message: contactForm.querySelector('#contactMessage').value
+            };
+            
+            // 在實際應用中，這裡會發送數據到伺服器
+            console.log('表單提交的數據：', formData);
+            
+            // 模擬提交過程
+            const submitBtn = contactForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '送出中...';
+            
+            // 模擬異步請求
+            setTimeout(() => {
+                // 顯示成功訊息
+                contactForm.style.display = 'none';
+                contactSuccess.style.display = 'block';
+                
+                // 重置表單
+                contactForm.reset();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 送出';
+                
+                // 5秒後關閉模態窗
+                setTimeout(() => {
+                    closeModal(contactModal);
+                    
+                    // 等待關閉動畫完成後重置表單顯示
+                    setTimeout(() => {
+                        contactForm.style.display = 'block';
+                        contactSuccess.style.display = 'none';
+                    }, 500);
+                }, 3000);
+            }, 1500);
+        });
+    }
+    
+    // 頁面載入時自動獲取歷史數據
+    loadData();
+    
+    // 載入歷史數據按鈕事件
+    loadDataBtn.addEventListener('click', () => {
+        loadData();
+    });
+    
+    // 基本篩選事件 - 即時更新
+    regionFilter.addEventListener('change', () => {
+        filterAndRenderData();
+    });
+    
+    yearFilter.addEventListener('change', () => {
+        filterAndRenderData();
+    });
+    
+    // 科目篩選事件 - 套用按鈕觸發
+    if (chineseScoreFilter) {
+        chineseScoreFilter.addEventListener('change', () => {
+            if (advancedFiltersContainer.classList.contains('active')) {
+                // 已展開進階篩選時不自動更新，等用戶點套用按鈕
+            } else {
+                filterAndRenderData(); // 未展開時即時更新
+            }
+        });
+    }
+    
+    if (mathScoreFilter) {
+        mathScoreFilter.addEventListener('change', () => {
+            if (advancedFiltersContainer.classList.contains('active')) {
+                // 已展開進階篩選時不自動更新，等用戶點套用按鈕
+            } else {
+                filterAndRenderData(); // 未展開時即時更新
+            }
+        });
+    }
+    
+    if (englishScoreFilter) {
+        englishScoreFilter.addEventListener('change', () => {
+            if (advancedFiltersContainer.classList.contains('active')) {
+                // 已展開進階篩選時不自動更新，等用戶點套用按鈕
+            } else {
+                filterAndRenderData(); // 未展開時即時更新
+            }
+        });
+    }
+    
+    if (socialScoreFilter) {
+        socialScoreFilter.addEventListener('change', () => {
+            if (advancedFiltersContainer.classList.contains('active')) {
+                // 已展開進階篩選時不自動更新，等用戶點套用按鈕
+            } else {
+                filterAndRenderData(); // 未展開時即時更新
+            }
+        });
+    }
+    
+    if (scienceScoreFilter) {
+        scienceScoreFilter.addEventListener('change', () => {
+            if (advancedFiltersContainer.classList.contains('active')) {
+                // 已展開進階篩選時不自動更新，等用戶點套用按鈕
+            } else {
+                filterAndRenderData(); // 未展開時即時更新
+            }
+        });
+    }
+    
+    // 篩選並顯示數據
+    function filterAndRenderData() {
+        const selectedRegion = regionFilter.value;
+        const selectedYear = yearFilter.value;
+        const selectedChineseScore = chineseScoreFilter ? chineseScoreFilter.value : '';
+        const selectedMathScore = mathScoreFilter ? mathScoreFilter.value : '';
+        const selectedEnglishScore = englishScoreFilter ? englishScoreFilter.value : '';
+        const selectedSocialScore = socialScoreFilter ? socialScoreFilter.value : '';
+        const selectedScienceScore = scienceScoreFilter ? scienceScoreFilter.value : '';
+        const minRatio = minRatioFilter && minRatioFilter.value ? parseFloat(minRatioFilter.value) : null;
+        const maxRatio = maxRatioFilter && maxRatioFilter.value ? parseFloat(maxRatioFilter.value) : null;
+        const sortBy = sortByFilter ? sortByFilter.value : 'timestamp';
+        const sortOrder = sortOrderFilter ? sortOrderFilter.value : 'desc';
+        
+        // 篩選數據
+        let filteredData = currentData;
+        
+        // 基本篩選
+        if (selectedRegion) {
+            filteredData = filteredData.filter(row => row.region === selectedRegion);
+        }
+        if (selectedYear) {
+            filteredData = filteredData.filter(row => row.examYear === selectedYear);
+        }
+        
+        // 科目成績篩選
+        if (selectedChineseScore) {
+            filteredData = filteredData.filter(row => row.chineseScore === selectedChineseScore);
+        }
+        if (selectedMathScore) {
+            filteredData = filteredData.filter(row => row.mathScore === selectedMathScore);
+        }
+        if (selectedEnglishScore) {
+            filteredData = filteredData.filter(row => row.englishScore === selectedEnglishScore);
+        }
+        if (selectedSocialScore) {
+            filteredData = filteredData.filter(row => row.socialScore === selectedSocialScore);
+        }
+        if (selectedScienceScore) {
+            filteredData = filteredData.filter(row => row.scienceScore === selectedScienceScore);
+        }
+        
+        // 序位比率篩選
+        if (minRatio !== null) {
+            filteredData = filteredData.filter(row => {
+                // 若資料中有最小比率，則篩選大於等於指定最小比率的資料
+                if (row.minRatio) {
+                    return parseFloat(row.minRatio) >= minRatio;
+                }
+                return false;
+            });
+        }
+        if (maxRatio !== null) {
+            filteredData = filteredData.filter(row => {
+                // 若資料中有最大比率，則篩選小於等於指定最大比率的資料
+                if (row.maxRatio) {
+                    return parseFloat(row.maxRatio) <= maxRatio;
+                }
+                return false;
+            });
+        }
+        
+        // 排序數據
+        filteredData.sort((a, b) => {
+            let valueA, valueB;
+            
+            // 根據選擇的欄位取得排序值
+            switch (sortBy) {
+                case 'timestamp':
+                    valueA = new Date(a.timestamp || 0);
+                    valueB = new Date(b.timestamp || 0);
+                    break;
+                case 'minRatio':
+                    valueA = parseFloat(a.minRatio || 0);
+                    valueB = parseFloat(b.minRatio || 0);
+                    break;
+                case 'region':
+                    valueA = a.region || '';
+                    valueB = b.region || '';
+                    break;
+                case 'examYear':
+                    valueA = a.examYear || '';
+                    valueB = b.examYear || '';
+                    break;
+                default:
+                    valueA = a[sortBy] || 0;
+                    valueB = b[sortBy] || 0;
+            }
+            
+            // 依照排序方式排序
+            if (sortOrder === 'asc') {
+                if (valueA < valueB) return -1;
+                if (valueA > valueB) return 1;
+                return 0;
+            } else {
+                if (valueA > valueB) return -1;
+                if (valueA < valueB) return 1;
+                return 0;
+            }
+        });
+        
+        // 渲染數據表格
+        renderDataTable(filteredData);
+    }
+    
+    // 格式化成績顯示
+    function formatGrade(grade) {
+        if (!grade) return '<span style="color: #999;">-</span>';
+        const color = GRADE_COLORS[grade] || '#000000';
+        
+        // 根據不同等級增強視覺效果
+        let styles = `color: ${color}; font-weight: bold;`;
+        
+        if (grade === 'A++') {
+            styles += 'font-size: 1.1rem; text-shadow: 0 0 1px rgba(255, 77, 77, 0.3); padding: 0 2px;';
+        } else if (grade === 'A+') {
+            styles += 'font-size: 1.05rem; text-shadow: 0 0 1px rgba(255, 127, 127, 0.2);';
+        } else if (grade === 'B++' || grade === 'B+') {
+            styles += 'font-size: 1.05rem;';
+        }
+        
+        return `<span style="${styles}">${grade}</span>`;
+    }
+    
+    // 格式化日期
+    function formatDate(dateStr) {
+        try {
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return '-';
+            return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+        } catch (error) {
+            console.error('日期格式化錯誤：', error);
+            return '-';
+        }
+    }
+    
+    // 格式化比率
+    function formatRatio(min, max) {
+        if (!min && !max) return '-';
+        if (min === max) return `<span class="ratio-highlight">${min}%</span>`;
+        return `<span class="ratio-range">${min || 0}% - ${max || 0}%</span>`;
+    }
+    
+    // 格式化區間
+    function formatInterval(min, max) {
+        if (!min && !max) return '-';
+        if (min === max) return `<span class="interval-highlight">第 ${min} 名</span>`;
+        return `<span class="interval-range">第 ${min || '?'} - ${max || '?'} 名</span>`;
+    }
+    
+    // 表格滑動控制 - 簡化版
+    function initializeTableScroll() {
+        const scrollContainer = document.querySelector('.table-scroll-container');
+        const tableContainer = document.querySelector('.table-container');
+        const mobileHint = document.querySelector('.table-mobile-hint');
+        
+        // 重置容器寬度以避免頁面變形
+        tableContainer.style.width = '100%';
+        
+        // 手機上加強滑動效果
+        if (window.innerWidth <= 768) {
+            // 顯示滑動提示
+            if (mobileHint) {
+                mobileHint.style.display = 'block';
+            }
+            
+            // 啟用觸控滑動
+            let isScrolling = false;
+            let startX, startY;
+            let scrollLeft;
+            
+            scrollContainer.addEventListener('touchstart', (e) => {
+                isScrolling = true;
+                startX = e.touches[0].pageX;
+                startY = e.touches[0].pageY;
+                scrollLeft = scrollContainer.scrollLeft;
+            });
+            
+            scrollContainer.addEventListener('touchmove', (e) => {
+                if (!isScrolling) return;
+                
+                const x = e.touches[0].pageX;
+                const y = e.touches[0].pageY;
+                const walkX = x - startX;
+                const walkY = y - startY;
+                
+                // 如果水平滑動大於垂直滑動，阻止頁面滾動
+                if (Math.abs(walkX) > Math.abs(walkY)) {
+                    e.preventDefault();
+                    scrollContainer.scrollLeft = scrollLeft - walkX;
+                }
+            }, { passive: false });
+            
+            scrollContainer.addEventListener('touchend', () => {
+                isScrolling = false;
+            });
+        } else {
+            // 桌面版隱藏提示
+            if (mobileHint) {
+                mobileHint.style.display = 'none';
+            }
+        }
+    }
+    
+    // 顯示數據表格
+    function renderDataTable(data) {
+        if (!data || data.length === 0) {
+            dataTable.innerHTML = '<p>目前沒有符合條件的數據。</p>';
+            return;
+        }
+        
+        // 創建表格
+        let tableHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>時間</th>
+                        <th>區域</th>
+                        <th>會考年度</th>
+                        <th>國文</th>
+                        <th>數學</th>
+                        <th>英文</th>
+                        <th>社會</th>
+                        <th>自然</th>
+                        <th>作文</th>
+                        <th>序位比率(%)</th>
+                        <th>序位區間(名次)</th>
+                    </tr>
+                </thead>
+                <tbody>
         `;
-    });
-    
-    // 完成 HTML
-    printContent += `
-            </tbody>
-        </table>
-        <div class="print-info">
-            <p>資料來源: 會考序位分享平台 | 列印時間: ${new Date().toLocaleString()}</p>
-            <p>總計 ${data.length} 筆資料</p>
-        </div>
-    </body>
-    </html>
-    `;
-    
-    // 設置臨時窗口內容並自動執行列印
-    printWindow.document.open();
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    
-    showNotification('列印視窗已開啟');
-}
-
-// 從本地備份恢復資料
-function restoreFromLocalBackup() {
-    try {
-        const localScores = JSON.parse(localStorage.getItem('examScores')) || [];
-        scores = localScores;
-        renderScores();
-        showNotification('已從本地備份恢復資料', 'info');
-    } catch (error) {
-        showNotification('恢復本地資料失敗: ' + error.message, 'error');
+        
+        const recentData = data.slice(-50);
+        
+        recentData.forEach(row => {
+            tableHTML += `
+                <tr>
+                    <td>${formatDate(row.timestamp)}</td>
+                    <td>${row.region || '-'}</td>
+                    <td>${row.examYear || '-'}</td>
+                    <td>${formatGrade(row.chineseScore)}</td>
+                    <td>${formatGrade(row.mathScore)}</td>
+                    <td>${formatGrade(row.englishScore)}</td>
+                    <td>${formatGrade(row.socialScore)}</td>
+                    <td>${formatGrade(row.scienceScore)}</td>
+                    <td>${formatGrade(row.essayScore)}</td>
+                    <td>${formatRatio(row.minRatio, row.maxRatio)}</td>
+                    <td>${formatInterval(row.minRankInterval, row.maxRankInterval)}</td>
+                </tr>
+            `;
+        });
+        
+        tableHTML += `
+                </tbody>
+            </table>
+        `;
+        
+        dataTable.innerHTML = tableHTML;
+        
+        // 計算表格最大寬度並設置
+        setTimeout(() => {
+            // 確保表格渲染完成後再初始化滾動功能
+            initializeTableScroll();
+            
+            // 解決頁面變框問題
+            const container = document.querySelector('.container');
+            container.style.overflowX = 'hidden';
+        }, 100);
     }
-}
+    
+    // 從 Google Apps Script 獲取數據
+    async function loadData() {
+        try {
+            const loadingContainer = document.querySelector('.loading-container');
+            const tableContainer = document.querySelector('.table-container');
+            
+            loadDataBtn.disabled = true;
+            loadDataBtn.textContent = '載入中...';
+            loadingContainer.classList.add('active');
+            dataTable.style.opacity = '0.5';
+            
+            // 重置表格容器寬度，避免下載數據過程中頁面變形
+            tableContainer.style.width = '100%';
+            
+            const response = await fetch(SCRIPT_URL);
+            const data = await response.json();
+            
+            if (Array.isArray(data)) {
+                console.log('接收到的數據：', data);
+                currentData = data.map(row => {
+                    return {
+                        timestamp: row['時間戳記'] || row['timestamp'] || '',
+                        region: row['區域'] || row['region'] || '',
+                        examYear: row['會考年度'] || row['examYear'] || '',
+                        chineseScore: row['國文成績'] || row['chineseScore'] || '',
+                        mathScore: row['數學成績'] || row['mathScore'] || '',
+                        englishScore: row['英文成績'] || row['englishScore'] || '',
+                        socialScore: row['社會成績'] || row['socialScore'] || '',
+                        scienceScore: row['自然成績'] || row['scienceScore'] || '',
+                        essayScore: row['作文成績'] || row['essayScore'] || '',
+                        minRatio: row['全區序位最小比率(%)'] || row['minRatio'] || '',
+                        maxRatio: row['全區序位最大比率(%)'] || row['maxRatio'] || '',
+                        minRankInterval: row['全區序位最小區間'] || row['minRankInterval'] || '',
+                        maxRankInterval: row['全區序位最大區間'] || row['maxRankInterval'] || ''
+                    };
+                });
+                
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                filterAndRenderData();
+                
+                loadingContainer.classList.remove('active');
+                dataTable.style.opacity = '1';
+                loadDataBtn.disabled = false;
+                loadDataBtn.textContent = '重新載入數據';
+            } else {
+                throw new Error('數據格式不正確');
+            }
+        } catch (error) {
+            console.error('載入數據時出錯：', error);
+            alert('載入數據時出錯，請稍後再試！');
+            const loadingContainer = document.querySelector('.loading-container');
+            loadingContainer.classList.remove('active');
+            dataTable.style.opacity = '1';
+            loadDataBtn.disabled = false;
+            loadDataBtn.textContent = '載入歷史數據';
+        }
+    }
 
-// 在控制台中顯示版本資訊
-console.log('會考序位分享平台 v1.2.0 - 已升級為雲端儲存'); 
+    // 選單控制
+    function toggleMenu() {
+        menuToggle.classList.toggle('active');
+        fullscreenMenu.classList.toggle('active');
+        
+        // 控制頁面滾動
+        if (fullscreenMenu.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // 選單開關事件
+    menuToggle.addEventListener('click', toggleMenu);
+    
+    // 點擊選單項目
+    const menuItems = document.querySelectorAll('.menu-items a');
+    menuItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            // 如果是正在開發中的功能，阻止預設行為
+            if (!item.getAttribute('href') || item.getAttribute('href') === '#') {
+                e.preventDefault();
+            }
+            
+            // 移除所有項目的 active 類別
+            menuItems.forEach(i => i.classList.remove('active'));
+            
+            // 添加當前項目的 active 類別
+            item.classList.add('active');
+            
+            // 在手機版中點擊後關閉選單
+            if (window.innerWidth <= 768) {
+                toggleMenu();
+            }
+        });
+    });
+}); 

@@ -1,95 +1,119 @@
-# 會考序位分享平台
+# 113學年度會考成績數據查詢
 
-這是一個網頁應用程式，用於分享和比較國中教育會考成績和序位資訊，支援雲端資料儲存。
+這是一個前端應用程序，用於顯示 113學年度會考成績的歷史數據，並與 Google Apps Script 後端整合。
 
-## 功能特色
+## 功能
 
-- 分享您的會考成績和序位資訊
-- 依照不同區域分類資料
-- 使用 Google App Script 雲端儲存資料
-- 查看其他人分享的成績資料
-- 搜尋特定條件的成績資料
-- 依照不同欄位排序資料
-- 多格式匯出 (JSON、CSV、Excel)
-- 資料列印功能
-- 響應式設計，適合各種裝置使用
+- 自動載入並顯示歷史會考成績數據
+- 支援手動重新載入數據
+- 清晰展示各科目成績和序位資訊
 
-## 如何使用
+## 設置步驟
 
-1. 開啟 `index.html` 檔案在瀏覽器中運行本應用
-2. 選擇您的區域和填寫會考成績及序位資訊
-3. 點擊「分享成績」按鈕提交資料
-4. 您可以在下方表格中看到所有分享的資料
-5. 使用搜尋欄位或排序功能快速找到您需要的資訊
-6. 點擊「匯出資料」可選擇多種格式匯出或列印資料
+### 1. 部署 Google Apps Script
 
-## 資料欄位說明
+1. 登入您的 Google 帳戶並前往 [Google Apps Script](https://script.google.com/)
+2. 創建一個新專案
+3. 將以下代碼貼到編輯器中：
 
-- **區域**：基北區、桃連區、竹苗區、中投區、雲林區、彰化區、嘉義區、台南區、高雄區、屏東區、宜蘭區、花蓮區、澎湖區、金門區
-- **國文成績**：A++, A+, A, B++, B+, B, C
-- **數學成績**：A++, A+, A, B++, B+, B, C
-- **英文成績**：A++, A+, A, B++, B+, B, C
-- **社會成績**：A++, A+, A, B++, B+, B, C
-- **自然成績**：A++, A+, A, B++, B+, B, C
-- **作文成績**：1級分 ~ 6級分
-- **全區序位最小比率(%)**：全區序位的最小百分比
-- **全區序位最小區間**：全區序位的最小區間值
-- **全區序位最大比率(%)**：全區序位的最大百分比
-- **全區序位最大區間**：全區序位的最大區間值
+```javascript
+function doGet() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  
+  var headers = data.shift(); // 取出標題列
+  var jsonArray = data.map(function(row) {
+    var obj = {};
+    for (var i = 0; i < headers.length; i++) {
+      obj[headers[i]] = row[i];
+    }
+    return obj;
+  });
+  
+  return ContentService.createTextOutput(JSON.stringify(jsonArray))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
-## 匯出與列印功能
+function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+    
+    sheet.appendRow([
+      data.timestamp,          // 時間戳記
+      data.region,             // 區域
+      data.examYear,           // 會考年度
+      data.chineseScore,       // 國文成績
+      data.mathScore,          // 數學成績
+      data.englishScore,       // 英文成績
+      data.socialScore,        // 社會成績
+      data.scienceScore,       // 自然成績
+      data.essayScore,         // 作文成績
+      data.minRatio,           // 全區序位最小比率(%)
+      data.maxRatio,           // 全區序位最大比率(%)
+      data.minRankInterval,    // 全區序位最小區間
+      data.maxRankInterval     // 全區序位最大區間
+    ]);
+    
+    return ContentService.createTextOutput(JSON.stringify({status: 'success', message: '數據已成功添加'}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({status: 'error', message: err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+```
 
-平台支援多種資料匯出格式：
+4. 創建一個 Google 試算表，並設置以下標題列：
+   - 時間戳記
+   - 區域
+   - 會考年度
+   - 國文成績
+   - 數學成績
+   - 英文成績
+   - 社會成績
+   - 自然成績
+   - 作文成績
+   - 全區序位最小比率(%)
+   - 全區序位最大比率(%)
+   - 全區序位最小區間
+   - 全區序位最大區間
 
-- **JSON 格式**：適合開發人員或進階用戶
-- **CSV 格式**：可用 Excel 或其他試算表軟體開啟
-- **Excel 格式**：直接產生 Excel 文件 (.xlsx)
-- **列印功能**：生成可列印的網頁版本
+5. 在 Apps Script 編輯器中，點選「專案設定」並將試算表的 URL 設為指令碼屬性
 
-匯出的資料會根據當前的搜尋和排序條件進行過濾。
+6. 部署 Web 應用程式：
+   - 點選「部署」>「新增部署」
+   - 選擇「網頁應用程式」
+   - 設定執行身分為「自己」
+   - 存取權限設為「任何人」
+   - 點選「部署」
 
-## 技術說明
+7. 複製生成的網頁應用程式 URL
 
-本專案使用以下技術開發：
-- HTML5
-- CSS3 (含響應式設計)
-- JavaScript (原生，無框架)
-- Google App Script (用於資料持久化)
-- Google Sheets (用於資料儲存)
-- SheetJS 庫 (用於 Excel 匯出功能)
+### 2. 設定前端
 
-## 後端設置說明
+1. 打開 `script.js` 檔案
+2. 將第 2 行的 `SCRIPT_URL` 變數值更改為您的 Google Apps Script 網頁應用程式 URL：
 
-### 設置 Google App Script 和 Google Sheets
+```javascript
+const SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+```
 
-1. 前往 [Google Drive](https://drive.google.com)
-2. 創建新的 Google 試算表，並命名為「會考序位資料庫」
-3. 複製試算表的 ID (在網址中 /d/ 之後的部分)
-4. 前往 [Google Apps Script](https://script.google.com)
-5. 創建新的 App Script 專案
-6. 將 `appscript.gs` 檔案中的代碼複製到 App Script 編輯器中
-7. 將試算表 ID 填入 `SPREADSHEET_ID` 變數
-8. 儲存並部署為網頁應用程式：
-   - 點擊「部署」→「新增部署」
-   - 選擇類型為「網頁應用程式」
-   - 執行身分：「以您的身分執行」
-   - 存取權：「任何人」
-   - 點擊「部署」
-9. 複製生成的網頁應用程式網址
-10. 將網址填入 `script.js` 文件的 `APP_SCRIPT_URL` 變數
+## 使用方法
 
-### 權限設置
+1. 開啟 `index.html` 網頁
+2. 頁面將自動載入歷史數據
+3. 若要重新載入數據，點選「重新載入數據」按鈕
 
-首次運行應用程式時，您需要授予以下權限：
-- 訪問並修改您的 Google 試算表
-- 允許外部來源向 App Script 發送請求
+## 注意事項
 
-## 隱私聲明
+- 本應用程序僅顯示已保存在 Google 試算表中的數據
+- 最多顯示最近的 50 筆數據
+- 請確保您的網絡連接正常，以便與 Google Apps Script 後端通信
 
-所有資料會儲存在您的 Google 試算表中。您可以隨時查看、編輯或刪除這些資料。請確保您了解並信任此應用程式的資料處理方式。
+## 建議的增強功能
 
-## 版本資訊
-
-- 版本: 1.3.0
-- 更新日期: 2023-07-15
-- 更新內容: 新增多格式匯出和列印功能 
+- 添加數據篩選功能（按年度、區域等）
+- 添加數據排序功能
+- 提供數據分析和視覺化功能（如圖表和統計資訊）
+- 添加分頁功能以顯示更多歷史數據 
