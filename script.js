@@ -22,6 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const regionFilter = document.getElementById('regionFilter');
     const yearFilter = document.getElementById('yearFilter');
     
+    // 搜尋相關元素
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+    const mobileSearchForm = document.getElementById('mobileSearchForm');
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    const menuSearchForm = document.getElementById('menuSearchForm');
+    const menuSearchInput = document.getElementById('menuSearchInput');
+    
     // 新增進階篩選相關元素
     const toggleAdvancedFiltersBtn = document.getElementById('toggleAdvancedFilters');
     const advancedFiltersContainer = document.getElementById('advancedFiltersContainer');
@@ -267,6 +275,105 @@ document.addEventListener('DOMContentLoaded', () => {
         loadData();
     });
     
+    // 搜尋功能實現
+    function handleSearch(searchTerm) {
+        if (!searchTerm.trim()) return;
+        
+        // 儲存原始搜尋詞以供高亮使用
+        const originalSearchTerm = searchTerm.trim();
+        searchTerm = searchTerm.toLowerCase().trim();
+        
+        // 首先嘗試尋找完全匹配的區域
+        const regionOption = Array.from(regionFilter.options).find(option => 
+            option.text.toLowerCase().includes(searchTerm));
+        
+        if (regionOption) {
+            regionFilter.value = regionOption.value;
+        }
+        
+        // 尋找成績等級 - 增強匹配
+        const gradePatterns = ['A++', 'A+', 'A', 'B++', 'B+', 'B', 'C'];
+        let matchedGrade = null;
+        
+        // 精確匹配
+        matchedGrade = gradePatterns.find(grade => 
+            grade.toLowerCase() === searchTerm);
+        
+        // 如果沒有精確匹配，嘗試模糊匹配
+        if (!matchedGrade) {
+            matchedGrade = gradePatterns.find(grade => 
+                grade.toLowerCase().includes(searchTerm) || 
+                searchTerm.includes(grade.toLowerCase()));
+        }
+        
+        if (matchedGrade) {
+            if (chineseScoreFilter) chineseScoreFilter.value = matchedGrade;
+            if (mathScoreFilter) mathScoreFilter.value = matchedGrade;
+            if (englishScoreFilter) englishScoreFilter.value = matchedGrade;
+            if (socialScoreFilter) socialScoreFilter.value = matchedGrade;
+            if (scienceScoreFilter) scienceScoreFilter.value = matchedGrade;
+            
+            // 展開進階篩選區域
+            if (advancedFiltersContainer && !advancedFiltersContainer.classList.contains('active')) {
+                toggleAdvancedFiltersBtn.click();
+            }
+        }
+        
+        // 尋找年份 - 增強匹配
+        if (/^(111|112|113)$/.test(searchTerm) || searchTerm.includes('111') || 
+            searchTerm.includes('112') || searchTerm.includes('113')) {
+            const yearMatch = searchTerm.match(/(111|112|113)/);
+            if (yearMatch) {
+                yearFilter.value = yearMatch[0];
+            }
+        }
+        
+        // 執行篩選
+        filterAndRenderData(originalSearchTerm);
+        
+        // 清空其他搜尋框
+        const currentSearchForm = document.activeElement.closest('form');
+        if (currentSearchForm !== searchForm && searchInput) {
+            searchInput.value = originalSearchTerm;
+        }
+        if (currentSearchForm !== mobileSearchForm && mobileSearchInput) {
+            mobileSearchInput.value = originalSearchTerm;
+        }
+        if (currentSearchForm !== menuSearchForm && menuSearchInput) {
+            menuSearchInput.value = originalSearchTerm;
+        }
+        
+        // 滾動到結果區域
+        document.querySelector('.historical-data').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // 處理搜尋表單提交
+    if (searchForm) {
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleSearch(searchInput.value);
+        });
+    }
+    
+    if (mobileSearchForm) {
+        mobileSearchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleSearch(mobileSearchInput.value);
+        });
+    }
+    
+    if (menuSearchForm) {
+        menuSearchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleSearch(menuSearchInput.value);
+            
+            // 關閉選單
+            if (fullscreenMenu.classList.contains('active')) {
+                toggleMenu();
+            }
+        });
+    }
+    
     // 基本篩選事件 - 即時更新
     regionFilter.addEventListener('change', () => {
         filterAndRenderData();
@@ -327,8 +434,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // 篩選並顯示數據
-    function filterAndRenderData() {
+    // 更新篩選和渲染函數以支援搜尋高亮
+    function filterAndRenderData(searchTerm = '') {
+        // 原有的篩選邏輯保持不變
         const selectedRegion = regionFilter.value;
         const selectedYear = yearFilter.value;
         const selectedChineseScore = chineseScoreFilter ? chineseScoreFilter.value : '';
@@ -428,12 +536,134 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // 渲染數據表格
-        renderDataTable(filteredData);
+        // 渲染數據表格時傳入搜尋詞
+        renderDataTable(filteredData, searchTerm);
     }
     
-    // 格式化成績顯示
-    function formatGrade(grade) {
+    // 顯示數據表格
+    function renderDataTable(data, searchTerm = '') {
+        if (!data || data.length === 0) {
+            dataTable.innerHTML = '<p>目前沒有符合條件的數據。</p>';
+            return;
+        }
+        
+        // 搜尋詞轉小寫以便匹配
+        const searchTermLower = searchTerm.toLowerCase();
+        
+        // 高亮文本函數
+        function highlightText(text, term) {
+            if (!term || !text) return text;
+            
+            // 防止HTML注入
+            const safeText = String(text).replace(/[&<>"']/g, char => {
+                switch (char) {
+                    case '&': return '&amp;';
+                    case '<': return '&lt;';
+                    case '>': return '&gt;';
+                    case '"': return '&quot;';
+                    case "'": return '&#39;';
+                    default: return char;
+                }
+            });
+            
+            if (!term.trim()) return safeText;
+            
+            // 不區分大小寫搜尋
+            const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return safeText.replace(regex, '<span class="highlight-match">$1</span>');
+        }
+        
+        // 顯示結果數量
+        let resultCountHTML = '';
+        if (searchTerm || regionFilter.value || yearFilter.value || 
+            (chineseScoreFilter && chineseScoreFilter.value) ||
+            (mathScoreFilter && mathScoreFilter.value) ||
+            (englishScoreFilter && englishScoreFilter.value) ||
+            (socialScoreFilter && socialScoreFilter.value) ||
+            (scienceScoreFilter && scienceScoreFilter.value)) {
+            
+            resultCountHTML = `
+                <div class="search-results-info">
+                    <i class="fas fa-search"></i> 找到 <strong>${data.length}</strong> 筆符合的資料
+                    ${searchTerm ? `<span>搜尋：<strong>"${searchTerm}"</strong></span>` : ''}
+                </div>
+            `;
+        }
+        
+        // 創建表格
+        let tableHTML = `
+            ${resultCountHTML}
+            <table>
+                <thead>
+                    <tr>
+                        <th>時間</th>
+                        <th>區域</th>
+                        <th>會考年度</th>
+                        <th>國文</th>
+                        <th>數學</th>
+                        <th>英文</th>
+                        <th>社會</th>
+                        <th>自然</th>
+                        <th>作文</th>
+                        <th>序位比率(%)</th>
+                        <th>序位區間(名次)</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        const recentData = data.slice(-50);
+        
+        recentData.forEach(row => {
+            // 高亮處理區域和年份
+            const highlightedRegion = searchTerm ? highlightText(row.region, searchTermLower) : (row.region || '-');
+            const highlightedYear = searchTerm ? highlightText(row.examYear, searchTermLower) : (row.examYear || '-');
+            
+            // 高亮處理各科目成績
+            const chineseScoreDisplay = formatGrade(row.chineseScore, searchTerm);
+            const mathScoreDisplay = formatGrade(row.mathScore, searchTerm);
+            const englishScoreDisplay = formatGrade(row.englishScore, searchTerm);
+            const socialScoreDisplay = formatGrade(row.socialScore, searchTerm);
+            const scienceScoreDisplay = formatGrade(row.scienceScore, searchTerm);
+            const essayScoreDisplay = formatGrade(row.essayScore, searchTerm);
+            
+            tableHTML += `
+                <tr>
+                    <td>${formatDate(row.timestamp)}</td>
+                    <td>${highlightedRegion}</td>
+                    <td>${highlightedYear}</td>
+                    <td>${chineseScoreDisplay}</td>
+                    <td>${mathScoreDisplay}</td>
+                    <td>${englishScoreDisplay}</td>
+                    <td>${socialScoreDisplay}</td>
+                    <td>${scienceScoreDisplay}</td>
+                    <td>${essayScoreDisplay}</td>
+                    <td>${formatRatio(row.minRatio, row.maxRatio, searchTerm)}</td>
+                    <td>${formatInterval(row.minRankInterval, row.maxRankInterval, searchTerm)}</td>
+                </tr>
+            `;
+        });
+        
+        tableHTML += `
+                </tbody>
+            </table>
+        `;
+        
+        dataTable.innerHTML = tableHTML;
+        
+        // 計算表格最大寬度並設置
+        setTimeout(() => {
+            // 確保表格渲染完成後再初始化滾動功能
+            initializeTableScroll();
+            
+            // 解決頁面變框問題
+            const container = document.querySelector('.container');
+            container.style.overflowX = 'hidden';
+        }, 100);
+    }
+    
+    // 格式化成績顯示 - 支援高亮
+    function formatGrade(grade, searchTerm = '') {
         if (!grade) return '<span style="color: #999;">-</span>';
         const color = GRADE_COLORS[grade] || '#000000';
         
@@ -446,6 +676,11 @@ document.addEventListener('DOMContentLoaded', () => {
             styles += 'font-size: 1.05rem; text-shadow: 0 0 1px rgba(255, 127, 127, 0.2);';
         } else if (grade === 'B++' || grade === 'B+') {
             styles += 'font-size: 1.05rem;';
+        }
+        
+        // 搜尋高亮處理
+        if (searchTerm && grade.toLowerCase().includes(searchTerm.toLowerCase())) {
+            return `<span style="${styles}" class="highlight-match">${grade}</span>`;
         }
         
         return `<span style="${styles}">${grade}</span>`;
@@ -463,18 +698,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // 格式化比率
-    function formatRatio(min, max) {
+    // 格式化比率 - 支援高亮
+    function formatRatio(min, max, searchTerm = '') {
         if (!min && !max) return '-';
-        if (min === max) return `<span class="ratio-highlight">${min}%</span>`;
-        return `<span class="ratio-range">${min || 0}% - ${max || 0}%</span>`;
+        
+        let content = '';
+        if (min === max) {
+            content = `<span class="ratio-highlight">${min}%</span>`;
+        } else {
+            content = `<span class="ratio-range">${min || 0}% - ${max || 0}%</span>`;
+        }
+        
+        // 搜尋高亮處理
+        if (searchTerm && (String(min).includes(searchTerm) || String(max).includes(searchTerm))) {
+            return `<span class="highlight-container">${content}</span>`;
+        }
+        
+        return content;
     }
     
-    // 格式化區間
-    function formatInterval(min, max) {
+    // 格式化區間 - 支援高亮
+    function formatInterval(min, max, searchTerm = '') {
         if (!min && !max) return '-';
-        if (min === max) return `<span class="interval-highlight">第 ${min} 名</span>`;
-        return `<span class="interval-range">第 ${min || '?'} - ${max || '?'} 名</span>`;
+        
+        let content = '';
+        if (min === max) {
+            content = `<span class="interval-highlight">第 ${min} 名</span>`;
+        } else {
+            content = `<span class="interval-range">第 ${min || '?'} - ${max || '?'} 名</span>`;
+        }
+        
+        // 搜尋高亮處理
+        if (searchTerm && (String(min).includes(searchTerm) || String(max).includes(searchTerm))) {
+            return `<span class="highlight-container">${content}</span>`;
+        }
+        
+        return content;
     }
     
     // 表格滑動控制 - 簡化版
@@ -529,72 +788,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 mobileHint.style.display = 'none';
             }
         }
-    }
-    
-    // 顯示數據表格
-    function renderDataTable(data) {
-        if (!data || data.length === 0) {
-            dataTable.innerHTML = '<p>目前沒有符合條件的數據。</p>';
-            return;
-        }
-        
-        // 創建表格
-        let tableHTML = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>時間</th>
-                        <th>區域</th>
-                        <th>會考年度</th>
-                        <th>國文</th>
-                        <th>數學</th>
-                        <th>英文</th>
-                        <th>社會</th>
-                        <th>自然</th>
-                        <th>作文</th>
-                        <th>序位比率(%)</th>
-                        <th>序位區間(名次)</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-        
-        const recentData = data.slice(-50);
-        
-        recentData.forEach(row => {
-            tableHTML += `
-                <tr>
-                    <td>${formatDate(row.timestamp)}</td>
-                    <td>${row.region || '-'}</td>
-                    <td>${row.examYear || '-'}</td>
-                    <td>${formatGrade(row.chineseScore)}</td>
-                    <td>${formatGrade(row.mathScore)}</td>
-                    <td>${formatGrade(row.englishScore)}</td>
-                    <td>${formatGrade(row.socialScore)}</td>
-                    <td>${formatGrade(row.scienceScore)}</td>
-                    <td>${formatGrade(row.essayScore)}</td>
-                    <td>${formatRatio(row.minRatio, row.maxRatio)}</td>
-                    <td>${formatInterval(row.minRankInterval, row.maxRankInterval)}</td>
-                </tr>
-            `;
-        });
-        
-        tableHTML += `
-                </tbody>
-            </table>
-        `;
-        
-        dataTable.innerHTML = tableHTML;
-        
-        // 計算表格最大寬度並設置
-        setTimeout(() => {
-            // 確保表格渲染完成後再初始化滾動功能
-            initializeTableScroll();
-            
-            // 解決頁面變框問題
-            const container = document.querySelector('.container');
-            container.style.overflowX = 'hidden';
-        }, 100);
     }
     
     // 從 Google Apps Script 獲取數據

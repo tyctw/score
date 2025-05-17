@@ -3,19 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全國會考序位分享</title>
+    <title>114學年度會考成績序位查詢與分析系統 | 全國會考序位分享</title>
+    <meta name="description" content="114學年度國中教育會考成績數據分析與查詢系統，提供各區域會考成績統計、序位比率、區間分析，免費查詢落點與成績評估。">
+    <meta name="keywords" content="114會考,會考成績,會考序位比率,會考落點分析,國中會考,會考A++,會考成績查詢,教育會考,會考區間,升學資訊,基北區會考,桃連區會考,113年會考,112年會考">
+    <meta name="author" content="全國會考序位分享">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tyctw.github.io/score/">
+    
+    <!-- Google 搜尋引擎優化 -->
+    <meta name="google-site-verification" content="your-verification-code">
+    
+    <!-- 在搜尋結果中顯示此頁面時的標籤 -->
+    <meta name="msvalidate.01" content="your-bing-verification-code">
+    <meta name="baidu-site-verification" content="your-baidu-verification-code">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tyctw.github.io/score/">
+    <meta property="og:title" content="全國會考序位分享 | 113學年度會考成績數據查詢系統">
+    <meta property="og:description" content="提供國中會考成績數據分析，快速查詢各區域序位比率與區間分析，協助落點選校。">
+    <meta property="og:image" content="https://img.freepik.com/free-vector/college-entrance-exam-concept-illustration_114360-12973.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://tyctw.github.io/score/">
+    <meta property="twitter:title" content="全國會考序位分享 | 114學年度會考成績數據查詢系統">
+    <meta property="twitter:description" content="提供國中會考成績數據分析，快速查詢各區域序位比率與區間分析，協助落點選校。">
+    <meta property="twitter:image" content="https://img.freepik.com/free-vector/college-entrance-exam-concept-illustration_114360-12973.jpg">
+    
+    <!-- 標準網站圖示 -->
+    <link rel="icon" type="image/png" href="https://img.icons8.com/color/48/000000/graduation-cap.png">
+    
+    <!-- 網站樣式和字體 -->
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- 結構化數據標記 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "全國會考序位分享",
+      "url": "https://tyctw.github.io/score/",
+      "description": "提供113學年度國中教育會考成績數據分析，包含序位比率與區間查詢功能",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "TWD"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "全國會考序位分享",
+        "email": "tyctw.analyze@gmail.com"
+      }
+    }
+    </script>
 </head>
 <body>
     <header class="main-header">
         <nav class="nav-container">
             <div class="logo">
                 <i class="fas fa-graduation-cap"></i>
-                <span>會考成績查詢系統</span>
+                <span>全國會考序位分享</span>
             </div>
+            
+            <!-- 添加搜尋框 -->
+            <div class="search-container">
+                <form id="searchForm" class="search-form">
+                    <input type="text" id="searchInput" placeholder="搜尋成績數據（如：A++, 基北區...）" aria-label="搜尋">
+                    <button type="submit" aria-label="搜尋按鈕">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            
             <button class="menu-toggle" aria-label="開啟選單">
                 <div class="menu-toggle-bars">
                     <span></span>
@@ -31,6 +96,16 @@
                             <i class="fas fa-graduation-cap"></i>
                             <span>全國會考序位分享</span>
                         </div>
+                    </div>
+                    
+                    <!-- 選單中的搜尋表單 -->
+                    <div class="menu-search">
+                        <form id="menuSearchForm" class="search-form">
+                            <input type="text" id="menuSearchInput" placeholder="搜尋成績數據（如：A++, 基北區...）" aria-label="搜尋">
+                            <button type="submit" aria-label="搜尋按鈕">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
                     </div>
                     
                     <div class="menu-categories">
@@ -97,9 +172,7 @@
                     
                     <div class="menu-footer">
                         <div class="social-links">
-                            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="https://www.instagram.com/114.rcpet/" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
                         </div>
                         <div class="version-info">版本 1.0.0</div>
                     </div>
@@ -108,8 +181,18 @@
         </nav>
     </header>
 
+    <!-- 移動版搜尋欄 -->
+    <div class="mobile-search-container">
+        <form id="mobileSearchForm" class="search-form">
+            <input type="text" id="mobileSearchInput" placeholder="搜尋成績數據（如：A++, 基北區...）" aria-label="搜尋">
+            <button type="submit" aria-label="搜尋按鈕">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+    </div>
+
     <div class="container">
-        <h1>全國會考序位分享</h1>
+        <h1>全國會考序位分享平台</h1>
         
         <div class="action-buttons">
             <a href="https://forms.gle/d8Uz8riHQ5ktJpCu7" target="_blank" class="contribute-btn">
@@ -146,6 +229,7 @@
                     <label for="yearFilter">年度</label>
                     <select id="yearFilter">
                         <option value="">全部年度</option>
+                        <option value="113">114年</option>
                         <option value="113">113年</option>
                         <option value="112">112年</option>
                         <option value="111">111年</option>
@@ -287,7 +371,7 @@
                         <a href="https://rcpett.vercel.app/" target="_blank" class="ad-btn">立即查詢</a>
                     </div>
                     <div class="ad-image">
-                        <img src="https://img.freepik.com/free-vector/college-entrance-exam-concept-illustration_114360-12973.jpg" alt="會考落點分析" class="ad-img">
+                        <img src="https://tyctw.github.io/apple-touch-icon.png" alt="會考落點分析" class="ad-img">
                     </div>
                 </div>
                 <div class="ad-label">廣告</div>
@@ -321,7 +405,7 @@
         <div class="footer-content">
             <div class="footer-section">
                 <h3>關於我們</h3>
-                <p>會考成績查詢系統提供學生及家長快速查詢及分析會考序位的平台。</p>
+                <p>全國會考序位分享提供學生及家長快速查詢及分析會考成績數據的平台。</p>
             </div>
             <div class="footer-section">
                 <h3>聯絡資訊</h3>
@@ -352,7 +436,7 @@
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <h3>如何使用會考成績查詢系統</h3>
+                <h3>如何使用全國會考序位分享</h3>
                 <div class="guide-section">
                     <h4><i class="fas fa-filter"></i> 篩選數據</h4>
                     <p>您可以透過頁面上方的篩選條件區域，選擇特定的區域和年度來過濾資料。</p>

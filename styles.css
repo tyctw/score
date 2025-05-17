@@ -290,57 +290,71 @@ td:nth-child(7), td:nth-child(8), td:nth-child(9) {
 
 /* 特定欄位寬度設定 */
 th:nth-child(10), td:nth-child(10) {  /* 序位比率欄 */
-    min-width: 120px;
-    background-color: rgba(44, 62, 80, 0.02);
-    border-left: 2px solid rgba(44, 62, 80, 0.3);
+    background-color: #0d47a1;
+    color: #ffeb3b;
+    border-left: 1px solid rgba(225, 232, 237, 0.5);
+    font-weight: 600;
 }
 
 th:nth-child(11), td:nth-child(11) {  /* 序位區間欄 */
-    min-width: 150px;
-    background-color: rgba(52, 73, 94, 0.04);
-}
-
-/* 序位資訊欄強調顯示 */
-td:nth-child(10), td:nth-child(11) {
-    text-align: center;
+    background-color: #0d47a1;
+    color: #ffeb3b;
+    border-left: 1px solid rgba(225, 232, 237, 0.5);
     font-weight: 600;
-    color: #2c3e50;
 }
 
-/* 比率和區間的高亮樣式 */
+/* 序位欄位單元格樣式 */
+td:nth-child(10), td:nth-child(11) {
+    background-color: #fff8e1;
+    color: #333;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    font-weight: 500;
+}
+
+/* 序位比率高亮樣式 */
 .ratio-highlight {
-    color: #2c3e50;
+    display: inline-block;
+    background-color: #fff176;
+    border-radius: 4px;
+    padding: 3px 8px;
+    color: #d84315;
     font-weight: 700;
-    font-size: 1.05rem;
-    background-color: rgba(255, 235, 59, 0.2);
-    padding: 2px 8px;
-    border-radius: 20px;
-    border: 1px solid rgba(44, 62, 80, 0.2);
+    font-size: 0.95rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* 序位比率範圍樣式 */
 .ratio-range {
-    color: #2c3e50;
-    background-color: rgba(255, 235, 59, 0.1);
-    padding: 2px 8px;
+    display: inline-block;
+    background-color: #fff9c4;
     border-radius: 4px;
-    border: 1px solid rgba(44, 62, 80, 0.1);
+    padding: 3px 8px;
+    font-weight: 600;
+    color: #e65100;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* 序位區間高亮樣式 */
 .interval-highlight {
-    color: #34495e;
+    display: inline-block;
+    background-color: #ffd54f;
+    border-radius: 4px;
+    padding: 3px 8px;
+    color: #bf360c;
     font-weight: 700;
-    background-color: rgba(255, 235, 59, 0.2);
-    padding: 2px 8px;
-    border-radius: 20px;
-    border: 1px solid rgba(52, 73, 94, 0.2);
+    font-size: 0.95rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* 序位區間範圍樣式 */
 .interval-range {
-    color: #34495e;
-    background-color: rgba(255, 235, 59, 0.1);
-    padding: 2px 8px;
+    display: inline-block;
+    background-color: #ffe082;
     border-radius: 4px;
-    border: 1px solid rgba(52, 73, 94, 0.1);
+    padding: 3px 8px;
+    font-weight: 600;
+    color: #e65100;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* 成績等級的樣式 */
@@ -640,6 +654,36 @@ button:disabled::after {
     flex-direction: column;
     gap: 3rem;
     margin: auto;
+}
+
+/* 選單搜尋框樣式 */
+.menu-search {
+    margin: 0.5rem 0 1.5rem;
+    width: 100%;
+}
+
+.menu-search .search-form {
+    height: 48px;
+}
+
+.menu-search .search-form input {
+    border-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1rem;
+    padding-left: 1.2rem;
+}
+
+.menu-search .search-form input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.menu-search .search-form button {
+    width: 40px;
+    height: 40px;
+    right: 4px;
+    top: 4px;
+    background-color: var(--menu-hover);
 }
 
 .menu-header {
@@ -1046,13 +1090,15 @@ button:disabled::after {
 
 /* 表格容器 */
 .table-container {
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border-radius: 10px;
     position: relative;
     max-width: 100%;
     overflow: hidden;
     width: 100%;
     transition: all 0.3s ease;
+    background-color: white;
+    border: 1px solid rgba(225, 232, 237, 0.8);
 }
 
 /* 表格滾動容器 */
@@ -1097,73 +1143,64 @@ table {
     border: 1px solid rgba(225, 232, 237, 0.6);
 }
 
-/* 修復手機模式下的表格顯示問題 */
-@media screen and (max-width: 768px) {
-    .table-container {
-        position: relative;
-        overflow: hidden;
-        border-radius: 10px;
-        transition: all 0.3s ease-out;
-        width: 100%;
-        max-width: 100%;
-    }
-    
-    .table-scroll-container {
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 5px;
-        transition: background-color 0.3s ease;
-        max-width: 100%;
-        background-color: rgba(245, 247, 250, 0.5);
-    }
-    
-    table {
-        table-layout: auto;
-        min-width: 100%;
-        border: none;
-        box-shadow: none;
-    }
-    
-    /* 移除可能導致溢出的樣式 */
-    th, td {
-        white-space: nowrap;
-        padding: 0.8rem 1rem;
-        font-size: 0.9rem;
-    }
-    
-    th {
-        padding: 1rem;
-        font-size: 0.9rem;
-    }
-    
-    /* 強化表格邊線 */
-    td {
-        border-bottom: 1px solid rgba(225, 232, 237, 0.8);
-    }
-    
-    /* 防止容器溢出 */
-    .historical-data {
-        max-width: 100%;
-        overflow: hidden;
-    }
-    
-    /* 優化移動端序位資訊顯示 */
-    .ratio-highlight, .ratio-range, 
-    .interval-highlight, .interval-range {
-        padding: 1px 4px;
-        font-size: 0.9rem;
-    }
+/* 表頭樣式 */
+th {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(to bottom, #3a7bd5, #2b5876);
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    padding: 1.2rem 1rem;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #2b5876;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    transition: all 0.2s ease;
 }
 
-/* 確保整個頁面容器不會溢出 */
-.container {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 2rem;
-    flex: 1;
-    position: relative;
-    z-index: 1;
-    overflow-x: hidden;
-    width: 100%;
+/* 表格單元格樣式 */
+td {
+    padding: 1rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(225, 232, 237, 0.7);
+    transition: all 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+/* 表格斑馬紋樣式 */
+tr:nth-child(even) {
+    background-color: rgba(245, 247, 250, 0.7);
+}
+
+tr:nth-child(even) td {
+    background-color: rgba(245, 247, 250, 0.7);
+}
+
+/* 表格行懸停效果 */
+tr:hover {
+    background-color: rgba(230, 242, 255, 0.5);
+}
+
+tr:hover td {
+    background-color: rgba(230, 242, 255, 0.8);
+    box-shadow: inset 0 0 0 1px rgba(74, 144, 226, 0.2);
+}
+
+/* 表格行鼠標懸停時序位欄位效果增強 */
+tr:hover td:nth-child(10), tr:hover td:nth-child(11) {
+    background-color: rgba(255, 248, 225, 0.9);
+    box-shadow: inset 0 0 0 1px rgba(255, 193, 7, 0.3);
+}
+
+/* 成績欄位樣式 */
+td:nth-child(4), td:nth-child(5), td:nth-child(6), 
+td:nth-child(7), td:nth-child(8), td:nth-child(9) {
+    font-weight: 600;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
 }
 
 /* 添加表格滾動提示樣式 */
@@ -1724,4 +1761,209 @@ body {
     .advanced-filters {
         padding: 1rem;
     }
+}
+
+/* 搜尋框樣式 */
+.search-container {
+    margin: 0 1.5rem;
+    flex: 1;
+    max-width: 500px;
+    display: none; /* 在桌面版顯示，手機版隱藏 */
+}
+
+@media screen and (min-width: 992px) {
+    .search-container {
+        display: block;
+    }
+}
+
+.search-form {
+    display: flex;
+    position: relative;
+    height: 40px;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    padding-right: 40px;
+    border: 2px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.search-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.search-form button {
+    position: absolute;
+    right: 3px;
+    top: 3px;
+    width: 34px;
+    height: 34px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.search-form button:hover {
+    background-color: var(--hover-color);
+    transform: scale(1.05);
+}
+
+/* 全螢幕選單中的搜尋框 */
+.fullscreen-menu .search-form {
+    margin: 1rem 0;
+    width: 100%;
+}
+
+/* 移動版搜尋 */
+.mobile-search-container {
+    display: none;
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.95);
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+@media screen and (max-width: 991px) {
+    .mobile-search-container {
+        display: block;
+    }
+}
+
+/* 搜尋結果數量顯示 */
+.search-results-info {
+    margin-bottom: 1rem;
+    padding: 0.8rem 1.2rem;
+    background-color: rgba(74, 144, 226, 0.1);
+    border-radius: 8px;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    border-left: 3px solid var(--primary-color);
+}
+
+.search-results-info i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.search-results-info strong {
+    font-weight: 700;
+    margin: 0 0.3rem;
+}
+
+/* 高亮搜尋匹配文字 */
+.highlight-match {
+    background-color: #ffeb3b;
+    padding: 0 3px;
+    border-radius: 3px;
+    font-weight: bold !important;
+    color: #bf360c !important;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: inline-block;
+    animation: highlightPulse 2s infinite;
+}
+
+/* 高亮容器 */
+.highlight-container {
+    border: 2px dashed #ffc107;
+    padding: 2px;
+    border-radius: 5px;
+    display: inline-block;
+    box-shadow: 0 0 5px rgba(255, 193, 7, 0.3);
+}
+
+/* 高亮動畫效果 */
+@keyframes highlightPulse {
+    0% { background-color: #ffeb3b; }
+    50% { background-color: #fff9c4; }
+    100% { background-color: #ffeb3b; }
+}
+
+/* 修復手機模式下的表格顯示問題 */
+@media screen and (max-width: 768px) {
+    .table-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+        transition: all 0.3s ease-out;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .table-scroll-container {
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 5px;
+        transition: background-color 0.3s ease;
+        max-width: 100%;
+        background-color: rgba(245, 247, 250, 0.5);
+    }
+    
+    table {
+        table-layout: auto;
+        min-width: 800px;
+        border: none;
+        box-shadow: none;
+    }
+    
+    /* 移除可能導致溢出的樣式 */
+    th, td {
+        white-space: nowrap;
+        padding: 0.8rem 0.6rem;
+        font-size: 0.85rem;
+    }
+    
+    th {
+        padding: 1rem 0.7rem;
+        font-size: 0.85rem;
+    }
+    
+    /* 強化表格邊線 */
+    td {
+        border-bottom: 1px solid rgba(225, 232, 237, 0.8);
+    }
+    
+    /* 防止容器溢出 */
+    .historical-data {
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    /* 優化移動端序位資訊顯示 */
+    .ratio-highlight, .ratio-range, 
+    .interval-highlight, .interval-range {
+        padding: 2px 4px;
+        font-size: 0.85rem;
+    }
+}
+
+/* 確保整個頁面容器不會溢出 */
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    overflow-x: hidden;
+    width: 100%;
 } 
