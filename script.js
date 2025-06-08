@@ -63,6 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const contactSuccess = document.getElementById('contactSuccess');
     
     let currentData = []; // 儲存當前數據
+    let currentPage = 1;
+    const itemsPerPage = 50;
     
     // 進階篩選顯示/隱藏切換
     if (toggleAdvancedFiltersBtn && advancedFiltersContainer) {
@@ -573,7 +575,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return safeText.replace(regex, '<span class="highlight-match">$1</span>');
         }
         
-        // 顯示結果數量
+        // 計算總頁數
+        const totalPages = Math.ceil(data.length / itemsPerPage);
+        
+        // 確保當前頁碼在有效範圍內
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+        
+        // 計算當前頁的數據範圍
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, data.length);
+        const currentPageData = data.slice(startIndex, endIndex);
+        
+        // 顯示結果數量和分頁資訊
         let resultCountHTML = '';
         if (searchTerm || regionFilter.value || yearFilter.value || 
             (chineseScoreFilter && chineseScoreFilter.value) ||
@@ -586,6 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="search-results-info">
                     <i class="fas fa-search"></i> 找到 <strong>${data.length}</strong> 筆符合的資料
                     ${searchTerm ? `<span>搜尋：<strong>"${searchTerm}"</strong></span>` : ''}
+                    <span class="page-info">第 ${currentPage}/${totalPages} 頁</span>
                 </div>
             `;
         }
@@ -612,9 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <tbody>
         `;
         
-        const recentData = data.slice(-50);
-        
-        recentData.forEach(row => {
+        currentPageData.forEach(row => {
             // 高亮處理區域和年份
             const highlightedRegion = searchTerm ? highlightText(row.region, searchTermLower) : (row.region || '-');
             const highlightedYear = searchTerm ? highlightText(row.examYear, searchTermLower) : (row.examYear || '-');
@@ -644,9 +661,29 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         });
         
+        // 添加分頁控制
+        const paginationHTML = `
+            <div class="pagination">
+                <button class="page-btn" onclick="changePage(1)" ${currentPage === 1 ? 'disabled' : ''}>
+                    <i class="fas fa-angle-double-left"></i>
+                </button>
+                <button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                    <i class="fas fa-angle-left"></i>
+                </button>
+                <span class="page-info">第 ${currentPage} 頁，共 ${totalPages} 頁</span>
+                <button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    <i class="fas fa-angle-right"></i>
+                </button>
+                <button class="page-btn" onclick="changePage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    <i class="fas fa-angle-double-right"></i>
+                </button>
+            </div>
+        `;
+        
         tableHTML += `
                 </tbody>
             </table>
+            ${paginationHTML}
         `;
         
         dataTable.innerHTML = tableHTML;
@@ -886,4 +923,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // 添加換頁函數
+    window.changePage = function(newPage) {
+        currentPage = newPage;
+        filterAndRenderData();
+    };
 }); 
