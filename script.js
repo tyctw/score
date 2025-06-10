@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeAllModals();
             } else if (fullscreenMenu.classList.contains('active')) {
                 // 沒有彈窗但選單開啟，關閉選單
-                toggleMenu();
+                closeMenu();
             }
         }
     });
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 如果是從選單開啟，則同時關閉選單
             if (fullscreenMenu.classList.contains('active')) {
-                toggleMenu();
+                closeMenu();
             }
         });
     });
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 如果是從選單開啟，則同時關閉選單
             if (fullscreenMenu.classList.contains('active')) {
-                toggleMenu();
+                closeMenu();
             }
         });
     });
@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 如果是從選單開啟，則同時關閉選單
             if (fullscreenMenu.classList.contains('active')) {
-                toggleMenu();
+                closeMenu();
             }
         });
     }
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 關閉選單
             if (fullscreenMenu.classList.contains('active')) {
-                toggleMenu();
+                closeMenu();
             }
         });
     }
@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 關閉選單
             if (fullscreenMenu.classList.contains('active')) {
-                toggleMenu();
+                closeMenu();
             }
         });
     }
@@ -888,56 +888,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 選單控制
-    function toggleMenu() {
-        menuToggle.classList.toggle('active');
-        fullscreenMenu.classList.toggle('active');
-        
-        // 控制頁面滾動
-        if (fullscreenMenu.classList.contains('active')) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
+    function openMenu() {
+        fullscreenMenu.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeMenu() {
+        fullscreenMenu.classList.remove('active');
+        document.body.style.overflow = '';
     }
     
     // 選單開關事件
-    menuToggle.addEventListener('click', toggleMenu);
-    menuClose.addEventListener('click', toggleMenu);
+    menuToggle.addEventListener('click', openMenu);
+    menuClose.addEventListener('click', closeMenu);
     
     // 點擊選單外部關閉選單
     document.addEventListener('click', (e) => {
         if (fullscreenMenu.classList.contains('active') && 
             !fullscreenMenu.contains(e.target) && 
             !menuToggle.contains(e.target)) {
-            toggleMenu();
+            closeMenu();
         }
     });
 
     // ESC 鍵關閉選單
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && fullscreenMenu.classList.contains('active')) {
-            toggleMenu();
+            closeMenu();
         }
     });
     
     // 點擊選單項目
     const menuItems = document.querySelectorAll('.menu-items a');
     menuItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            // 如果是正在開發中的功能，阻止預設行為
-            if (!item.getAttribute('href') || item.getAttribute('href') === '#') {
-                e.preventDefault();
-            }
-            
-            // 移除所有項目的 active 類別
-            menuItems.forEach(i => i.classList.remove('active'));
-            
-            // 添加當前項目的 active 類別
-            item.classList.add('active');
-            
-            // 在手機版中點擊後關閉選單
+        item.addEventListener('click', () => {
+            // 如果是在手機版中，點擊後關閉選單
             if (window.innerWidth <= 768) {
-                toggleMenu();
+                closeMenu();
             }
         });
     });
