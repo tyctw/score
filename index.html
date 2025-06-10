@@ -94,8 +94,11 @@
                     <div class="menu-header">
                         <div class="menu-logo">
                             <i class="fas fa-graduation-cap"></i>
-                            <span>全國會考序位分享</span>
+                            <span>選單</span>
                         </div>
+                        <button class="menu-close" aria-label="關閉選單">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                     
                     <!-- 選單中的搜尋表單 -->
@@ -108,7 +111,7 @@
                         </form>
                     </div>
                     
-                    <div class="menu-categories">
+                    <nav class="menu-nav">
                         <div class="menu-category">
                             <h3 class="category-title">
                                 <i class="fas fa-home"></i>
@@ -117,14 +120,20 @@
                             <ul class="menu-items">
                                 <li>
                                     <a href="#" class="active">
-                                        <span class="item-title">首頁</span>
-                                        <span class="item-description">查看成績統計</span>
+                                        <i class="fas fa-chart-bar"></i>
+                                        <div class="menu-item-content">
+                                            <span class="item-title">首頁</span>
+                                            <span class="item-description">查看成績統計</span>
+                                        </div>
                                     </a>
                                 </li>
                                 <li>
                                     <a href="#">
-                                        <span class="item-title">數據分析</span>
-                                        <span class="item-description">深入分析成績</span>
+                                        <i class="fas fa-analytics"></i>
+                                        <div class="menu-item-content">
+                                            <span class="item-title">數據分析</span>
+                                            <span class="item-description">深入分析成績</span>
+                                        </div>
                                     </a>
                                 </li>
                             </ul>
@@ -138,41 +147,58 @@
                             <ul class="menu-items">
                                 <li>
                                     <a href="#">
-                                        <span class="item-title">關於系統</span>
-                                        <span class="item-description">了解更多資訊</span>
+                                        <i class="fas fa-info-circle"></i>
+                                        <div class="menu-item-content">
+                                            <span class="item-title">關於系統</span>
+                                            <span class="item-description">了解更多資訊</span>
+                                        </div>
                                     </a>
                                 </li>
                                 <li>
                                     <a href="#" class="open-usage-guide-modal">
-                                        <span class="item-title">使用說明</span>
-                                        <span class="item-description">操作指南</span>
+                                        <i class="fas fa-book"></i>
+                                        <div class="menu-item-content">
+                                            <span class="item-title">使用說明</span>
+                                            <span class="item-description">操作指南</span>
+                                        </div>
                                     </a>
                                 </li>
                                 <li>
                                     <a href="#" class="open-disclaimer-modal">
-                                        <span class="item-title">免責聲明</span>
-                                        <span class="item-description">使用條款</span>
+                                        <i class="fas fa-shield-alt"></i>
+                                        <div class="menu-item-content">
+                                            <span class="item-title">免責聲明</span>
+                                            <span class="item-description">使用條款</span>
+                                        </div>
                                     </a>
                                 </li>
                                 <li>
                                     <a href="#" id="menuContactBtn">
-                                        <span class="item-title">聯絡我們</span>
-                                        <span class="item-description">意見回饋</span>
+                                        <i class="fas fa-envelope"></i>
+                                        <div class="menu-item-content">
+                                            <span class="item-title">聯絡我們</span>
+                                            <span class="item-description">意見回饋</span>
+                                        </div>
                                     </a>
                                 </li>
                                 <li>
                                     <a href="https://rcpett.vercel.app/" target="_blank">
-                                        <span class="item-title">落點分析</span>
-                                        <span class="item-description">選擇理想學校</span>
+                                        <i class="fas fa-graduation-cap"></i>
+                                        <div class="menu-item-content">
+                                            <span class="item-title">落點分析</span>
+                                            <span class="item-description">選擇理想學校</span>
+                                        </div>
                                     </a>
                                 </li>
                             </ul>
                         </div>
-                    </div>
+                    </nav>
                     
                     <div class="menu-footer">
                         <div class="social-links">
-                            <a href="https://www.instagram.com/114.rcpet/" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="https://www.instagram.com/114.rcpet/" aria-label="Instagram" target="_blank">
+                                <i class="fab fa-instagram"></i>
+                            </a>
                         </div>
                         <div class="version-info">版本 1.0.0</div>
                     </div>

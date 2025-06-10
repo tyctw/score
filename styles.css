@@ -626,34 +626,85 @@ button:disabled::after {
 .fullscreen-menu {
     position: fixed;
     top: 0;
-    left: 0;
-    width: 100%;
+    right: -100%;  /* 初始位置在右側外部 */
+    width: 400px;  /* 固定寬度 */
     height: 100vh;
     background-color: var(--menu-bg);
     z-index: 1500;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-start;  /* 改為靠上對齊 */
+    justify-content: flex-start;  /* 改為靠左對齊 */
     visibility: hidden;
     opacity: 0;
-    transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+    transition: all 0.3s cubic-bezier(0.77, 0, 0.175, 1);
     overflow-y: auto;
-    padding: 60px 0;
+    padding: 0;  /* 移除內邊距 */
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);  /* 添加陰影效果 */
 }
 
 .fullscreen-menu.active {
+    right: 0;  /* 顯示時移動到右側邊緣 */
     visibility: visible;
     opacity: 1;
 }
 
 .menu-content-wrapper {
     width: 100%;
-    max-width: 1000px;
-    padding: 2rem;
+    height: 100%;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 3rem;
-    margin: auto;
+    gap: 2rem;
+}
+
+/* 選單頭部樣式 */
+.menu-header {
+    display: flex;
+    justify-content: space-between;  /* 改為兩端對齊 */
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--menu-text);
+}
+
+.menu-logo i {
+    font-size: 1.8rem;
+}
+
+/* 選單動畫效果 */
+@keyframes slideIn {
+    from {
+        transform: translateX(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.fullscreen-menu.active .menu-category {
+    animation: slideIn 0.3s forwards;
+}
+
+.fullscreen-menu.active .menu-category:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.fullscreen-menu.active .menu-logo {
+    animation: slideIn 0.2s forwards;
+}
+
+.fullscreen-menu.active .menu-footer {
+    animation: slideIn 0.4s forwards;
 }
 
 /* 選單搜尋框樣式 */
@@ -684,26 +735,6 @@ button:disabled::after {
     right: 4px;
     top: 4px;
     background-color: var(--menu-hover);
-}
-
-.menu-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.menu-logo {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--menu-text);
-}
-
-.menu-logo i {
-    font-size: 2.5rem;
 }
 
 .menu-categories {
@@ -741,15 +772,16 @@ button:disabled::after {
 
 .menu-items {
     list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .menu-items a {
     display: flex;
-    flex-direction: column;
-    padding: 1rem;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem 1rem;
     color: var(--menu-text);
     text-decoration: none;
     border-radius: 8px;
@@ -759,117 +791,80 @@ button:disabled::after {
 
 .menu-items a:hover {
     background-color: rgba(255, 255, 255, 0.1);
-    transform: translateY(-3px);
+    transform: translateX(5px);
 }
 
 .menu-items a.active {
     background-color: var(--menu-active);
 }
 
+.menu-items a i {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+.menu-item-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
 .item-title {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.2rem;
 }
 
 .item-description {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     opacity: 0.7;
 }
 
 .menu-footer {
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.social-links {
-    display: flex;
-    gap: 1.5rem;
 }
 
 .social-links a {
     color: var(--menu-text);
     font-size: 1.3rem;
+    opacity: 0.7;
     transition: all 0.3s ease;
 }
 
 .social-links a:hover {
-    color: var(--menu-hover);
-    transform: translateY(-3px);
+    opacity: 1;
+    transform: scale(1.1);
 }
 
 .version-info {
-    color: var(--menu-text);
-    opacity: 0.7;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    opacity: 0.5;
 }
 
 /* 響應式調整 */
 @media screen and (max-width: 768px) {
-    .menu-content-wrapper {
-        padding: 3rem 1.5rem;
-        gap: 2rem;
+    .menu-items a {
+        padding: 0.7rem;
     }
-
-    .menu-logo {
-        font-size: 1.5rem;
+    
+    .item-title {
+        font-size: 0.9rem;
     }
-
-    .menu-logo i {
-        font-size: 2rem;
+    
+    .item-description {
+        font-size: 0.75rem;
     }
-
-    .menu-items {
-        grid-template-columns: 1fr;
+    
+    .menu-close {
+        font-size: 1.3rem;
+        width: 36px;
+        height: 36px;
     }
-
-    .menu-footer {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .nav-container {
-        padding: 0.8rem 1rem;
-    }
-
-    .logo {
-        font-size: 1.2rem;
-    }
-
-    .logo i {
-        font-size: 1.5rem;
-    }
-}
-
-/* 全屏選單轉場動畫 */
-@keyframes slideDown {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.fullscreen-menu.active .menu-category {
-    animation: slideDown 0.5s forwards;
-}
-
-.fullscreen-menu.active .menu-category:nth-child(2) {
-    animation-delay: 0.1s;
-}
-
-.fullscreen-menu.active .menu-logo {
-    animation: slideDown 0.4s forwards;
-}
-
-.fullscreen-menu.active .menu-footer {
-    animation: slideDown 0.6s forwards;
 }
 
 /* 頁尾樣式 */
@@ -2162,4 +2157,47 @@ body {
     .btn-description {
         font-size: 0.75rem;
     }
+}
+
+/* 選單關閉按鈕 */
+.menu-close {
+    background: none;
+    border: none;
+    color: var(--menu-text);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+/* 選單導航樣式 */
+.menu-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.menu-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.menu-nav::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.menu-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
 } 

@@ -15,6 +15,7 @@ const GRADE_COLORS = {
 // 側邊欄控制
 document.addEventListener('DOMContentLoaded', () => {
     const menuToggle = document.querySelector('.menu-toggle');
+    const menuClose = document.querySelector('.menu-close');
     const sidebar = document.querySelector('.sidebar');
     const fullscreenMenu = document.querySelector('.fullscreen-menu');
     const loadDataBtn = document.getElementById('loadDataBtn');
@@ -901,6 +902,23 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 選單開關事件
     menuToggle.addEventListener('click', toggleMenu);
+    menuClose.addEventListener('click', toggleMenu);
+    
+    // 點擊選單外部關閉選單
+    document.addEventListener('click', (e) => {
+        if (fullscreenMenu.classList.contains('active') && 
+            !fullscreenMenu.contains(e.target) && 
+            !menuToggle.contains(e.target)) {
+            toggleMenu();
+        }
+    });
+
+    // ESC 鍵關閉選單
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && fullscreenMenu.classList.contains('active')) {
+            toggleMenu();
+        }
+    });
     
     // 點擊選單項目
     const menuItems = document.querySelectorAll('.menu-items a');
