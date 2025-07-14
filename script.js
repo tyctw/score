@@ -437,74 +437,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // 更新篩選和渲染函數以支援搜尋高亮
+    // 封裝取得多選 select 的值
+    function getMultiSelectValues(select) {
+        if (!select) return [];
+        return Array.from(select.selectedOptions).map(opt => opt.value).filter(v => v);
+    }
+
+    // 優化後的篩選與渲染
     function filterAndRenderData(searchTerm = '') {
-        // 原有的篩選邏輯保持不變
-        const selectedRegion = regionFilter.value;
-        const selectedYear = yearFilter.value;
-        const selectedChineseScore = chineseScoreFilter ? chineseScoreFilter.value : '';
-        const selectedMathScore = mathScoreFilter ? mathScoreFilter.value : '';
-        const selectedEnglishScore = englishScoreFilter ? englishScoreFilter.value : '';
-        const selectedSocialScore = socialScoreFilter ? socialScoreFilter.value : '';
-        const selectedScienceScore = scienceScoreFilter ? scienceScoreFilter.value : '';
+        // 收集所有篩選條件
+        const selectedRegions = getMultiSelectValues(regionFilter);
+        const selectedYears = getMultiSelectValues(yearFilter);
+        const selectedChineseScores = getMultiSelectValues(chineseScoreFilter);
+        const selectedMathScores = getMultiSelectValues(mathScoreFilter);
+        const selectedEnglishScores = getMultiSelectValues(englishScoreFilter);
+        const selectedSocialScores = getMultiSelectValues(socialScoreFilter);
+        const selectedScienceScores = getMultiSelectValues(scienceScoreFilter);
         const minRatio = minRatioFilter && minRatioFilter.value ? parseFloat(minRatioFilter.value) : null;
         const maxRatio = maxRatioFilter && maxRatioFilter.value ? parseFloat(maxRatioFilter.value) : null;
         const sortBy = sortByFilter ? sortByFilter.value : 'timestamp';
         const sortOrder = sortOrderFilter ? sortOrderFilter.value : 'desc';
-        
-        // 篩選數據
-        let filteredData = currentData;
-        
-        // 基本篩選
-        if (selectedRegion) {
-            filteredData = filteredData.filter(row => row.region === selectedRegion);
-        }
-        if (selectedYear) {
-            filteredData = filteredData.filter(row => row.examYear === selectedYear);
-        }
-        
-        // 科目成績篩選
-        if (selectedChineseScore) {
-            filteredData = filteredData.filter(row => row.chineseScore === selectedChineseScore);
-        }
-        if (selectedMathScore) {
-            filteredData = filteredData.filter(row => row.mathScore === selectedMathScore);
-        }
-        if (selectedEnglishScore) {
-            filteredData = filteredData.filter(row => row.englishScore === selectedEnglishScore);
-        }
-        if (selectedSocialScore) {
-            filteredData = filteredData.filter(row => row.socialScore === selectedSocialScore);
-        }
-        if (selectedScienceScore) {
-            filteredData = filteredData.filter(row => row.scienceScore === selectedScienceScore);
-        }
-        
-        // 序位比率篩選
-        if (minRatio !== null) {
-            filteredData = filteredData.filter(row => {
-                // 若資料中有最小比率，則篩選大於等於指定最小比率的資料
-                if (row.minRatio) {
-                    return parseFloat(row.minRatio) >= minRatio;
-                }
-                return false;
-            });
-        }
-        if (maxRatio !== null) {
-            filteredData = filteredData.filter(row => {
-                // 若資料中有最大比率，則篩選小於等於指定最大比率的資料
-                if (row.maxRatio) {
-                    return parseFloat(row.maxRatio) <= maxRatio;
-                }
-                return false;
-            });
-        }
-        
-        // 排序數據
+
+        // 單一 filter 處理所有條件
+        let filteredData = currentData.filter(row => {
+            // 區域多選
+            if (selectedRegions.length && !selectedRegions.includes(row.region)) return false;
+            // 年度多選
+            if (selectedYears.length && !selectedYears.includes(row.examYear)) return false;
+            // 科目多選
+            if (selectedChineseScores.length && !selectedChineseScores.includes(row.chineseScore)) return false;
+            if (selectedMathScores.length && !selectedMathScores.includes(row.mathScore)) return false;
+            if (selectedEnglishScores.length && !selectedEnglishScores.includes(row.englishScore)) return false;
+            if (selectedSocialScores.length && !selectedSocialScores.includes(row.socialScore)) return false;
+            if (selectedScienceScores.length && !selectedScienceScores.includes(row.scienceScore)) return false;
+            // 序位比率
+            if (minRatio !== null && (!row.minRatio || parseFloat(row.minRatio) < minRatio)) return false;
+            if (maxRatio !== null && (!row.maxRatio || parseFloat(row.maxRatio) > maxRatio)) return false;
+            return true;
+        });
+
+        // 排序
         filteredData.sort((a, b) => {
             let valueA, valueB;
-            
-            // 根據選擇的欄位取得排序值
             switch (sortBy) {
                 case 'timestamp':
                     valueA = new Date(a.timestamp || 0);
@@ -526,8 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     valueA = a[sortBy] || 0;
                     valueB = b[sortBy] || 0;
             }
-            
-            // 依照排序方式排序
             if (sortOrder === 'asc') {
                 if (valueA < valueB) return -1;
                 if (valueA > valueB) return 1;
@@ -538,9 +510,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 return 0;
             }
         });
-        
-        // 渲染數據表格時傳入搜尋詞
         renderDataTable(filteredData, searchTerm);
+    }
+    
+    // 進階篩選欄位變動時高亮套用按鈕
+    function highlightApplyBtn() {
+        if (applyFiltersBtn) applyFiltersBtn.classList.add('highlight');
+    }
+    function removeHighlightApplyBtn() {
+        if (applyFiltersBtn) applyFiltersBtn.classList.remove('highlight');
+    }
+
+    // 綁定多選欄位事件
+    [chineseScoreFilter, mathScoreFilter, englishScoreFilter, socialScoreFilter, scienceScoreFilter, minRatioFilter, maxRatioFilter, sortByFilter, sortOrderFilter].forEach(el => {
+        if (el) {
+            el.addEventListener('change', () => {
+                if (advancedFiltersContainer.classList.contains('active')) {
+                    highlightApplyBtn();
+                } else {
+                    filterAndRenderData();
+                }
+            });
+        }
+    });
+    // 多選區域、年度
+    [regionFilter, yearFilter].forEach(el => {
+        if (el) {
+            el.addEventListener('change', () => {
+                filterAndRenderData();
+            });
+        }
+    });
+    // 套用/重置時移除高亮
+    if (applyFiltersBtn) {
+        applyFiltersBtn.addEventListener('click', removeHighlightApplyBtn);
+    }
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', removeHighlightApplyBtn);
     }
     
     // 顯示數據表格
