@@ -64,298 +64,79 @@
     </script>
 </head>
 <body>
-    <header class="main-header">
-        <nav class="nav-container">
-            <div class="logo">
+    <!-- 導覽列 -->
+    <header class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
                 <i class="fas fa-graduation-cap"></i>
                 <span>全國會考序位分享</span>
             </div>
-            
-            <!-- 添加搜尋框 -->
-            <div class="search-container">
-                <form id="searchForm" class="search-form">
-                    <input type="text" id="searchInput" placeholder="搜尋成績數據（如：A++, 基北區...）" aria-label="搜尋">
-                    <button type="submit" aria-label="搜尋按鈕">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-            </div>
-            
-            <button class="menu-toggle" aria-label="開啟選單">
-                <div class="menu-toggle-bars">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
+            <nav class="navbar-menu">
+                <a href="#" class="active">首頁</a>
+                <a href="#filter">查詢</a>
+                <a href="#about">關於</a>
+                <a href="#contact">聯絡</a>
+            </nav>
+            <button class="navbar-toggle" aria-label="開啟選單">
+                <i class="fas fa-bars"></i>
             </button>
-            
-            <div class="fullscreen-menu">
-                <div class="menu-content-wrapper">
-                    <div class="menu-header">
-                        <div class="menu-logo">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span>選單</span>
-                        </div>
-                        <button class="menu-close" aria-label="關閉選單">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- 選單中的搜尋表單 -->
-                    <div class="menu-search">
-                        <form id="menuSearchForm" class="search-form">
-                            <input type="text" id="menuSearchInput" placeholder="搜尋成績數據（如：A++, 基北區...）" aria-label="搜尋">
-                            <button type="submit" aria-label="搜尋按鈕">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </form>
-                    </div>
-                    
-                    <nav class="menu-nav">
-                        <div class="menu-category">
-                            <h3 class="category-title">
-                                <i class="fas fa-home"></i>
-                                <span>主要功能</span>
-                            </h3>
-                            <ul class="menu-items">
-                                <li>
-                                    <a href="#" class="active">
-                                        <i class="fas fa-chart-bar"></i>
-                                        <div class="menu-item-content">
-                                            <span class="item-title">首頁</span>
-                                            <span class="item-description">查看成績統計</span>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <i class="fas fa-analytics"></i>
-                                        <div class="menu-item-content">
-                                            <span class="item-title">數據分析</span>
-                                            <span class="item-description">深入分析成績</span>
-                                        </div>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div class="menu-category">
-                            <h3 class="category-title">
-                                <i class="fas fa-info-circle"></i>
-                                <span>資訊與說明</span>
-                            </h3>
-                            <ul class="menu-items">
-                                <li>
-                                    <a href="#">
-                                        <i class="fas fa-info-circle"></i>
-                                        <div class="menu-item-content">
-                                            <span class="item-title">關於系統</span>
-                                            <span class="item-description">了解更多資訊</span>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="open-usage-guide-modal">
-                                        <i class="fas fa-book"></i>
-                                        <div class="menu-item-content">
-                                            <span class="item-title">使用說明</span>
-                                            <span class="item-description">操作指南</span>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="open-disclaimer-modal">
-                                        <i class="fas fa-shield-alt"></i>
-                                        <div class="menu-item-content">
-                                            <span class="item-title">免責聲明</span>
-                                            <span class="item-description">使用條款</span>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" id="menuContactBtn">
-                                        <i class="fas fa-envelope"></i>
-                                        <div class="menu-item-content">
-                                            <span class="item-title">聯絡我們</span>
-                                            <span class="item-description">意見回饋</span>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="https://rcpett.vercel.app/" target="_blank">
-                                        <i class="fas fa-graduation-cap"></i>
-                                        <div class="menu-item-content">
-                                            <span class="item-title">落點分析</span>
-                                            <span class="item-description">選擇理想學校</span>
-                                        </div>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </nav>
-                    
-                    <div class="menu-footer">
-                        <div class="social-links">
-                            <a href="https://www.instagram.com/114.rcpet/" aria-label="Instagram" target="_blank">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                        </div>
-                        <div class="version-info">版本 1.0.0</div>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <!-- 移動版搜尋欄 -->
-    <div class="mobile-search-container">
-        <form id="mobileSearchForm" class="search-form">
-            <input type="text" id="mobileSearchInput" placeholder="搜尋成績數據（如：A++, 基北區...）" aria-label="搜尋">
-            <button type="submit" aria-label="搜尋按鈕">
-                <i class="fas fa-search"></i>
-            </button>
-        </form>
-    </div>
-
-    <div class="container">
-        <h1>全國會考序位分享平台</h1>
-        
-        <div class="action-buttons">
-            <a href="https://forms.gle/d8Uz8riHQ5ktJpCu7" target="_blank" class="contribute-btn primary-action">
-                <div class="btn-content">
-                    <div class="btn-icon">
-                        <i class="fas fa-share-square fa-lg"></i>
-                    </div>
-                    <div class="btn-text">
-                        <span class="btn-title">分享您的序位</span>
-                        <span class="btn-description">協助擴充資料庫，幫助更多學生！</span>
-                    </div>
-                </div>
-                <div class="btn-arrow">
-                    <i class="fas fa-chevron-right"></i>
-                </div>
-            </a>
         </div>
-
-        <div class="filter-container">
+    </header>
+    <!-- 主視覺區 -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>114學年度會考成績序位查詢與分析</h1>
+            <p>免費查詢全國各區會考成績、序位比率、區間分析，協助您精準掌握升學落點！</p>
+            <div class="hero-actions">
+                <a href="#filter" class="btn primary">立即查詢</a>
+                <a href="https://forms.gle/d8Uz8riHQ5ktJpCu7" target="_blank" class="btn secondary">分享您的序位</a>
+            </div>
+        </div>
+    </section>
+    <!-- 篩選區 -->
+    <section class="filter-section" id="filter">
+        <div class="filter-card">
             <h2>篩選條件</h2>
-            <div class="filter-options">
-                <div class="filter-group">
-                    <label for="regionFilter">區域</label>
-                    <select id="regionFilter" multiple>
-                        <option value="基北區">基北區</option>
-                        <option value="桃連區">桃連區</option>
-                        <option value="竹苗區">竹苗區</option>
-                        <option value="中投區">中投區</option>
-                        <option value="雲林區">雲林區</option>
-                        <option value="彰化區">彰化區</option>
-                        <option value="嘉義區">嘉義區</option>
-                        <option value="台南區">台南區</option>
-                        <option value="高雄區">高雄區</option>
-                        <option value="屏東區">屏東區</option>
-                        <option value="宜蘭區">宜蘭區</option>
-                        <option value="花蓮區">花蓮區</option>
-                        <option value="金門區">金門區</option>
-                        <option value="澎湖區">澎湖區</option>
-                    </select>
+            <form class="filter-form">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="regionFilter">區域</label>
+                        <select id="regionFilter" multiple></select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="yearFilter">年度</label>
+                        <select id="yearFilter" multiple></select>
+                    </div>
                 </div>
-                <div class="filter-group">
-                    <label for="yearFilter">年度</label>
-                    <select id="yearFilter" multiple>
-                        <option value="114">114年</option>
-                        <option value="113">113年</option>
-                        <option value="112">112年</option>
-                        <option value="111">111年</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="filter-toggle">
-                <button id="toggleAdvancedFilters" class="toggle-filters-btn">
-                    <i class="fas fa-sliders-h"></i> 進階篩選
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-            </div>
-            
-            <div id="advancedFiltersContainer" class="advanced-filters">
-                <h3>科目成績篩選</h3>
-                <div class="filter-options">
+                <div class="filter-row">
                     <div class="filter-group">
                         <label for="chineseScoreFilter">國文</label>
-                        <select id="chineseScoreFilter" multiple>
-                            <option value="A++">A++</option>
-                            <option value="A+">A+</option>
-                            <option value="A">A</option>
-                            <option value="B++">B++</option>
-                            <option value="B+">B+</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                        </select>
+                        <select id="chineseScoreFilter" multiple></select>
                     </div>
                     <div class="filter-group">
                         <label for="mathScoreFilter">數學</label>
-                        <select id="mathScoreFilter" multiple>
-                            <option value="A++">A++</option>
-                            <option value="A+">A+</option>
-                            <option value="A">A</option>
-                            <option value="B++">B++</option>
-                            <option value="B+">B+</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                        </select>
+                        <select id="mathScoreFilter" multiple></select>
                     </div>
                     <div class="filter-group">
                         <label for="englishScoreFilter">英文</label>
-                        <select id="englishScoreFilter" multiple>
-                            <option value="A++">A++</option>
-                            <option value="A+">A+</option>
-                            <option value="A">A</option>
-                            <option value="B++">B++</option>
-                            <option value="B+">B+</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                        </select>
+                        <select id="englishScoreFilter" multiple></select>
                     </div>
                     <div class="filter-group">
                         <label for="socialScoreFilter">社會</label>
-                        <select id="socialScoreFilter" multiple>
-                            <option value="A++">A++</option>
-                            <option value="A+">A+</option>
-                            <option value="A">A</option>
-                            <option value="B++">B++</option>
-                            <option value="B+">B+</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                        </select>
+                        <select id="socialScoreFilter" multiple></select>
                     </div>
                     <div class="filter-group">
                         <label for="scienceScoreFilter">自然</label>
-                        <select id="scienceScoreFilter" multiple>
-                            <option value="A++">A++</option>
-                            <option value="A+">A+</option>
-                            <option value="A">A</option>
-                            <option value="B++">B++</option>
-                            <option value="B+">B+</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                        </select>
+                        <select id="scienceScoreFilter" multiple></select>
                     </div>
                 </div>
-                
-                <h3>序位資訊篩選</h3>
-                <div class="filter-options">
+                <div class="filter-row advanced">
                     <div class="filter-group">
                         <label for="minRatioFilter">序位比率範圍 (%)</label>
-                        <div class="range-inputs">
-                            <input type="number" id="minRatioFilter" placeholder="最小值" min="0" max="100">
-                            <span class="range-separator">至</span>
-                            <input type="number" id="maxRatioFilter" placeholder="最大值" min="0" max="100">
-                        </div>
+                        <input type="number" id="minRatioFilter" placeholder="最小值" min="0" max="100">
+                        <span>至</span>
+                        <input type="number" id="maxRatioFilter" placeholder="最大值" min="0" max="100">
                     </div>
-                </div>
-                
-                <h3>結果排序</h3>
-                <div class="filter-options">
                     <div class="filter-group">
                         <label for="sortByFilter">排序依據</label>
                         <select id="sortByFilter">
@@ -373,209 +154,56 @@
                         </select>
                     </div>
                 </div>
-                
-                <div class="filter-buttons">
-                    <div style="font-size:0.9em;color:#888;margin-bottom:0.5em;">（可按 Ctrl 或 Shift 鍵多選）</div>
-                    <button id="resetFiltersBtn" class="reset-btn">
-                        <i class="fas fa-undo"></i> 重置篩選
-                    </button>
-                    <button id="applyFiltersBtn" class="apply-btn">
-                        <i class="fas fa-check"></i> 套用篩選
-                    </button>
+                <div class="filter-actions">
+                    <button type="button" id="resetFiltersBtn" class="btn reset">重置篩選</button>
+                    <button type="button" id="applyFiltersBtn" class="btn primary">套用篩選</button>
                 </div>
-            </div>
+                <div class="filter-tip">（可按 Ctrl 或 Shift 鍵多選）</div>
+            </form>
         </div>
-
-        <div class="ad-container">
-            <div class="ad-wrapper">
-                <div class="ad-content">
-                    <div class="ad-text">
-                        <h3>全國會考落點分析系統</h3>
-                        <p>精準分析，助您選擇最適合的理想學校</p>
-                        <ul>
-                            <li><i class="fas fa-check-circle"></i> 精準分析錄取標準變化</li>
-                            <li><i class="fas fa-check-circle"></i> 各科目加權與比序影響評估</li>
-                            <li><i class="fas fa-check-circle"></i> 提供各區域學校特色與發展重點</li>
-                        </ul>
-                        <a href="https://rcpett.vercel.app/" target="_blank" class="ad-btn">立即查詢</a>
-                    </div>
-                    <div class="ad-image">
-                        <img src="https://tyctw.github.io/apple-touch-icon.png" alt="會考落點分析" class="ad-img">
-                    </div>
-                </div>
-                <div class="ad-label">廣告</div>
-            </div>
-        </div>
-
-        <div class="historical-data">
+    </section>
+    <!-- 數據展示區 -->
+    <section class="data-section">
+        <div class="data-card">
             <h2>歷史數據</h2>
-            <button id="loadDataBtn" class="load-btn">載入歷史數據</button>
+            <button id="loadDataBtn" class="btn secondary">載入歷史數據</button>
             <div class="loading-container">
-                <div class="loading-spinner">
-                    <div class="spinner-ring"></div>
-                    <div class="spinner-text">載入中</div>
-                    <div class="spinner-dots">
-                        <span>.</span><span>.</span><span>.</span>
-                    </div>
-                </div>
+                <div class="loading-spinner"></div>
             </div>
             <div class="table-container">
-                <div class="table-scroll-container">
-                    <div id="dataTable" class="data-table-container"></div>
-                </div>
+                <div id="dataTable" class="data-table-container"></div>
             </div>
-            <div class="table-mobile-hint" style="display: none; text-align: center; margin-top: 0.5rem; color: #777; font-size: 0.9rem;">
-                <i class="fas fa-arrows-left-right"></i> 左右滑動可查看更多資料
-            </div>
+            <div class="table-mobile-hint"><i class="fas fa-arrows-left-right"></i> 左右滑動可查看更多資料</div>
         </div>
-    </div>
-
-    <footer class="main-footer">
-        <div class="footer-content">
-            <div class="footer-section">
+    </section>
+    <!-- 關於/聯絡/底部 -->
+    <footer class="footer" id="about">
+        <div class="footer-main">
+            <div class="footer-info">
                 <h3>關於我們</h3>
                 <p>全國會考序位分享提供學生及家長快速查詢及分析會考成績數據的平台。</p>
             </div>
-            <div class="footer-section">
-                <h3>聯絡資訊</h3>
-                <p><i class="fas fa-envelope"></i> Email: tyctw.analyze@gmail.com</p>
-            </div>
-            <div class="footer-section">
+            <div class="footer-links">
                 <h3>快速連結</h3>
                 <ul>
-                    <li><a href="#" class="open-usage-guide-modal"><i class="fas fa-book"></i> 使用說明</a></li>
-                    <li><a href="#" class="open-disclaimer-modal"><i class="fas fa-shield-alt"></i> 免責聲明</a></li>
-                    <li><a href="https://forms.gle/d8Uz8riHQ5ktJpCu7" target="_blank"><i class="fas fa-share-square"></i> 提供資料</a></li>
-                    <li><a href="#" id="openContactModal"><i class="fas fa-envelope"></i> 意見回饋</a></li>
-                    <li><a href="https://rcpett.vercel.app/" target="_blank"><i class="fas fa-graduation-cap"></i> 會考落點分析</a></li>
+                    <li><a href="#filter">查詢</a></li>
+                    <li><a href="#about">關於</a></li>
+                    <li><a href="#contact">聯絡</a></li>
+                    <li><a href="https://rcpett.vercel.app/" target="_blank">會考落點分析</a></li>
                 </ul>
+            </div>
+            <div class="footer-contact" id="contact">
+                <h3>聯絡資訊</h3>
+                <p><i class="fas fa-envelope"></i> tyctw.analyze@gmail.com</p>
+                <div class="footer-social">
+                    <a href="https://www.instagram.com/114.rcpet/" target="_blank"><i class="fab fa-instagram"></i></a>
+                </div>
             </div>
         </div>
         <div class="footer-bottom">
             <p>&copy; <span id="currentYear"></span> 全國會考序位分享 版權所有</p>
-            <p>建議使用最新版本的 Chrome、Firefox 或 Edge 瀏覽器以獲得最佳體驗</p>
         </div>
     </footer>
-    
-    <!-- 使用說明彈窗 -->
-    <div id="usageGuideModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>使用說明</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <h3>如何使用全國會考序位分享</h3>
-                <div class="guide-section">
-                    <h4><i class="fas fa-filter"></i> 篩選數據</h4>
-                    <p>您可以透過頁面上方的篩選條件區域，選擇特定的區域和年度來過濾資料。</p>
-                </div>
-                <div class="guide-section">
-                    <h4><i class="fas fa-sliders-h"></i> 進階篩選功能</h4>
-                    <p>點擊「進階篩選」按鈕可展開更多篩選選項：</p>
-                    <ul style="list-style: none; padding-left: 0.5rem; margin-top: 0.5rem;">
-                        <li><i class="fas fa-caret-right" style="color: var(--primary-color); margin-right: 0.5rem;"></i> 可依照各科目成績（國英數社自）進行篩選</li>
-                        <li><i class="fas fa-caret-right" style="color: var(--primary-color); margin-right: 0.5rem;"></i> 可設定序位比率範圍進行篩選</li>
-                        <li><i class="fas fa-caret-right" style="color: var(--primary-color); margin-right: 0.5rem;"></i> 可依照不同欄位排序結果（時間、區域、年度、序位比率）</li>
-                        <li><i class="fas fa-caret-right" style="color: var(--primary-color); margin-right: 0.5rem;"></i> 點擊「套用篩選」按鈕套用所有選擇的篩選條件</li>
-                        <li><i class="fas fa-caret-right" style="color: var(--primary-color); margin-right: 0.5rem;"></i> 點擊「重置篩選」按鈕清除所有篩選條件</li>
-                    </ul>
-                </div>
-                <div class="guide-section">
-                    <h4><i class="fas fa-info-circle"></i> 序位資訊說明</h4>
-                    <p>系統提供兩種序位指標，幫助您了解會考成績在全區的相對位置：</p>
-                    <ul style="list-style: none; padding-left: 0.5rem; margin-top: 0.5rem;">
-                        <li><i class="fas fa-percentage" style="color: var(--primary-color); margin-right: 0.5rem;"></i> <strong>序位比率(%)</strong>：表示您的成績超越的考生百分比，例如90%表示超越90%的考生。</li>
-                        <li><i class="fas fa-list-ol" style="color: var(--primary-color); margin-right: 0.5rem;"></i> <strong>序位區間(名次)</strong>：表示您在全區考生中的具體名次範圍，例如「第50-100名」。</li>
-                    </ul>
-                </div>
-                <div class="guide-section">
-                    <h4><i class="fas fa-table"></i> 查看歷史數據</h4>
-                    <p>點擊「載入歷史數據」按鈕可顯示符合您篩選條件的會考成績記錄。</p>
-                    <p>在手機上瀏覽時，可左右滑動表格查看更多欄位。</p>
-                </div>
-                <div class="guide-section">
-                    <h4><i class="fas fa-share-square"></i> 提供您的資料</h4>
-                    <p>您可以透過首頁上的「提供您的資料」按鈕，填寫表單分享您的會考成績，協助我們擴充資料庫。</p>
-                </div>
-                <div class="guide-section">
-                    <h4><i class="fas fa-mobile-alt"></i> 手機瀏覽</h4>
-                    <p>本系統支援手機瀏覽，表格資料較多時可左右滑動查看。</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 免責聲明彈窗 -->
-    <div id="disclaimerModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>免責聲明</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <h3>資料使用聲明</h3>
-                <p>本網站提供的會考成績數據僅供參考，不保證資料的絕對準確性和完整性。</p>
-                
-                <h3>隱私權保護</h3>
-                <p>所有用戶提交的會考成績資料均經過匿名處理，不會收集任何個人識別資訊。</p>
-                
-                <h3>資料來源</h3>
-                <p>本網站的數據來源於用戶自願提供的資料，可能無法代表全體考生的完整狀況。</p>
-                
-                <h3>免責條款</h3>
-                <p>本網站不對因使用本系統所提供的資訊而產生的任何損失或問題負責。使用者應自行判斷資料的適用性和參考價值。</p>
-                
-                <h3>版權聲明</h3>
-                <p>本網站的內容和功能受到著作權法保護，未經許可不得進行商業用途的複製或使用。</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 意見回饋彈窗 -->
-    <div id="contactModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>意見回饋</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="contactForm" class="contact-form">
-                    <div class="form-group">
-                        <label for="contactName"><i class="fas fa-user"></i> 姓名</label>
-                        <input type="text" id="contactName" name="name" placeholder="請輸入您的姓名" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="contactEmail"><i class="fas fa-envelope"></i> 電子郵件</label>
-                        <input type="email" id="contactEmail" name="email" placeholder="請輸入您的電子郵件" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="contactSubject"><i class="fas fa-tag"></i> 主旨</label>
-                        <input type="text" id="contactSubject" name="subject" placeholder="請輸入主旨" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="contactMessage"><i class="fas fa-comment-alt"></i> 訊息內容</label>
-                        <textarea id="contactMessage" name="message" rows="5" placeholder="請輸入您的意見或建議" required></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="submit-btn">
-                            <i class="fas fa-paper-plane"></i> 送出
-                        </button>
-                    </div>
-                </form>
-                <div id="contactSuccess" class="success-message" style="display: none;">
-                    <i class="fas fa-check-circle"></i>
-                    <p>感謝您的回饋！我們已收到您的訊息，將盡快與您聯繫。</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 懸浮幫助按鈕 -->
-    <button class="floating-help-btn open-usage-guide-modal" aria-label="開啟使用說明">
-        <i class="fas fa-question-circle"></i>
-    </button>
-    
     <script src="script.js"></script>
 </body>
 </html> 
