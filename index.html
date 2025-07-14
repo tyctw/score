@@ -242,8 +242,7 @@
             <div class="filter-options">
                 <div class="filter-group">
                     <label for="regionFilter">區域</label>
-                    <select id="regionFilter">
-                        <option value="">全部區域</option>
+                    <select id="regionFilter" multiple>
                         <option value="基北區">基北區</option>
                         <option value="桃連區">桃連區</option>
                         <option value="竹苗區">竹苗區</option>
@@ -262,8 +261,7 @@
                 </div>
                 <div class="filter-group">
                     <label for="yearFilter">年度</label>
-                    <select id="yearFilter">
-                        <option value="">全部年度</option>
+                    <select id="yearFilter" multiple>
                         <option value="114">114年</option>
                         <option value="113">113年</option>
                         <option value="112">112年</option>
@@ -284,8 +282,7 @@
                 <div class="filter-options">
                     <div class="filter-group">
                         <label for="chineseScoreFilter">國文</label>
-                        <select id="chineseScoreFilter">
-                            <option value="">不限</option>
+                        <select id="chineseScoreFilter" multiple>
                             <option value="A++">A++</option>
                             <option value="A+">A+</option>
                             <option value="A">A</option>
@@ -297,8 +294,7 @@
                     </div>
                     <div class="filter-group">
                         <label for="mathScoreFilter">數學</label>
-                        <select id="mathScoreFilter">
-                            <option value="">不限</option>
+                        <select id="mathScoreFilter" multiple>
                             <option value="A++">A++</option>
                             <option value="A+">A+</option>
                             <option value="A">A</option>
@@ -310,8 +306,7 @@
                     </div>
                     <div class="filter-group">
                         <label for="englishScoreFilter">英文</label>
-                        <select id="englishScoreFilter">
-                            <option value="">不限</option>
+                        <select id="englishScoreFilter" multiple>
                             <option value="A++">A++</option>
                             <option value="A+">A+</option>
                             <option value="A">A</option>
@@ -323,8 +318,7 @@
                     </div>
                     <div class="filter-group">
                         <label for="socialScoreFilter">社會</label>
-                        <select id="socialScoreFilter">
-                            <option value="">不限</option>
+                        <select id="socialScoreFilter" multiple>
                             <option value="A++">A++</option>
                             <option value="A+">A+</option>
                             <option value="A">A</option>
@@ -336,8 +330,7 @@
                     </div>
                     <div class="filter-group">
                         <label for="scienceScoreFilter">自然</label>
-                        <select id="scienceScoreFilter">
-                            <option value="">不限</option>
+                        <select id="scienceScoreFilter" multiple>
                             <option value="A++">A++</option>
                             <option value="A+">A+</option>
                             <option value="A">A</option>
@@ -382,6 +375,7 @@
                 </div>
                 
                 <div class="filter-buttons">
+                    <div style="font-size:0.9em;color:#888;margin-bottom:0.5em;">（可按 Ctrl 或 Shift 鍵多選）</div>
                     <button id="resetFiltersBtn" class="reset-btn">
                         <i class="fas fa-undo"></i> 重置篩選
                     </button>
