@@ -669,13 +669,15 @@ const App: React.FC = () => {
               </h2>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
-                  <button 
-                      onClick={() => document.querySelector('#filter-section')?.scrollIntoView({ behavior: 'smooth' })}
+                  <a 
+                      href="https://tyctw.github.io/volunteer/"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-lg shadow-slate-900/20 hover:scale-[1.02] hover:shadow-xl transition-all duration-300 text-lg hover:bg-slate-800 flex justify-center items-center gap-3 group"
                   >
-                      開始查詢
-                      <svg className="w-5 h-5 group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
-                  </button>
+                      立即查詢個人序位
+                      <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </a>
                   <a
                       href="https://rcpett.vercel.app/"
                       target="_blank"
