@@ -6,73 +6,74 @@ import { FilterBar } from './components/FilterBar';
 import { Stats } from './components/Stats';
 import { Modal } from './components/Modal';
 import { ComparisonDock } from './components/ComparisonDock';
+import { SubmitScoreForm } from './components/SubmitScoreForm';
+import { Sparkles, Search, Pin, Download, AlertTriangle, Scale, ShieldAlert, Mail } from 'lucide-react';
 
-// Card Skeleton Loader Component
-const CardSkeleton = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-    {[...Array(6)].map((_, index) => (
-      <div key={index} className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 shadow-sm border border-white/50 flex flex-col gap-6 relative overflow-hidden animate-pulse">
-         {/* Header Skeleton */}
-         <div className="flex justify-between items-start">
-             <div className="flex gap-2">
-                 <div className="w-16 h-7 bg-slate-200 rounded-lg"></div>
-                 <div className="w-12 h-7 bg-slate-200 rounded-lg"></div>
-             </div>
-             <div className="w-20 h-5 bg-slate-100 rounded-full"></div>
-         </div>
-         
-         {/* Scores Skeleton */}
-         <div className="grid grid-cols-6 gap-2">
-            {[...Array(6)].map((_, i) => (
-                <div key={i} className="flex flex-col items-center gap-1">
-                   <div className="w-4 h-3 bg-slate-200 rounded"></div>
-                   <div className="w-10 h-10 bg-slate-200 rounded-xl"></div>
-                </div>
-            ))}
-         </div>
 
-         {/* Footer Skeleton */}
-         <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100 h-24"></div>
-      </div>
-    ))}
+// Data Loading Animation Component
+const DataLoadingAnimation = () => (
+  <div className="w-full py-24 flex flex-col items-center justify-center animate-in fade-in duration-500">
+    <div className="relative mb-10">
+       {/* Outer dash rotating ring */}
+       <div className="absolute inset-0 -m-6 border-4 border-dashed border-indigo-200/60 rounded-full animate-[spin_4s_linear_infinite]"></div>
+       {/* Inner solid rotating ring */}
+       <div className="absolute inset-0 -m-2 border-4 border-indigo-100 rounded-full animate-[spin_2s_linear_infinite] border-t-indigo-600 border-r-indigo-600"></div>
+       {/* Center Icon */}
+       <div className="relative z-10 w-24 h-24 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl shadow-indigo-100 border border-white">
+           <Search className="w-10 h-10 text-indigo-600 animate-pulse" />
+       </div>
+       {/* Glow effect */}
+       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-tr from-indigo-400 to-fuchsia-400 blur-3xl -z-10 opacity-20"></div>
+    </div>
+    
+    <h3 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-1 mb-3">
+      正在分析歷年數據
+      <span className="flex items-center gap-1 ml-2">
+        <span className="w-2 h-2 bg-indigo-500 rounded-full animate-[bounce_1s_infinite]"></span>
+        <span className="w-2 h-2 bg-indigo-500 rounded-full animate-[bounce_1s_infinite_0.2s]"></span>
+        <span className="w-2 h-2 bg-indigo-500 rounded-full animate-[bounce_1s_infinite_0.4s]"></span>
+      </span>
+    </h3>
+    <p className="text-slate-500 font-medium">即將為您呈現各區會考序位與落點區間</p>
   </div>
 );
 
 // New CTA Component for Contribution
-const ContributionBanner = () => (
-  <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 shadow-xl shadow-indigo-500/10 mb-12 group transform transition-all hover:scale-[1.01]">
+const ContributionBanner = ({ onSubmitClick }: { onSubmitClick: () => void }) => (
+  <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] bg-slate-900 shadow-xl shadow-indigo-500/10 group transform transition-all hover:scale-[1.01] h-full flex flex-col justify-center">
     {/* Abstract Background */}
     <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full blur-3xl opacity-50 group-hover:opacity-70 transition-opacity duration-700"></div>
     <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-gradient-to-tr from-blue-500 to-cyan-500 rounded-full blur-2xl opacity-30"></div>
     
-    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between p-8 md:p-10 gap-8">
-      <div className="text-center md:text-left">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30 mb-3">
+    <div className="relative z-10 flex flex-col items-center justify-between p-6 sm:p-8 xl:p-12 gap-6 sm:gap-8 text-center h-full">
+      <div className="flex flex-col items-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30 mb-3 sm:mb-4">
            <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
             </span>
            資料募集計畫
         </div>
-        <h3 className="text-2xl md:text-3xl font-black text-white mb-3 tracking-tight">
-          你的成績，<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">是學弟妹的燈塔</span>
+        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-3 sm:mb-4 tracking-tight leading-tight">
+          你的成績，<br className="block sm:hidden" /><span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">是學弟妹的燈塔</span>
         </h3>
-        <p className="text-slate-400 font-medium max-w-lg leading-relaxed">
-          每一筆回報資料都能讓落點分析更精準。只需要 30 秒，不僅幫助他人，也能累積功德！
+        <p className="text-slate-400 font-medium max-w-sm leading-relaxed text-sm sm:text-base px-2">
+          每一筆回報資料都能讓落點分析更精準。<span className="text-amber-400 font-bold block mt-1">🎁 填寫送「全國落點分析」專屬邀請碼！</span>
         </p>
       </div>
 
-      <a 
-        href="https://docs.google.com/forms/d/e/1FAIpQLSfnBMyKDwHWNX7k5yFCfVcf1QeElgx1HNet_Y4yFM_NVUp7QQ/viewform"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex-shrink-0 bg-white text-slate-900 hover:bg-indigo-50 px-8 py-4 rounded-2xl font-bold shadow-lg shadow-white/10 hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 group/btn"
-      >
-        <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center group-hover/btn:scale-110 transition-transform">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
-        </div>
-        <span className="text-lg">立即回報成績</span>
-      </a>
+      <div className="w-full relative">
+        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-2xl blur opacity-30 group-hover/btn:opacity-50 transition duration-300"></div>
+        <button 
+          onClick={onSubmitClick}
+          className="relative w-full sm:w-auto bg-white text-slate-900 hover:bg-slate-50 px-8 py-4 rounded-2xl font-bold shadow-xl shadow-white/10 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group/btn mx-auto"
+        >
+          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-100 to-cyan-100 text-indigo-600 flex items-center justify-center group-hover/btn:scale-110 transition-transform">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+          </div>
+          <span className="text-lg">立即回報序位</span>
+        </button>
+      </div>
     </div>
   </div>
 );
@@ -80,7 +81,8 @@ const ContributionBanner = () => (
 const App: React.FC = () => {
   const [data, setData] = useState<ScoreData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeModal, setActiveModal] = useState<'usage' | 'disclaimer' | 'contact' | 'compare' | null>(null);
+  const [activeModal, setActiveModal] = useState<'usage' | 'disclaimer' | 'contact' | 'compare' | 'submit' | null>(null);
+  const [showStatsView, setShowStatsView] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [pinnedItems, setPinnedItems] = useState<ScoreData[]>([]);
@@ -173,7 +175,7 @@ const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `會考落點分析_${new Date().toISOString().slice(0,10)}.csv`);
+    link.setAttribute('download', `全國序位分享_${new Date().toISOString().slice(0,10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -231,33 +233,65 @@ const App: React.FC = () => {
     switch (activeModal) {
       case 'usage':
         return (
-          <div className="space-y-6 text-gray-700">
-             <div className="bg-indigo-50/80 p-5 rounded-2xl border border-indigo-100 text-sm leading-relaxed mb-4 flex gap-4">
-              <div className="flex-shrink-0 text-indigo-500">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              </div>
-              <div>
-                <h4 className="font-bold text-indigo-800 mb-1 text-base">系統簡介</h4>
-                <p>本系統彙整歷年國中教育會考成績資訊，旨在協助家長與學生透過歷史數據進行落點分析，作為志願選填的輔助參考。</p>
-              </div>
+          <div className="space-y-8 text-slate-700 pb-2">
+            
+            {/* Header intro */}
+            <div className="bg-gradient-to-br from-indigo-500 to-violet-600 p-8 rounded-[2rem] text-white relative overflow-hidden shadow-xl shadow-indigo-200">
+               <div className="absolute top-0 right-0 -mr-8 -mt-8 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+               <div className="relative z-10 flex items-start gap-4">
+                  <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
+                     <Sparkles className="w-8 h-8 text-indigo-50" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-black text-white mb-2 tracking-tight">系統導覽</h4>
+                    <p className="text-indigo-100 font-medium leading-relaxed">
+                      本系統彙整歷年國中教育會考的成績統計，透過這三個簡單小步驟，幫助您精準獲取落點資訊，做為志願選填的堅實後盾。
+                    </p>
+                  </div>
+               </div>
             </div>
             
-             <div className="space-y-6 px-2">
-              <div className="flex gap-5 group">
-                <div className="flex-shrink-0 w-10 h-10 bg-white border-2 border-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center font-bold shadow-sm group-hover:border-indigo-500 group-hover:text-indigo-500 transition-colors">1</div>
+            {/* Steps Container */}
+            <div className="space-y-4 px-2">
+              <div className="flex gap-6 group hover:bg-white p-4 rounded-3xl transition-colors border border-transparent hover:border-slate-100 hover:shadow-sm">
+                <div className="flex-shrink-0 w-14 h-14 bg-blue-50 border-2 border-blue-100 text-blue-600 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm group-hover:border-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+                   1
+                </div>
                 <div>
-                  <h4 className="font-bold text-gray-900 text-lg">選擇區域與年度</h4>
-                  <p className="text-gray-500 mt-1 leading-relaxed">請先選擇您所在的就學區（如基北區、桃連區等），並選擇欲參考的歷史年度。</p>
+                  <h4 className="flex items-center gap-2 font-bold text-slate-900 text-lg mb-1">
+                    <Search className="w-5 h-5 text-blue-500" />
+                    選擇區域與年度
+                  </h4>
+                  <p className="text-slate-500 leading-relaxed font-medium">使用畫面上方的「篩選控制列」，選擇所在的就學區域與欲參考的實施年度，系統會自動更新數據列表。</p>
                 </div>
               </div>
-              <div className="flex gap-5 group">
-                <div className="flex-shrink-0 w-10 h-10 bg-white border-2 border-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center font-bold shadow-sm group-hover:border-indigo-500 group-hover:text-indigo-500 transition-colors">2</div>
+
+              <div className="flex gap-6 group hover:bg-white p-4 rounded-3xl transition-colors border border-transparent hover:border-slate-100 hover:shadow-sm">
+                <div className="flex-shrink-0 w-14 h-14 bg-indigo-50 border-2 border-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm group-hover:border-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-300">
+                   2
+                </div>
                 <div>
-                  <h4 className="font-bold text-gray-900 text-lg">比較與匯出</h4>
-                  <p className="text-gray-500 mt-1 leading-relaxed">點擊卡片右上角的愛心圖示可加入比較（最多4筆）；篩選後可點擊「匯出」下載報表。</p>
+                  <h4 className="flex items-center gap-2 font-bold text-slate-900 text-lg mb-1">
+                    <Pin className="w-5 h-5 text-indigo-500" />
+                    釘選比較落點
+                  </h4>
+                  <p className="text-slate-500 leading-relaxed font-medium">看見符合自身成績的資料卡片時，點擊卡片右上角的「愛心」圖示將其收入比較區，最多可同時精確比較 4 筆落點。</p>
                 </div>
               </div>
-             </div>
+
+              <div className="flex gap-6 group hover:bg-white p-4 rounded-3xl transition-colors border border-transparent hover:border-slate-100 hover:shadow-sm">
+                <div className="flex-shrink-0 w-14 h-14 bg-emerald-50 border-2 border-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm group-hover:border-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
+                   3
+                </div>
+                <div>
+                  <h4 className="flex items-center gap-2 font-bold text-slate-900 text-lg mb-1">
+                    <Download className="w-5 h-5 text-emerald-500" />
+                    匯出報表留存
+                  </h4>
+                  <p className="text-slate-500 leading-relaxed font-medium">完成篩選後，您可以隨時點選「匯出 CSV」按鈕將篩選結果下載至本地端，方便在無網路環境下反覆評估與討論。</p>
+                </div>
+              </div>
+            </div>
           </div>
         );
       case 'compare':
@@ -307,44 +341,110 @@ const App: React.FC = () => {
         );
       case 'disclaimer':
         return (
-          <div className="space-y-6 text-gray-700">
-            <div className="bg-amber-50/80 p-5 rounded-2xl border border-amber-100 mb-6">
-              <div className="flex items-center gap-3 text-amber-800 font-bold mb-2 text-lg">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                重要聲明
+          <div className="space-y-6 text-slate-700 pb-2">
+            <div className="bg-amber-50 rounded-[2rem] border border-amber-200/60 p-8 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-10">
+                 <Scale className="w-32 h-32 text-amber-600" />
               </div>
-              <p className="text-amber-900/80 leading-relaxed">
-                本網站所提供之數據資料僅供參考，並非政府官方發布之正式文件。實際招生狀況每年皆有變動，請使用者審慎評估。
-              </p>
+              <div className="relative z-10 flex flex-col items-center text-center gap-4">
+                <div className="w-16 h-16 bg-white rounded-2xl border flex items-center justify-center border-amber-200 shadow-sm text-amber-500">
+                  <ShieldAlert className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-amber-900 tracking-tight mb-3">重要風險提示</h3>
+                  <p className="text-amber-800/80 leading-relaxed font-medium max-w-md mx-auto">
+                    本網站所提供之排名、區間與落點數據僅為機率參考，並非政府官方發布之正式保證文件。
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="grid gap-6">
-              <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                <h4 className="font-bold text-gray-900 mb-2">資料來源</h4>
-                <p className="text-sm text-gray-500 leading-relaxed">本站資料主要來自考生熱心回報、網路公開資訊蒐集及歷年榜單彙整。我們致力於資料的清理與驗證，但仍無法保證內容完全無誤。</p>
+            <div className="grid gap-4 mt-6">
+              <div className="bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-sm flex gap-4 items-start">
+                 <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
+                    <AlertTriangle className="w-5 h-5" />
+                 </div>
+                 <div>
+                  <h4 className="font-bold text-slate-900 mb-2">資料來源風險</h4>
+                  <p className="text-sm text-slate-500 leading-relaxed font-medium">本站資料主要來自考生熱心回報、網路公開資訊蒐集及歷年榜單彙整。我們致力於資料的釐清與邏輯驗證，但仍受限於抽樣誤差，無法保證內容之絕對正確性。</p>
+                 </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-sm flex gap-4 items-start">
+                 <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
+                    <Scale className="w-5 h-5" />
+                 </div>
+                 <div>
+                  <h4 className="font-bold text-slate-900 mb-2">最終決策責任</h4>
+                  <p className="text-sm text-slate-500 leading-relaxed font-medium">實際招生名額與超額比序狀況每年皆有浮動，敬請使用者審慎評估。開發團隊不對因參考本站資料所導致的任何分發結果或損失承擔法律責任。</p>
+                 </div>
               </div>
             </div>
           </div>
         );
       case 'contact':
         return (
-          <div className="space-y-6 text-gray-700">
-            <p className="leading-relaxed text-center text-gray-500">
-              我們非常重視您的使用體驗，歡迎透過以下方式聯繫我們。
-            </p>
+          <div className="space-y-8 flex flex-col items-center pb-4">
+            <div className="w-20 h-20 bg-indigo-50 rounded-[2rem] flex items-center justify-center -rotate-6 shadow-sm border border-indigo-100">
+               <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center rotate-6 shadow-lg shadow-indigo-600/30">
+                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+               </div>
+            </div>
+            
+            <div className="text-center space-y-3">
+              <h3 className="text-2xl font-black text-slate-900 tracking-tight">讓我們聽聽您的聲音</h3>
+              <p className="text-slate-500 font-medium max-w-[280px] mx-auto leading-relaxed">
+                無論是系統建議、資料指正，或是商業合作，我們都非常期待您的來信。
+              </p>
+            </div>
 
-            <div className="bg-gradient-to-br from-indigo-500 to-blue-600 p-8 rounded-2xl text-white text-center shadow-lg shadow-blue-500/20">
-              <h4 className="font-bold text-xl mb-1">聯絡信箱</h4>
-              <p className="text-blue-100 text-sm mb-4">有任何問題或建議，請來信告知</p>
-              <a 
-                href="mailto:tyctw.analyze@gmail.com" 
-                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors px-6 py-3 rounded-xl font-mono text-lg font-bold border border-white/30"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                tyctw.analyze@gmail.com
-              </a>
+            <div className="w-full relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+              <div className="relative bg-white border border-slate-100 p-8 rounded-[2rem] text-center shadow-xl shadow-slate-200/50 flex flex-col items-center">
+                <p className="text-sm font-bold text-indigo-600 tracking-widest uppercase mb-4">Official Email</p>
+                <a 
+                  href="mailto:tyctw.analyze@gmail.com" 
+                  className="text-xl sm:text-2xl font-black text-slate-800 hover:text-indigo-600 transition-colors font-mono tracking-tight block mb-8"
+                >
+                  tyctw.analyze@gmail.com
+                </a>
+                
+                <a 
+                  href="mailto:tyctw.analyze@gmail.com" 
+                  className="inline-flex items-center justify-center gap-3 w-full bg-slate-900 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-slate-900/20 hover:scale-[1.02] hover:shadow-xl transition-all duration-300 active:scale-95 group/btn"
+                >
+                  <svg className="w-5 h-5 group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                  立即撰寫信件
+                </a>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 w-full px-2">
+               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                  <div className="text-indigo-600 font-bold mb-1">一般回覆時間</div>
+                  <div className="text-slate-500 text-sm font-medium">1 - 3 個工作天</div>
+               </div>
+               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                  <div className="text-emerald-600 font-bold mb-1">服務狀態</div>
+                  <div className="text-slate-500 text-sm font-medium flex items-center justify-center gap-1.5">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    正常營運
+                  </div>
+               </div>
             </div>
           </div>
+        );
+      case 'submit':
+        return (
+          <SubmitScoreForm
+            onSubmited={() => {
+              setActiveModal(null);
+            }}
+            onCancel={() => setActiveModal(null)}
+          />
         );
       default:
         return null;
@@ -357,6 +457,7 @@ const App: React.FC = () => {
       case 'disclaimer': return '免責聲明';
       case 'contact': return '聯絡我們';
       case 'compare': return '落點比較';
+      case 'submit': return '提供成績與落點';
       default: return '';
     }
   };
@@ -394,64 +495,70 @@ const App: React.FC = () => {
               </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
               
               {/* High Priority CTA for Mobile */}
-              <a 
-                href="https://docs.google.com/forms/d/e/1FAIpQLSfnBMyKDwHWNX7k5yFCfVcf1QeElgx1HNet_Y4yFM_NVUp7QQ/viewform"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-indigo-200 mb-6 active:scale-95 transition-transform"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                <span>提供成績 / 回報落點</span>
-              </a>
-
-              {/* Internal Links for Mobile */}
-              <div className="grid grid-cols-3 gap-2 mb-2">
-                 <button onClick={() => { setActiveModal('usage'); setIsMenuOpen(false); }} className="p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-600 shadow-sm active:scale-95 transition-transform">使用說明</button>
-                 <button onClick={() => { setActiveModal('disclaimer'); setIsMenuOpen(false); }} className="p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-600 shadow-sm active:scale-95 transition-transform">免責聲明</button>
-                 <button onClick={() => { setActiveModal('contact'); setIsMenuOpen(false); }} className="p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-600 shadow-sm active:scale-95 transition-transform">聯絡我們</button>
+              <div className="relative">
+                 <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-3xl blur opacity-30"></div>
+                 <button 
+                   onClick={() => { setActiveModal('submit'); setIsMenuOpen(false); }}
+                   className="relative w-full flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-transform"
+                 >
+                   <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+                   </div>
+                   <span className="text-lg">立即回報成績</span>
+                 </button>
               </div>
 
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-6 mb-2 px-1">更多服務</div>
+              {/* Internal Links for Mobile */}
+              <div className="space-y-3">
+                 <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase ml-1">功能與說明</h3>
+                 <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => { setShowStatsView(true); setIsMenuOpen(false); window.scrollTo(0, 0); }} className="p-3 col-span-2 bg-indigo-50 border border-indigo-100 rounded-xl text-sm font-bold text-indigo-700 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                       歷年趨勢分析
+                    </button>
+                    <button onClick={() => { setActiveModal('usage'); setIsMenuOpen(false); }} className="p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 active:scale-95 transition-transform text-center shadow-sm">使用說明</button>
+                    <button onClick={() => { setActiveModal('disclaimer'); setIsMenuOpen(false); }} className="p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 active:scale-95 transition-transform text-center shadow-sm">免責聲明</button>
+                 </div>
+              </div>
 
-              <a href="https://tyctw.github.io/spare/" target="_blank" rel="noopener noreferrer" className="block group">
-                <div className="p-4 rounded-2xl bg-white shadow-sm hover:shadow-md border border-gray-100 hover:border-indigo-200 transition-all flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900">會考落點分析</h3>
-                    <p className="text-xs text-gray-500 mt-1">查詢各區域成績與序位</p>
-                  </div>
-                </div>
-              </a>
-               <a href="https://tyctw.github.io/volunteer/" target="_blank" rel="noopener noreferrer" className="block group">
-                <div className="p-4 rounded-2xl bg-white shadow-sm hover:shadow-md border border-gray-100 hover:border-emerald-200 transition-all flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900">會考志願選填</h3>
-                    <p className="text-xs text-gray-500 mt-1">模擬志願分發結果</p>
-                  </div>
-                </div>
-              </a>
-               <a href="https://tyctw.github.io/shared/" target="_blank" rel="noopener noreferrer" className="block group">
-                <div className="p-4 rounded-2xl bg-white shadow-sm hover:shadow-md border border-gray-100 hover:border-amber-200 transition-all flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900">會考錄取分享</h3>
-                    <p className="text-xs text-gray-500 mt-1">查看歷年錄取分數</p>
-                  </div>
-                </div>
-              </a>
+              {/* External Links for Mobile */}
+              <div className="space-y-3 pt-4 border-t border-slate-100">
+                 <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase ml-1">相關資源</h3>
+                 <div className="space-y-2.5">
+                    <a href="https://tyctw.github.io/spare/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white border border-slate-200 shadow-sm rounded-xl text-sm font-bold text-slate-700 active:scale-95 transition-transform w-full">
+                       <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                       </div>
+                       會考落點分析
+                    </a>
+                    <a href="https://tyctw.github.io/volunteer/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white border border-slate-200 shadow-sm rounded-xl text-sm font-bold text-slate-700 active:scale-95 transition-transform w-full">
+                       <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                       </div>
+                       會考志願選填
+                    </a>
+                    <a href="https://tyctw.github.io/shared/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white border border-slate-200 shadow-sm rounded-xl text-sm font-bold text-slate-700 active:scale-95 transition-transform w-full">
+                       <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-amber-600">
+                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                       </div>
+                       會考錄取分享
+                    </a>
+                 </div>
+              </div>
+
+              <div className="pt-2">
+                  <button onClick={() => { setActiveModal('contact'); setIsMenuOpen(false); }} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                     聯絡我們
+                  </button>
+              </div>
+
             </div>
             <div className="p-6 border-t border-gray-100 text-center">
-              <p className="text-xs text-gray-400">© 2025 全國會考分析系統</p>
+              <p className="text-xs text-gray-400">© 2026 全國會考序位</p>
             </div>
           </div>
         </div>
@@ -476,7 +583,7 @@ const App: React.FC = () => {
              </div>
              <div className="flex flex-col">
                 <h1 className={`font-black tracking-tight leading-none transition-all duration-300 ${scrolled ? 'text-lg text-slate-800' : 'text-xl text-slate-900'}`}>
-                  會考落點<span className="text-indigo-600">分析</span>
+                  會考全國<span className="text-indigo-600">序位</span>分享
                 </h1>
                 <span className={`text-[10px] font-bold text-slate-400 uppercase tracking-widest transition-all duration-300 ${scrolled ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100 h-auto mt-0.5'}`}>
                     Education Analytics
@@ -487,38 +594,38 @@ const App: React.FC = () => {
           {/* Desktop Nav (Centered Pill) */}
           <nav className={`hidden lg:flex items-center p-1.5 rounded-full transition-all duration-500 ${
               scrolled 
-              ? 'bg-slate-100/50 border border-slate-200/50 backdrop-blur-sm' 
+              ? 'bg-white/80 border border-slate-200 backdrop-blur-md shadow-sm' 
               : 'bg-white/40 border border-white/40 shadow-sm backdrop-blur-md'
             }`}>
-             <button onClick={() => setActiveModal('usage')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 hover:shadow-sm transition-all duration-300">使用說明</button>
-             <button onClick={() => setActiveModal('disclaimer')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-amber-600 hover:shadow-sm transition-all duration-300">免責聲明</button>
-             <button onClick={() => setActiveModal('contact')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-emerald-600 hover:shadow-sm transition-all duration-300">聯絡我們</button>
+             <button onClick={() => { setShowStatsView(true); window.scrollTo(0, 0); }} className="px-5 py-2 rounded-full text-sm font-bold text-indigo-700 hover:bg-indigo-50 transition-all duration-300 flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                趨勢分析
+             </button>
+             <button onClick={() => setActiveModal('usage')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">使用說明</button>
+             <button onClick={() => setActiveModal('disclaimer')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">免責聲明</button>
              
              <div className="w-px h-4 bg-slate-300 mx-2"></div>
 
-             <a href="https://tyctw.github.io/volunteer/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 hover:shadow-sm transition-all duration-300">志願選填</a>
-             <a href="https://tyctw.github.io/shared/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-purple-600 hover:shadow-sm transition-all duration-300">錄取分享</a>
+             <a href="https://tyctw.github.io/volunteer/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">志願選填</a>
+             <a href="https://tyctw.github.io/shared/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">錄取分享</a>
+             <button onClick={() => setActiveModal('contact')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">聯絡我們</button>
           </nav>
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-             <a 
-                href="https://docs.google.com/forms/d/e/1FAIpQLSfnBMyKDwHWNX7k5yFCfVcf1QeElgx1HNet_Y4yFM_NVUp7QQ/viewform"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 group ${
-                  scrolled
-                  ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 hover:shadow-indigo-300'
-                  : 'bg-white/80 backdrop-blur text-slate-900 border border-white/50 hover:border-indigo-200 hover:text-indigo-600 shadow-sm'
-                }`}
+             <button 
+                onClick={() => setActiveModal('submit')}
+                className="hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-200 hover:shadow-indigo-300 hover:from-indigo-700 hover:to-indigo-600 hover:-translate-y-0.5 transition-all duration-300 group ring-4 ring-indigo-50"
              >
-                <span>提供成績</span>
-                <svg className={`w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 ${scrolled ? 'text-indigo-200' : 'text-slate-400 group-hover:text-indigo-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-             </a>
+                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
+                </div>
+                <span>立即回報成績</span>
+             </button>
 
              <button 
                 onClick={() => setIsMenuOpen(true)}
-                className="lg:hidden p-2.5 rounded-xl text-slate-500 hover:bg-white/50 transition-colors focus:outline-none hover:text-slate-900"
+                className="lg:hidden p-2.5 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors focus:outline-none hover:text-slate-900"
              >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
              </button>
@@ -526,104 +633,79 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full z-10 relative">
+      {showStatsView ? (
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full z-10 relative">
+          <Stats 
+            data={filteredData} 
+            onBack={() => setShowStatsView(false)} 
+          />
+        </main>
+      ) : (
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full z-10 relative">
         
-        {/* New Beautiful Hero Section */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 mb-20">
-            <div className="flex-1 text-center lg:text-left space-y-6">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50/80 backdrop-blur-sm text-indigo-600 text-xs font-bold border border-indigo-100 shadow-sm">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                    </span>
-                    更新至 114 年會考資料
-                </div>
-                
-                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
-                    歷年會考 <br className="hidden lg:block"/>
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600">成績統計</span> 與落點分析
-                </h2>
-                
-                <p className="text-slate-500 text-lg lg:text-xl max-w-2xl leading-relaxed mx-auto lg:mx-0 font-medium">
-                    透過大數據分析歷年成績，快速查詢各區域序位比率與區間落點，提供精準的志願選填參考依據。
-                </p>
+        {/* Integrated Hero & Contribution Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-20 pt-8 lg:pt-12 items-stretch" id="hero-section">
+           
+           {/* Left side: Main Title */}
+           <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left relative z-10 justify-center">
+              {/* Abstract background blobs (constrained) */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-40 pointer-events-none -z-10">
+                <div className="absolute w-[300px] sm:w-[400px] h-[300px] sm:h-[400px] bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse -left-20 top-0"></div>
+              </div>
 
-                <div className="flex flex-col sm:flex-row items-center gap-4 pt-4 justify-center lg:justify-start">
-                    <button 
-                        onClick={() => document.querySelector('#stats-section')?.scrollIntoView({ behavior: 'smooth' })}
-                        className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl shadow-slate-200 hover:scale-105 hover:bg-slate-800 transition-all duration-300 w-full sm:w-auto"
-                    >
-                        開始查詢
-                    </button>
-                    <a
-                        href="https://rcpett.vercel.app/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-8 py-4 bg-white text-slate-700 rounded-2xl font-bold border border-slate-200 shadow-sm hover:border-indigo-200 hover:text-indigo-600 hover:shadow-md transition-all duration-300 w-full sm:w-auto flex items-center justify-center gap-2 group"
-                    >
-                        <span>前往全國落點主站</span>
-                        <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                    </a>
-                </div>
-            </div>
-            
-            {/* Visual Abstract Decoration */}
-            <div className="w-full lg:w-1/2 relative lg:h-[500px] flex items-center justify-center">
-                <div className="relative z-10 bg-white/40 backdrop-blur-xl p-8 rounded-[3rem] border border-white/50 shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700 max-w-md w-full">
-                    <div className="flex items-center justify-between mb-8">
-                        <div className="flex gap-2">
-                             <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                             <div className="w-3 h-3 rounded-full bg-amber-400"></div>
-                             <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
-                        </div>
-                        <div className="h-2 w-20 bg-slate-200 rounded-full"></div>
-                    </div>
-                    <div className="space-y-4">
-                        <div className="h-24 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-2xl shadow-lg shadow-indigo-200 flex items-center justify-center p-6">
-                            <div className="text-white text-center">
-                                <div className="text-3xl font-black mb-1">5A++</div>
-                                <div className="text-xs font-medium opacity-80">頂尖成績落點預測</div>
-                            </div>
-                        </div>
-                        <div className="flex gap-4">
-                            <div className="h-24 flex-1 bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
-                                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                                </div>
-                                <span className="text-xs font-bold text-slate-400">排名區間</span>
-                            </div>
-                            <div className="h-24 flex-1 bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2">
-                                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                </div>
-                                <span className="text-xs font-bold text-slate-400">準確分析</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {/* Decorative Elements behind the card */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-indigo-100/50 via-purple-100/50 to-pink-100/50 blur-3xl -z-10 rounded-full"></div>
-            </div>
+              <div className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-white/70 backdrop-blur-md text-indigo-700 font-bold border border-indigo-100 shadow-[0_4px_20px_-4px_rgba(79,70,229,0.15)] mb-8">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-600"></span>
+                  </span>
+                  <span className="text-sm tracking-wide">更新至 114 年會考資料</span>
+              </div>
+              
+              <h2 className="text-4xl sm:text-6xl xl:text-7xl font-black text-slate-900 tracking-tight leading-[1.1] drop-shadow-sm mb-8 sm:mb-10 w-full">
+                  全國會考 <br className="hidden sm:block"/>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 leading-normal pb-2 block">
+                     序位分享
+                  </span>
+              </h2>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
+                  <button 
+                      onClick={() => document.querySelector('#filter-section')?.scrollIntoView({ behavior: 'smooth' })}
+                      className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-lg shadow-slate-900/20 hover:scale-[1.02] hover:shadow-xl transition-all duration-300 text-lg hover:bg-slate-800 flex justify-center items-center gap-3 group"
+                  >
+                      開始查詢
+                      <svg className="w-5 h-5 group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                  </button>
+                  <a
+                      href="https://rcpett.vercel.app/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-8 py-4 bg-white text-slate-800 rounded-2xl font-bold border-2 border-slate-100 shadow-sm hover:border-indigo-100 hover:bg-indigo-50/50 hover:text-indigo-700 transition-all duration-300 text-lg flex items-center justify-center gap-3 group relative overflow-hidden"
+                  >
+                      <span className="relative z-10">前往全國落點主站</span>
+                      <svg className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7-7m7 7H3" /></svg>
+                  </a>
+              </div>
+           </div>
+
+           {/* Right side: Contribution Banner */}
+           <div className="lg:col-span-5 flex-1 relative z-10 flex">
+              <ContributionBanner onSubmitClick={() => setActiveModal('submit')} />
+           </div>
         </div>
 
-        <div id="stats-section">
-            <Stats data={filteredData} />
+        <div id="filter-section">
+          <FilterBar 
+            filters={filters} 
+            onChange={handleFilterChange} 
+            onReset={handleResetFilters}
+            onExport={handleExport}
+            resultCount={filteredData.length}
+          />
         </div>
-
-        {/* New Contribution Banner */}
-        <ContributionBanner />
-
-        <FilterBar 
-          filters={filters} 
-          onChange={handleFilterChange} 
-          onReset={handleResetFilters}
-          onExport={handleExport}
-          resultCount={filteredData.length}
-        />
 
         {loading ? (
-          <CardSkeleton />
+          <DataLoadingAnimation />
         ) : (
           <ScoreTable 
             data={filteredData} 
@@ -634,6 +716,7 @@ const App: React.FC = () => {
           />
         )}
       </main>
+      )}
 
       {/* Floating Comparison Dock */}
       <ComparisonDock 
@@ -650,7 +733,7 @@ const App: React.FC = () => {
               <div className="p-2.5 bg-slate-900 rounded-xl shadow-lg shadow-slate-200">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
               </div>
-              <h4 className="font-bold text-slate-900 text-lg">全國會考落點分析系統</h4>
+              <h4 className="font-bold text-slate-900 text-lg">會考全國序位分享平台</h4>
           </div>
           
           <div className="flex flex-wrap justify-center gap-4 mb-8">
