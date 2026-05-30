@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ScoreData, SortConfig, SortField } from '../types';
 
 interface ScoreTableProps {
@@ -16,6 +16,64 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, sortConfig, onSort
   useEffect(() => {
     setCurrentPage(1);
   }, [data.length, sortConfig, itemsPerPage]);
+
+  // Identify items that have the same score but different rank information
+  const variationIds = useMemo(() => {
+    const scoreGroups = new Map<string, Set<string>>();
+    
+    // Helper to safely stringify values
+    const val = (v: any) => (v === undefined || v === null) ? '' : String(v).trim();
+
+    data.forEach(item => {
+      // Create a unique signature for the "Score" (Region + Year + Subjects)
+      // We only compare items within the same region and year.
+      const scoreKey = [
+        val(item.region),
+        val(item.examYear),
+        val(item.chineseScore),
+        val(item.mathScore),
+        val(item.englishScore),
+        val(item.socialScore),
+        val(item.scienceScore),
+        val(item.essayScore)
+      ].join('|');
+
+      // Create a signature for the "Rank"
+      const rankSig = [
+        val(item.minRatio),
+        val(item.maxRatio),
+        val(item.minRankInterval),
+        val(item.maxRankInterval)
+      ].join('|');
+
+      if (!scoreGroups.has(scoreKey)) {
+        scoreGroups.set(scoreKey, new Set());
+      }
+      scoreGroups.get(scoreKey)!.add(rankSig);
+    });
+
+    const idsWithVariations = new Set<string>();
+    
+    data.forEach(item => {
+      const scoreKey = [
+        val(item.region),
+        val(item.examYear),
+        val(item.chineseScore),
+        val(item.mathScore),
+        val(item.englishScore),
+        val(item.socialScore),
+        val(item.scienceScore),
+        val(item.essayScore)
+      ].join('|');
+      
+      // If this score combination has more than 1 unique rank signature, mark it
+      if (scoreGroups.get(scoreKey)!.size > 1) {
+        idsWithVariations.add(item.id);
+      }
+    });
+
+    return idsWithVariations;
+  }, [data]);
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -97,6 +155,8 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, sortConfig, onSort
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {currentItems.map((item, index) => {
           const isPinned = pinnedItems.some(p => p.id === item.id);
+          const hasVariation = variationIds.has(item.id);
+
           return (
             <div 
                 key={item.id} 
@@ -124,13 +184,28 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, sortConfig, onSort
 
                 {/* Header */}
                 <div className="relative z-10 flex justify-between items-start mb-6 pr-8">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center flex-wrap">
                         <span className="px-3 py-1 rounded-lg bg-slate-800 text-white text-xs font-bold shadow-md shadow-slate-200">
                             {item.region}
                         </span>
                         <span className="px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-xs font-bold shadow-sm">
                             {item.examYear} 年
                         </span>
+                        
+                        {/* Duplicate/Variation Badge */}
+                        {hasVariation && (
+                            <div className="group/tooltip relative">
+                                <span className="cursor-help px-2 py-1 rounded-lg bg-amber-100 text-amber-700 text-[10px] font-bold border border-amber-200 flex items-center gap-1 shadow-sm">
+                                    <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                    序位異動
+                                </span>
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-slate-900 text-white text-xs rounded-xl opacity-0 group-hover/tooltip:opacity-100 transition-all duration-200 pointer-events-none z-30 text-center shadow-xl transform translate-y-2 group-hover/tooltip:translate-y-0">
+                                    <p className="font-bold mb-1 text-amber-300">⚠️ 注意</p>
+                                    此分數在同年度有多筆不同的序位資料，可能來自不同回報來源或區間。
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
