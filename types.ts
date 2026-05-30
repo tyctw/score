@@ -1,6 +1,7 @@
 export interface ScoreData {
   id: string; // Unique identifier for comparison
   timestamp: string;
+  email?: string;
   region: string;
   examYear: string;
   chineseScore: string;
