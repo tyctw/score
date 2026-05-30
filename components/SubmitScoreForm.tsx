@@ -227,13 +227,6 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
            </div>
         </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 font-medium text-sm flex items-center gap-2 mt-4">
-            <AlertTriangle className="w-5 h-5 shrink-0" />
-            {error}
-          </div>
-        )}
-
         <div className="flex gap-3 pt-6">
           <button
             type="button"
@@ -270,23 +263,16 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
           <div>
             <h4 className="font-bold text-amber-900 mb-1">🎁 專屬回饋活動</h4>
             <p className="text-sm font-medium text-amber-800/80 leading-relaxed">
-              填寫完整成績與序位資料，送出後即可獲得<strong className="text-amber-900">「全國落點分析」專屬邀請碼</strong>！
+              填寫完整成績與序位資料，送出後即可獲得<strong className="text-amber-900">「全國落點分析主站」專屬邀請碼</strong>！
             </p>
           </div>
        </div>
-
-       {error && (
-         <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 font-medium text-sm flex items-center gap-2">
-           <AlertTriangle className="w-5 h-5 shrink-0" />
-           {error}
-         </div>
-       )}
 
        {/* Email */}
        <div>
          <div className="flex items-center justify-between mb-2">
             <label className="block text-sm font-bold text-slate-700">電子郵件 <span className="text-red-500">*</span></label>
-            <span className="text-xs font-medium text-slate-400">不會顯示在網頁上</span>
+            <span className="text-xs font-medium text-slate-400">僅用於通知與資料審核，不會顯示在網頁上</span>
          </div>
          <div className="relative group">
            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
@@ -474,6 +460,25 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
             )}
           </button>
        </div>
+
+       {error && (
+         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+           <div className="bg-white rounded-[2rem] p-6 sm:p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95 duration-300">
+             <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4">
+                <AlertTriangle className="w-8 h-8" />
+             </div>
+             <h3 className="text-xl font-bold text-slate-900 mb-2">錯誤提示</h3>
+             <p className="text-slate-600 font-medium mb-6">{error}</p>
+             <button 
+               type="button"
+               onClick={() => setError(null)}
+               className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20 active:scale-[0.98]"
+             >
+                我知道了
+             </button>
+           </div>
+         </div>
+       )}
     </form>
   );
 }
