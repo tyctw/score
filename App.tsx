@@ -658,7 +658,7 @@ const App: React.FC = () => {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-600"></span>
                   </span>
-                  <span className="text-sm tracking-wide">更新至 114 年會考資料</span>
+                  <span className="text-sm tracking-wide">更新至 115 年會考資料</span>
               </div>
               
               <h2 className="text-4xl sm:text-6xl xl:text-7xl font-black text-slate-900 tracking-tight leading-[1.1] drop-shadow-sm mb-8 sm:mb-10 w-full">
@@ -700,6 +700,7 @@ const App: React.FC = () => {
             onChange={handleFilterChange} 
             onReset={handleResetFilters}
             onExport={handleExport}
+            onReload={loadData}
             resultCount={filteredData.length}
           />
         </div>
