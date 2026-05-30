@@ -156,15 +156,26 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
             
             <div className="space-y-4">
                {/* 落點分析網站 */}
-               <a href={`https://tyctw.github.io/spare/?invite=${generateInvitationCode()}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
-                 <div className="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                    <ExternalLink className="w-5 h-5" />
+               <a href={`https://tyctw.github.io/spare/?invite=${generateInvitationCode()}`} target="_blank" rel="noopener noreferrer" className="relative flex items-center gap-4 p-5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-xl shadow-blue-600/20 hover:shadow-2xl hover:shadow-blue-600/40 hover:-translate-y-1 transition-all duration-300 group overflow-hidden border border-blue-500/30">
+                 {/* Shine effect background animation */}
+                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+                 
+                 <div className="relative z-10 w-12 h-12 bg-white/20 backdrop-blur-sm text-white rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-white/30 transition-all shadow-inner">
+                    <ExternalLink className="w-6 h-6" />
                  </div>
-                 <div className="flex-1">
-                    <div className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">會考落點分析主站</div>
-                    <div className="text-sm font-medium text-slate-500 mt-1">邀請碼已自動帶入，無須修改。</div>
+                 <div className="flex-1 relative z-10">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1.5">
+                      <div className="font-black text-white text-lg tracking-wide">立即前往落點分析主站</div>
+                      <span className="self-start sm:self-auto px-2.5 py-0.5 rounded-full bg-amber-400 text-amber-950 text-xs font-bold shadow-sm animate-pulse flex items-center gap-1">
+                        <Gift className="w-3 h-3" /> 推薦優先點擊
+                      </span>
+                    </div>
+                    <div className="text-sm font-bold text-blue-100/90 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      專屬邀請碼已自動帶入，無須手動輸入！
+                    </div>
                  </div>
-                 <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-blue-500" />
+                 <ChevronRight className="w-6 h-6 text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all relative z-10 hidden sm:block" />
                </a>
 
                {/* 主站邀請碼獲取(備用) */}
