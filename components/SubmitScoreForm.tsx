@@ -24,6 +24,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
     return false;
   });
   const [error, setError] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -96,6 +97,10 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
       return;
     }
 
+    setShowConfirm(true);
+  };
+
+  const handleConfirmSubmit = async () => {
     setLoading(true);
     setError(null);
 
@@ -108,6 +113,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
       }
     } catch (err: any) {
       setError(err.message || '提交失敗，請稍後再試。');
+      setShowConfirm(false);
     } finally {
       setLoading(false);
     }
@@ -191,6 +197,69 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
     );
   }
 
+  if (showConfirm) {
+    return (
+      <div className="space-y-6 px-1 pb-6 pt-2 animate-in fade-in zoom-in-95 duration-300">
+        <h3 className="text-2xl font-black text-slate-900 mb-2">確認提交資料</h3>
+        <p className="text-slate-500 font-medium mb-6">請再次確認您將提交的資料內容：</p>
+        
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
+           <div className="grid grid-cols-2 gap-4 text-sm">
+              <div><span className="text-slate-400 font-bold block mb-1">會考年度</span><span className="font-black text-slate-700 text-base">{formData.examYear}</span></div>
+              <div><span className="text-slate-400 font-bold block mb-1">就學區</span><span className="font-black text-slate-700 text-base">{formData.region}</span></div>
+           </div>
+           
+           <div className="border-t border-slate-200 pt-4">
+              <span className="text-slate-400 font-bold block mb-2 text-sm">各科成績</span>
+              <div className="flex flex-wrap gap-2">
+                 <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-700">國文 {formData.chineseScore}</span>
+                 <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-700">數學 {formData.mathScore}</span>
+                 <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-700">英文 {formData.englishScore}</span>
+                 <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-700">社會 {formData.socialScore}</span>
+                 <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-700">自然 {formData.scienceScore}</span>
+                 <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-700">作文 {formData.essayScore} 級分</span>
+              </div>
+           </div>
+
+           <div className="grid grid-cols-2 gap-4 text-sm border-t border-slate-200 pt-4">
+              <div><span className="text-slate-400 font-bold block mb-1">序位區間</span><span className="font-black text-slate-700 text-base">{formData.minRankInterval} - {formData.maxRankInterval}</span></div>
+              <div><span className="text-slate-400 font-bold block mb-1">序位比率</span><span className="font-black text-slate-700 text-base">{formData.minRatio}% - {formData.maxRatio}%</span></div>
+           </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 font-medium text-sm flex items-center gap-2 mt-4">
+            <AlertTriangle className="w-5 h-5 shrink-0" />
+            {error}
+          </div>
+        )}
+
+        <div className="flex gap-3 pt-6">
+          <button
+            type="button"
+            onClick={() => setShowConfirm(false)}
+            disabled={loading}
+            className="flex-1 py-3.5 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+          >
+            返回修改
+          </button>
+          <button
+            onClick={handleConfirmSubmit}
+            disabled={loading}
+            className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 shadow-md shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                提交中...
+              </>
+            ) : '確認並送出'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 text-slate-700 max-h-[85vh] overflow-y-auto px-2 pb-6 pt-2 scrollbar-thin">
        
@@ -201,7 +270,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
           <div>
             <h4 className="font-bold text-amber-900 mb-1">🎁 專屬回饋活動</h4>
             <p className="text-sm font-medium text-amber-800/80 leading-relaxed">
-              填寫完整成績與序位資料，送出後即可獲得<strong className="text-amber-900">「全國落點分析主站」專屬邀請碼</strong>！
+              填寫完整成績與序位資料，送出後即可獲得<strong className="text-amber-900">「全國落點分析」專屬邀請碼</strong>！
             </p>
           </div>
        </div>
@@ -217,7 +286,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
        <div>
          <div className="flex items-center justify-between mb-2">
             <label className="block text-sm font-bold text-slate-700">電子郵件 <span className="text-red-500">*</span></label>
-            <span className="text-xs font-medium text-slate-400">僅用於通知與資料審核，不會顯示在網頁上</span>
+            <span className="text-xs font-medium text-slate-400">不會顯示在網頁上</span>
          </div>
          <div className="relative group">
            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
