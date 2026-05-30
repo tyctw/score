@@ -87,10 +87,11 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, sortConfig, onSort
     }
   };
 
-  const renderGradeBadge = (subject: string, grade: string, isEssay = false) => {
+  const renderGradeBadge = (subject: string, grade: string | number | undefined, isEssay = false) => {
+    const safeGrade = grade !== undefined && grade !== null ? String(grade) : '-';
     let bgClass = 'bg-slate-50 text-slate-500 border-slate-100';
-    if (grade.includes('A')) bgClass = 'bg-rose-50 text-rose-600 border-rose-100';
-    else if (grade.includes('B')) bgClass = 'bg-blue-50 text-blue-600 border-blue-100';
+    if (safeGrade.includes('A')) bgClass = 'bg-rose-50 text-rose-600 border-rose-100';
+    else if (safeGrade.includes('B')) bgClass = 'bg-blue-50 text-blue-600 border-blue-100';
     
     // Essay specific
     if (isEssay) bgClass = 'bg-purple-50 text-purple-600 border-purple-100';
@@ -99,7 +100,7 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, sortConfig, onSort
       <div className="flex flex-col items-center gap-1">
         <span className="text-[10px] text-slate-400 font-bold">{subject}</span>
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black border ${bgClass} shadow-sm`}>
-          {grade}
+          {safeGrade}
         </div>
       </div>
     );
