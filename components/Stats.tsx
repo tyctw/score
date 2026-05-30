@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { ScoreData } from '../types';
-import { BarChart3, TrendingUp, Users, Target, BookOpen, Calculator, Globe, Book, Beaker } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart3, TrendingUp, Users, Target, BookOpen, Calculator, Globe, Book, Beaker, Map } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, ZAxis, Cell } from 'recharts';
 
 interface StatsProps {
   data: ScoreData[];
@@ -10,7 +10,7 @@ interface StatsProps {
 
 export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
   const totalCount = data.length;
-  const recentYearCount = data.filter(d => d.examYear === '114').length;
+  const recentYearCount = data.filter(d => d.examYear === '115').length;
   
   // Logic for Grade Composition (5A, 4A, etc.)
   const getACount = (item: ScoreData) => {
@@ -53,6 +53,51 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
       avgMinRatio: Number((yearMap[year].minRatioSum / yearMap[year].count).toFixed(2)),
       avgMaxRatio: Number((yearMap[year].maxRatioSum / yearMap[year].count).toFixed(2)),
     }));
+  }, [data]);
+
+  const heatmapData = useMemo(() => {
+    const map: Record<string, { sumA: number, count: number }> = {};
+    const regions = new Set<string>();
+    const years = new Set<string>();
+    
+    data.forEach(item => {
+       if (!item.examYear || !item.region) return;
+       const key = `${item.examYear}-${item.region}`;
+       if (!map[key]) map[key] = { sumA: 0, count: 0 };
+       map[key].sumA += getACount(item);
+       map[key].count += 1;
+       regions.add(item.region);
+       years.add(item.examYear);
+    });
+
+    const result: any[] = [];
+    const sortedYears = Array.from(years).sort();
+    // Default region sort, roughly North to South + Islands based on constant
+    const regionOrder = ["基北區", "桃連區", "竹苗區", "中投區", "雲林區", "彰化區", "嘉義區", "台南區", "高雄區", "屏東區", "宜蘭區", "花蓮區", "台東區", "金門區", "澎湖區"];
+    const sortedRegions = Array.from(regions).sort((a, b) => {
+        const ia = regionOrder.indexOf(a);
+        const ib = regionOrder.indexOf(b);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
+    
+    sortedYears.forEach(year => {
+       sortedRegions.forEach(region => {
+          const key = `${year}-${region}`;
+          if (map[key]) {
+             result.push({
+                year,
+                region,
+                avgA: Number((map[key].sumA / map[key].count).toFixed(2)),
+                count: map[key].count
+             });
+          } else {
+             // Push an empty placeholder so coordinates still exist
+             result.push({ year, region, avgA: null, count: 0 });
+          }
+       });
+    });
+    
+    return { data: result, regions: sortedRegions, years: sortedYears };
   }, [data]);
 
   const maxVal = Math.max(...Object.values(gradeStats));
@@ -105,22 +150,89 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
     </div>
   );
 
+  const HeatmapSquare = (props: any) => {
+    const { cx, cy, payload, xAxis, yAxis } = props;
+    // Automatic sizing based on axis scale
+    const width = xAxis ? xAxis.scale.step() - 6 : 40;
+    const height = yAxis ? yAxis.scale.step() - 6 : 30;
+    
+    if (payload.avgA === null) {
+        return (
+           <rect 
+             x={cx - width/2} y={cy - height/2} 
+             width={width} height={height} 
+             fill="#f1f5f9" rx={6}
+           />
+        );
+    }
+  
+    const avgA = payload.avgA;
+    const intensity = Math.min(1, Math.max(0, avgA / 5));
+    const opacity = 0.2 + (intensity * 0.8);
+    
+    return (
+        <g>
+           <rect 
+             x={cx - width/2} y={cy - height/2} 
+             width={width} height={height} 
+             fill="#8b5cf6" fillOpacity={opacity} rx={6}
+             className="transition-all duration-300 hover:fill-indigo-600"
+           />
+           {width > 24 && height > 20 && (
+               <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fill={intensity > 0.4 ? "#ffffff" : "#475569"} fontSize={11} fontWeight="bold" pointerEvents="none">
+                  {avgA.toFixed(1)}
+               </text>
+           )}
+        </g>
+    );
+  };
+
+  const HeatmapTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      if (data.avgA === null) {
+         return (
+            <div className="bg-slate-900 border border-slate-700 p-3 rounded-xl shadow-xl text-sm">
+               <div className="font-bold text-white mb-1">{data.year} 年度 - {data.region}</div>
+               <div className="text-slate-400">目前尚無資料</div>
+            </div>
+         );
+      }
+      return (
+        <div className="bg-slate-900 border border-slate-700 p-3 rounded-xl shadow-xl text-sm">
+          <div className="font-bold text-indigo-300 mb-1">{data.year} 年度 - {data.region}</div>
+          <div className="text-slate-200">
+             <span className="text-slate-400 mr-2">平均 A 數:</span> 
+             <span className="font-black text-white">{data.avgA} 科</span>
+          </div>
+          <div className="text-slate-200 mt-1">
+             <span className="text-slate-400 mr-2">樣本數量:</span> 
+             <span className="font-black text-white">{data.count} 筆</span>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="space-y-8 text-slate-800 animate-in fade-in zoom-in-95 duration-500">
       
       {/* Header and Back navigation */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-2 pb-2">
-         <div>
-             <h2 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">完整分析報告</h2>
-             <p className="text-slate-500 font-medium">基於您當前篩選條件的詳細數據情形。</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-4 pt-2 pb-2">
+         <div className="order-2 sm:order-1">
+             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mb-1 sm:mb-2 tracking-tight">完整分析報告</h2>
+             <p className="text-sm sm:text-base text-slate-500 font-medium">基於您當前篩選條件的詳細數據情形。</p>
          </div>
-         <button 
-             onClick={onBack}
-             className="px-6 py-3 bg-white text-slate-700 font-bold border border-slate-200 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-200 hover:text-indigo-600 transition-all flex items-center gap-2 active:scale-95"
-         >
-             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-             返回主畫面
-         </button>
+         <div className="order-1 sm:order-2 w-full sm:w-auto">
+           <button 
+               onClick={onBack}
+               className="w-full sm:w-auto justify-center px-5 py-3 sm:px-6 bg-slate-900 sm:bg-white text-white sm:text-slate-700 font-bold border-none sm:border sm:border-slate-200 rounded-xl sm:rounded-2xl shadow-md sm:shadow-sm hover:shadow-lg sm:hover:shadow-md hover:bg-slate-800 sm:hover:border-indigo-200 sm:hover:text-indigo-600 transition-all flex items-center gap-2 active:scale-95"
+           >
+               <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+               <span>返回主畫面</span>
+           </button>
+         </div>
       </div>
 
       {/* Top Cards */}
@@ -134,7 +246,7 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
           icon={<Users className="w-5 h-5 text-indigo-100" />}
         />
         <Card 
-          title="114年度新進資料" 
+          title="115年度新進資料" 
           value={recentYearCount} 
           gradient="bg-gradient-to-br from-violet-500 to-purple-700"
           shadowColor="shadow-violet-500/30"
@@ -160,7 +272,7 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
           </h3>
           <p className="text-slate-500 text-sm mb-8 font-medium">觀察歷年平均序位比率（最小/最大）的變化情形，有助於研判各年度成績落在哪些區間。</p>
           <div className="h-80 w-full font-sans">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <LineChart data={yearTrendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                 <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} dy={10} />
@@ -177,6 +289,51 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
           </div>
         </div>
       )}
+
+      {/* Heatmap Chart (Cross Year & Region Average Scores) */}
+      {heatmapData.data.length > 0 && heatmapData.regions.length > 0 && (
+        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200">
+           <h3 className="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+              <Map className="w-6 h-6 text-purple-600" />
+              各年度區域入學難度熱力圖
+           </h3>
+           <p className="text-slate-500 text-sm mb-8 font-medium">展示各年度及各就學區平時表現的平均「A」級分數總計。顏色越深代表該區該年度樣本普遍達到頂標（5A）的比例越高。</p>
+           
+           <div className="w-full overflow-x-auto scroller-hide pb-4">
+               <div className="min-w-[600px]" style={{ height: Math.max(300, heatmapData.regions.length * 40 + 80) }}>
+                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                   <ScatterChart margin={{ top: 20, right: 30, bottom: 20, left: 60 }}>
+                     <XAxis 
+                        type="category" 
+                        dataKey="year" 
+                        name="年度" 
+                        allowDuplicatedCategory={false} 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fontSize: 13, fill: '#64748b', fontWeight: 'bold' }} 
+                        dy={10}
+                     />
+                     <YAxis 
+                        type="category" 
+                        dataKey="region" 
+                        data={heatmapData.regions}
+                        name="區域" 
+                        allowDuplicatedCategory={false} 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fontSize: 13, fill: '#475569', fontWeight: 'bold' }} 
+                        dx={-10}
+                     />
+                     <ZAxis dataKey="avgA" range={[0, 5]} name="平均 A 數" />
+                     <RechartsTooltip cursor={{ fill: '#f8fafc' }} content={<HeatmapTooltip />} />
+                     <Scatter data={heatmapData.data} shape={<HeatmapSquare />} />
+                   </ScatterChart>
+                 </ResponsiveContainer>
+               </div>
+           </div>
+        </div>
+      )}
+
 
       {/* Grade Distribution Chart */}
       <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200">
