@@ -79,6 +79,15 @@ const ContributionBanner = ({ onSubmitClick }: { onSubmitClick: () => void }) =>
 );
 
 const App: React.FC = () => {
+  const generateInvitationCode = () => {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var day = String(now.getDate()).padStart(2, '0');
+    var hour = String(now.getHours()).padStart(2, '0');
+    return "SH" + year + month + day + hour;
+  };
+
   const [data, setData] = useState<ScoreData[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeModal, setActiveModal] = useState<'usage' | 'disclaimer' | 'contact' | 'compare' | 'submit' | null>(null);
@@ -528,7 +537,7 @@ const App: React.FC = () => {
               <div className="space-y-3 pt-4 border-t border-slate-100">
                  <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase ml-1">相關資源</h3>
                  <div className="space-y-2.5">
-                    <a href="https://tyctw.github.io/spare/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white border border-slate-200 shadow-sm rounded-xl text-sm font-bold text-slate-700 active:scale-95 transition-transform w-full">
+                    <a href={`https://tyctw.github.io/spare/?invite=${generateInvitationCode()}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white border border-slate-200 shadow-sm rounded-xl text-sm font-bold text-slate-700 active:scale-95 transition-transform w-full">
                        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                        </div>
@@ -606,7 +615,7 @@ const App: React.FC = () => {
              
              <div className="w-px h-4 bg-slate-300 mx-2"></div>
 
-             <a href="https://tyctw.github.io/spare/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">落點分析</a>
+             <a href="https://tyctw.github.io/volunteer/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">志願選填</a>
              <a href="https://tyctw.github.io/shared/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">錄取分享</a>
              <button onClick={() => setActiveModal('contact')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">聯絡我們</button>
           </nav>
