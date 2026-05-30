@@ -257,9 +257,9 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
          <h4 className="font-bold text-slate-900 border-b border-slate-100 pb-3 text-lg flex items-center gap-2">
             會考成績 <span className="text-red-500">*</span>
          </h4>
-         <div className="flex flex-col gap-6">
+         <div className="flex flex-col gap-6 sm:gap-0 sm:divide-y sm:divide-slate-100">
            {['chineseScore', 'englishScore', 'mathScore', 'socialScore', 'scienceScore'].map((subj) => (
-             <div key={subj} className="relative group sm:flex sm:items-center sm:gap-4">
+             <div key={subj} className="relative group sm:flex sm:items-center sm:gap-4 sm:py-4">
                 <label className="block text-sm font-bold text-slate-600 mb-3 sm:mb-0 sm:w-16 flex-shrink-0">
                   {subj === 'chineseScore' ? '國文' : 
                    subj === 'englishScore' ? '英文' : 
@@ -284,7 +284,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
                 </div>
              </div>
            ))}
-           <div className="relative group sm:flex sm:items-center sm:gap-4">
+           <div className="relative group sm:flex sm:items-center sm:gap-4 sm:py-4">
               <label className="block text-sm font-bold text-slate-600 mb-3 sm:mb-0 sm:w-16 flex-shrink-0">作文</label>
               <div className="flex flex-wrap gap-2">
                  {essayScores.map(s => (
