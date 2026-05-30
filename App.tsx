@@ -40,7 +40,7 @@ const DataLoadingAnimation = () => (
 
 // New CTA Component for Contribution
 const ContributionBanner = ({ onSubmitClick }: { onSubmitClick: () => void }) => (
-  <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] bg-slate-900 shadow-xl shadow-indigo-500/10 group transform transition-all hover:scale-[1.01] h-full flex flex-col justify-center">
+  <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] bg-slate-900 shadow-xl shadow-indigo-500/10 group transform transition-all hover:scale-[1.01] w-full h-full flex flex-col justify-center">
     {/* Abstract Background */}
     <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full blur-3xl opacity-50 group-hover:opacity-70 transition-opacity duration-700"></div>
     <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-gradient-to-tr from-blue-500 to-cyan-500 rounded-full blur-2xl opacity-30"></div>
@@ -66,7 +66,7 @@ const ContributionBanner = ({ onSubmitClick }: { onSubmitClick: () => void }) =>
         <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-2xl blur opacity-30 group-hover/btn:opacity-50 transition duration-300"></div>
         <button 
           onClick={onSubmitClick}
-          className="relative w-full sm:w-auto bg-white text-slate-900 hover:bg-slate-50 px-8 py-4 rounded-2xl font-bold shadow-xl shadow-white/10 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group/btn mx-auto"
+          className="relative w-full lg:w-auto bg-white text-slate-900 hover:bg-slate-50 px-8 py-4 rounded-2xl font-bold shadow-xl shadow-white/10 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group/btn mx-auto"
         >
           <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-100 to-cyan-100 text-indigo-600 flex items-center justify-center group-hover/btn:scale-110 transition-transform">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
@@ -689,7 +689,7 @@ const App: React.FC = () => {
            </div>
 
            {/* Right side: Contribution Banner */}
-           <div className="lg:col-span-5 flex-1 relative z-10 flex">
+           <div className="lg:col-span-5 flex-1 w-full relative z-10 flex">
               <ContributionBanner onSubmitClick={() => setActiveModal('submit')} />
            </div>
         </div>
