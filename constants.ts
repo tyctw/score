@@ -19,4 +19,4 @@ export const GRADE_COLORS: Record<string, string> = {
 };
 
 // Based on the prompt's provided script URL
-export const API_URL = 'https://script.google.com/macros/s/AKfycbwqzSCNkZp5zi6MOa-N2kE470X8OVGlHIuNZw7x25UarqIGg6N18XoJRQyxyy5z--LZ/exec';
+export const API_URL = 'https://script.google.com/macros/s/AKfycbxa7ZibkopmAZWcdqlDp1371obT1_4bAHoBwL7tXupaTW2QzjRwNBBTIiERS4ADkFI/exec';
