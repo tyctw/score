@@ -140,25 +140,36 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
             
             <div className="space-y-4">
                {/* 主站邀請碼獲取 */}
-               <a href="https://tyctw.github.io/invite/" target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
+               <a href="https://tyctw.github.io/invite/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
                  <div className="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all">
                     <Key className="w-5 h-5" />
                  </div>
-                 <div>
-                    <div className="font-bold text-slate-800 mb-1 group-hover:text-indigo-600 transition-colors">全國落點分析獲取邀請碼</div>
-                    <div className="text-sm font-medium text-slate-500 truncate max-w-[200px] sm:max-w-sm">https://tyctw.github.io/invite/</div>
+                 <div className="flex-1">
+                    <div className="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">全國落點分析獲取邀請碼</div>
                  </div>
+                 <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
                </a>
                
-               {/* 備用 */}
-               <a href="https://tyctw.github.io/spare/" target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
+               {/* 備用邀請碼獲取系統 */}
+               <a href="https://tyctw.github.io/apply/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
+                 <div className="w-10 h-10 bg-violet-50 text-violet-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-violet-500 group-hover:text-white transition-all">
+                    <Key className="w-5 h-5" />
+                 </div>
+                 <div className="flex-1">
+                    <div className="font-bold text-slate-800 group-hover:text-violet-600 transition-colors">備用邀請碼獲取系統</div>
+                 </div>
+                 <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-violet-500" />
+               </a>
+
+               {/* 落點分析網站 */}
+               <a href="https://tyctw.github.io/spare/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
                  <div className="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all">
                     <ExternalLink className="w-5 h-5" />
                  </div>
-                 <div>
-                    <div className="font-bold text-slate-800 mb-1 group-hover:text-blue-600 transition-colors">會考落點分析網站</div>
-                    <div className="text-sm font-medium text-slate-500 truncate max-w-[200px] sm:max-w-sm">https://tyctw.github.io/spare/</div>
+                 <div className="flex-1">
+                    <div className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">會考落點分析主站</div>
                  </div>
+                 <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-blue-500" />
                </a>
             </div>
 
