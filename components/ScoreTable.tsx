@@ -19,7 +19,8 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, sortConfig, onSort
 
   // Identify items that have the same score but different rank information
   const variationIds = useMemo(() => {
-    const scoreGroups = new Map<string, Set<string>>();
+    // scoreGroups maps scoreKey -> (maps rankSig -> count)
+    const scoreGroups = new Map<string, Map<string, number>>();
     
     // Helper to safely stringify values
     const val = (v: any) => (v === undefined || v === null) ? '' : String(v).trim();
@@ -47,9 +48,10 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, sortConfig, onSort
       ].join('|');
 
       if (!scoreGroups.has(scoreKey)) {
-        scoreGroups.set(scoreKey, new Set());
+        scoreGroups.set(scoreKey, new Map<string, number>());
       }
-      scoreGroups.get(scoreKey)!.add(rankSig);
+      const rankCounts = scoreGroups.get(scoreKey)!;
+      rankCounts.set(rankSig, (rankCounts.get(rankSig) || 0) + 1);
     });
 
     const idsWithVariations = new Set<string>();
@@ -66,8 +68,22 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, sortConfig, onSort
         val(item.essayScore)
       ].join('|');
       
-      // If this score combination has more than 1 unique rank signature, mark it
-      if (scoreGroups.get(scoreKey)!.size > 1) {
+      const rankSig = [
+        val(item.minRatio),
+        val(item.maxRatio),
+        val(item.minRankInterval),
+        val(item.maxRankInterval)
+      ].join('|');
+
+      const rankCounts = scoreGroups.get(scoreKey)!;
+      
+      // The user wants to mark the anomaly:
+      // When there are >= 2 identical ranks (a majority)
+      // AND this item is a single different one (or just a minority one).
+      const hasMajority = Array.from(rankCounts.values()).some(count => count >= 2);
+      const isMinority = rankCounts.get(rankSig) === 1;
+
+      if (hasMajority && isMinority) {
         idsWithVariations.add(item.id);
       }
     });
