@@ -141,7 +141,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
                  </div>
                  <div>
                     <div className="font-bold text-slate-800 mb-1 group-hover:text-blue-600 transition-colors">邀請碼獲取</div>
-                    <div className="text-sm font-medium text-slate-500 truncate max-w-[200px] sm:max-w-sm">https://tyctw.github.io/spare/nationwidewef.html</div>
+                    <div className="text-sm font-medium text-slate-500 truncate max-w-[200px] sm:max-w-sm">https://tyctw.github.io/invite/</div>
                  </div>
                </a>
                
@@ -185,7 +185,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
           <div>
             <h4 className="font-bold text-amber-900 mb-1">🎁 專屬回饋活動</h4>
             <p className="text-sm font-medium text-amber-800/80 leading-relaxed">
-              填寫完整成績與序位資料，送出後即可獲得<strong className="text-amber-900">「全國落點分析主站」專屬邀請碼</strong>！
+              填寫完整成績與序位資料，送出後即可獲得<strong className="text-amber-900">「全國落點分析」專屬邀請碼</strong>！
             </p>
           </div>
        </div>
@@ -201,7 +201,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
        <div>
          <div className="flex items-center justify-between mb-2">
             <label className="block text-sm font-bold text-slate-700">電子郵件 <span className="text-red-500">*</span></label>
-            <span className="text-xs font-medium text-slate-400">僅用於通知與資料審核，不會顯示在網頁上</span>
+            <span className="text-xs font-medium text-slate-400">不會顯示在網頁上</span>
          </div>
          <div className="relative group">
            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
