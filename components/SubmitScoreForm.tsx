@@ -9,7 +9,20 @@ interface SubmitScoreFormProps {
 
 export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, onCancel }) => {
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const lastSubmit = localStorage.getItem('submit_success_timestamp');
+      if (lastSubmit) {
+        const timeDiff = Date.now() - parseInt(lastSubmit, 10);
+        if (timeDiff < 60 * 60 * 1000) {
+          return true;
+        } else {
+          localStorage.removeItem('submit_success_timestamp');
+        }
+      }
+    }
+    return false;
+  });
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
@@ -90,6 +103,9 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
     try {
       await submitScore(formData);
       setSuccess(true);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('submit_success_timestamp', Date.now().toString());
+      }
     } catch (err: any) {
       setError(err.message || '提交失敗，請稍後再試。');
     } finally {
@@ -123,36 +139,25 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
             </div>
             
             <div className="space-y-4">
-               {/* 1. 會考落點分析網站 */}
-               <a href="https://tyctw.github.io/spare/" target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
+               {/* 主站邀請碼獲取 */}
+               <a href="https://tyctw.github.io/invite/" target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
                  <div className="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                    <ExternalLink className="w-5 h-5" />
-                 </div>
-                 <div>
-                    <div className="font-bold text-slate-800 mb-1 group-hover:text-indigo-600 transition-colors">會考落點分析網站</div>
-                    <div className="text-sm font-medium text-slate-500 truncate max-w-[200px] sm:max-w-sm">https://tyctw.github.io/spare/</div>
-                 </div>
-               </a>
-               
-               {/* 2. 邀請碼獲取 */}
-               <a href="https://tyctw.github.io/spare/nationwidewef.html" target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
-                 <div className="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all">
                     <Key className="w-5 h-5" />
                  </div>
                  <div>
-                    <div className="font-bold text-slate-800 mb-1 group-hover:text-blue-600 transition-colors">邀請碼獲取</div>
+                    <div className="font-bold text-slate-800 mb-1 group-hover:text-indigo-600 transition-colors">全國落點分析獲取邀請碼</div>
                     <div className="text-sm font-medium text-slate-500 truncate max-w-[200px] sm:max-w-sm">https://tyctw.github.io/invite/</div>
                  </div>
                </a>
                
-               {/* 3. 邀請碼獲取備用 */}
-               <a href="https://tyctw.github.io/apply" target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
-                 <div className="w-10 h-10 bg-violet-50 text-violet-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-violet-500 group-hover:text-white transition-all">
-                    <Key className="w-5 h-5" />
+               {/* 備用 */}
+               <a href="https://tyctw.github.io/spare/" target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
+                 <div className="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                    <ExternalLink className="w-5 h-5" />
                  </div>
                  <div>
-                    <div className="font-bold text-slate-800 mb-1 group-hover:text-violet-600 transition-colors">邀請碼獲取（備用）</div>
-                    <div className="text-sm font-medium text-slate-500 truncate max-w-[200px] sm:max-w-sm">https://tyctw.github.io/apply</div>
+                    <div className="font-bold text-slate-800 mb-1 group-hover:text-blue-600 transition-colors">會考落點分析網站</div>
+                    <div className="text-sm font-medium text-slate-500 truncate max-w-[200px] sm:max-w-sm">https://tyctw.github.io/spare/</div>
                  </div>
                </a>
             </div>
@@ -185,7 +190,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
           <div>
             <h4 className="font-bold text-amber-900 mb-1">🎁 專屬回饋活動</h4>
             <p className="text-sm font-medium text-amber-800/80 leading-relaxed">
-              填寫完整成績與序位資料，送出後即可獲得<strong className="text-amber-900">「全國落點分析」專屬邀請碼</strong>！
+              填寫完整成績與序位資料，送出後即可獲得<strong className="text-amber-900">「全國落點分析主站」專屬邀請碼</strong>！
             </p>
           </div>
        </div>
@@ -201,7 +206,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
        <div>
          <div className="flex items-center justify-between mb-2">
             <label className="block text-sm font-bold text-slate-700">電子郵件 <span className="text-red-500">*</span></label>
-            <span className="text-xs font-medium text-slate-400">不會顯示在網頁上</span>
+            <span className="text-xs font-medium text-slate-400">僅用於通知與資料審核，不會顯示在網頁上</span>
          </div>
          <div className="relative group">
            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
