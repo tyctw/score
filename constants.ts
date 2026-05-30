@@ -4,7 +4,7 @@ export const REGIONS = [
   "金門區", "澎湖區"
 ];
 
-export const YEARS = ["114", "113", "112", "111"];
+export const YEARS = ["115", "114", "113", "112", "111"];
 
 export const GRADES = ["A++", "A+", "A", "B++", "B+", "B", "C"];
 
