@@ -28,7 +28,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
 
   const [formData, setFormData] = useState({
     email: '',
-    examYear: '115',
+    examYear: Date.now() >= new Date('2026-06-17T12:00:00+08:00').getTime() ? '115' : '114',
     region: '基北區',
     chineseScore: '',
     mathScore: '',
@@ -301,7 +301,9 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
              className="w-full px-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none font-medium text-slate-700 transition-all shadow-sm hover:border-slate-300 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:1.5em_1.5em] bg-no-repeat bg-[position:right_1rem_center]"
              required
            >
-             <option value="115">115</option>
+             {Date.now() >= new Date('2026-06-18T12:00:00+08:00').getTime() && (
+               <option value="115">115</option>
+             )}
              <option value="114">114</option>
              <option value="113">113</option>
              <option value="112">112</option>
