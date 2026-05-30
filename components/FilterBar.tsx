@@ -188,10 +188,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onChange, onReset
                     <span className="font-black text-slate-800 text-sm">{sub.label}</span>
                 </div>
                 
-                <div className="flex-1 flex flex-wrap gap-1.5 border border-slate-200 bg-white p-1.5 rounded-2xl sm:rounded-full">
+                <div className="flex-1 flex flex-nowrap overflow-x-auto scroller-hide gap-1 border border-slate-200 bg-white p-1 rounded-full">
                     <button
                     onClick={() => onChange(sub.key as keyof FilterState, '')}
-                    className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 ${
+                    className={`shrink-0 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 ${
                         filters[sub.key as keyof FilterState] === ''
                         ? 'bg-slate-900 text-white shadow-md' 
                         : 'bg-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-700'
@@ -220,7 +220,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onChange, onReset
                         <button
                         key={grade}
                         onClick={() => handleGradeClick(sub.key as keyof FilterState, grade)}
-                        className={`px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 ${
+                        className={`shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 ${
                             isActive
                             ? activeClass
                             : `bg-transparent text-slate-500 ${inactiveHover}`
