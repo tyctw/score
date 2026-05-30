@@ -161,12 +161,14 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, sortConfig, onSort
           return (
             <div 
                 key={item.id} 
-                className={`group bg-white rounded-[2rem] p-6 shadow-sm border transition-all duration-300 relative overflow-hidden ${
+                className={`group bg-white rounded-[2rem] p-6 shadow-sm border transition-all duration-300 relative hover:z-50 ${
                     isPinned ? 'border-indigo-400 ring-4 ring-indigo-50 shadow-lg' : 'border-slate-100 hover:shadow-xl hover:shadow-slate-200/50 hover:border-indigo-100 hover:-translate-y-1'
                 }`}
             >
                 {/* Decorative background blob */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-bl-[60px] -z-0 opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+                <div className="absolute inset-0 overflow-hidden rounded-[2rem] pointer-events-none">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-bl-[60px] -z-0 opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+                </div>
 
                 {/* Comparison Pin Button */}
                 <button
