@@ -15,7 +15,7 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
   // Logic for Grade Composition (5A, 4A, etc.)
   const getACount = (item: ScoreData) => {
     const subjects = [item.chineseScore, item.mathScore, item.englishScore, item.socialScore, item.scienceScore];
-    return subjects.filter(s => s && s.includes('A')).length;
+    return subjects.filter(s => s && String(s).includes('A')).length;
   };
 
   const gradeStats = useMemo(() => {
