@@ -466,7 +466,7 @@ const App: React.FC = () => {
       case 'disclaimer': return '免責聲明';
       case 'contact': return '聯絡我們';
       case 'compare': return '落點比較';
-      case 'submit': return '提供成績與落點';
+      case 'submit': return '提供序位資料';
       default: return '';
     }
   };
