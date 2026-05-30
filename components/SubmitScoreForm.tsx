@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { submitScore } from '../services/api';
-import { Mail, CheckCircle2, ChevronRight, Loader2, AlertTriangle, ExternalLink, Key, Gift, Info } from 'lucide-react';
+import { Mail, CheckCircle2, ChevronRight, Loader2, AlertTriangle, ExternalLink, Key, Gift, Info, Clock } from 'lucide-react';
 
 interface SubmitScoreFormProps {
   onSubmited: () => void;
@@ -23,6 +23,16 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
     }
     return false;
   });
+
+  const generateInvitationCode = () => {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var day = String(now.getDate()).padStart(2, '0');
+    var hour = String(now.getHours()).padStart(2, '0');
+    return "SH" + year + month + day + hour;
+  };
+
   const [error, setError] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -145,47 +155,60 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
             </div>
             
             <div className="space-y-4">
-               {/* 主站邀請碼獲取 */}
+               {/* 落點分析網站 */}
+               <a href={`https://tyctw.github.io/spare/?invite=${generateInvitationCode()}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
+                 <div className="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                    <ExternalLink className="w-5 h-5" />
+                 </div>
+                 <div className="flex-1">
+                    <div className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">會考落點分析主站</div>
+                    <div className="text-sm font-medium text-slate-500 mt-1">邀請碼已自動帶入，無須修改。</div>
+                 </div>
+                 <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-blue-500" />
+               </a>
+
+               {/* 主站邀請碼獲取(備用) */}
                <a href="https://tyctw.github.io/invite/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
                  <div className="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all">
                     <Key className="w-5 h-5" />
                  </div>
                  <div className="flex-1">
                     <div className="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">全國落點分析獲取邀請碼</div>
+                    <div className="text-sm font-medium text-slate-500 mt-1">如發現上方邀請碼無效，請使用此連結重新獲取。</div>
                  </div>
                  <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
                </a>
-               
-               {/* 備用邀請碼獲取系統 */}
-               <a href="https://tyctw.github.io/apply/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
-                 <div className="w-10 h-10 bg-violet-50 text-violet-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-violet-500 group-hover:text-white transition-all">
-                    <Key className="w-5 h-5" />
-                 </div>
-                 <div className="flex-1">
-                    <div className="font-bold text-slate-800 group-hover:text-violet-600 transition-colors">備用邀請碼獲取系統</div>
-                 </div>
-                 <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-violet-500" />
-               </a>
-
-               {/* 落點分析網站 */}
-               <a href="https://tyctw.github.io/spare/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-indigo-50/50 hover:border-indigo-200 hover:shadow-md transition-all group">
-                 <div className="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                    <ExternalLink className="w-5 h-5" />
-                 </div>
-                 <div className="flex-1">
-                    <div className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">會考落點分析主站</div>
-                 </div>
-                 <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-blue-500" />
-               </a>
             </div>
 
-            <div className="mt-6 pt-5 border-t border-indigo-200/50 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                 <Info className="w-4 h-4" />
-              </div>
-              <p className="text-sm text-indigo-900/80 font-medium leading-relaxed">
-                <strong className="text-indigo-950">提醒：</strong> 分析結果僅供參考，請搭配志願興趣與家人師長建議謹慎選填！
-              </p>
+            <div className="mt-6 pt-5 border-t border-indigo-200/50 flex flex-col gap-4">
+               <div className="flex items-start gap-3">
+                 <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                    <Clock className="w-4 h-4" />
+                 </div>
+                 <p className="text-sm text-indigo-900/80 font-medium leading-relaxed mt-1.5">
+                   <strong className="text-indigo-950">邀請碼到期時間：</strong> 
+                   {(() => {
+                      const now = new Date();
+                      const expiration = new Date(now);
+                      expiration.setMinutes(59, 59, 999);
+                      return expiration.toLocaleString('zh-TW', {
+                        month: 'numeric',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                      });
+                   })()}
+                 </p>
+               </div>
+               <div className="flex items-start gap-3">
+                 <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                    <Info className="w-4 h-4" />
+                 </div>
+                 <p className="text-sm text-indigo-900/80 font-medium leading-relaxed mt-1.5">
+                   <strong className="text-indigo-950">提醒：</strong> 分析結果僅供參考，請搭配志願興趣與家人師長建議謹慎選填！
+                 </p>
+               </div>
             </div>
           </div>
         </div>
