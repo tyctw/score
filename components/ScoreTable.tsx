@@ -13,6 +13,7 @@ interface ScoreTableProps {
 export const ScoreTable: React.FC<ScoreTableProps> = ({ data, allData, sortConfig, onSort, onTogglePin, pinnedItems }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
+  const [reportItem, setReportItem] = useState<ScoreData | null>(null);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -251,19 +252,31 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, allData, sortConfi
                 </div>
 
                 {/* Comparison Pin Button */}
-                <button
-                    onClick={() => onTogglePin(item)}
-                    className={`absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300 ${
-                        isPinned 
-                        ? 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200' 
-                        : 'bg-white/80 text-slate-300 hover:text-indigo-500 hover:bg-indigo-50'
-                    }`}
-                    title={isPinned ? "取消比較" : "加入比較"}
-                >
-                    <svg className="w-5 h-5" fill={isPinned ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                </button>
+                <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                    {/* Report Button */}
+                    <button
+                        onClick={() => setReportItem(item)}
+                        className="w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300 bg-white/50 text-slate-300 hover:text-rose-500 hover:bg-rose-50"
+                        title="分數異常回報"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                        </svg>
+                    </button>
+                    <button
+                        onClick={() => onTogglePin(item)}
+                        className={`w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300 ${
+                            isPinned 
+                            ? 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200' 
+                            : 'bg-white/80 text-slate-300 hover:text-indigo-500 hover:bg-indigo-50'
+                        }`}
+                        title={isPinned ? "取消比較" : "加入比較"}
+                    >
+                        <svg className="w-5 h-5" fill={isPinned ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </button>
+                </div>
 
                 {/* Header */}
                 <div className="relative z-10 flex justify-between items-start mb-6 pr-8">
@@ -394,6 +407,42 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, allData, sortConfi
             </div>
         </div>
       </div>
+
+      {/* Report Modal */}
+      {reportItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+           <div className="bg-white rounded-[2rem] p-6 md:p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200 relative overflow-hidden">
+              <div className="absolute top-0 right-0 -mr-16 -mt-16 w-40 h-40 bg-rose-50 rounded-full blur-3xl z-0 pointer-events-none"></div>
+              
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mb-6 mx-auto shadow-sm shadow-rose-100/50">
+                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                   </svg>
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 mb-2 text-center">分數異常回報</h3>
+                <p className="text-slate-600 mb-8 text-center text-sm font-medium leading-relaxed">
+                   感謝您協助反映資料異常。<br/>
+                   由於人工審核需要時間，<span className="text-rose-600 font-bold">請確認發現明顯錯誤再送出</span>，以避免占用其他使用者的回報資源。<br/><br/>
+                   即將透過 Email 提供回報資訊，確定要繼續嗎？
+                </p>
+                <div className="flex gap-3">
+                   <button onClick={() => setReportItem(null)} className="flex-1 px-4 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 border border-slate-200 hover:bg-slate-200 transition-colors active:scale-95 shadow-sm">
+                      取消
+                   </button>
+                   <a 
+                      href={`mailto:tyctw.analyze@gmail.com?subject=分數異常回報 (ID: ${reportItem.id})&body=您好，我要回報這筆資料出現異常。%0D%0A%0D%0A【資料資訊】%0D%0A資料ID：${reportItem.id}%0D%0A年份區域：${reportItem.examYear}年 ${reportItem.region}%0D%0A各科成績：國${reportItem.chineseScore} 英${reportItem.englishScore} 數${reportItem.mathScore} 社${reportItem.socialScore} 自${reportItem.scienceScore} 作文${reportItem.essayScore}%0D%0A序位區間：${reportItem.minRankInterval || '-'} ~ ${reportItem.maxRankInterval || '-'}%0D%0A%0D%0A【您認為異常的原因】%0D%0A(請在此輸入您發現的問題：例如區間錯誤、比率不合理等...)%0D%0A`}
+                      onClick={() => setReportItem(null)}
+                      className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-rose-600 hover:bg-rose-700 transition-colors text-center shadow-lg shadow-rose-600/20 active:scale-95 flex items-center justify-center gap-2"
+                   >
+                      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                      開啟 Email
+                   </a>
+                </div>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 };
