@@ -136,9 +136,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
 
   if (success) {
     return (
-      <div className="w-full max-w-3xl mx-auto bg-white/90 backdrop-blur-xl p-6 sm:p-12 rounded-[2rem] shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100/50 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500 relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-emerald-50/80 rounded-full blur-3xl z-0 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-blue-50/50 rounded-full blur-3xl z-0 pointer-events-none"></div>
+      <div className="max-w-3xl mx-auto flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500 relative">
         <div className="relative z-10 w-full flex flex-col items-center">
         <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-500 text-white rounded-full flex items-center justify-center mb-6 shadow-xl shadow-emerald-500/30 animate-[bounce_1s_ease-in-out]">
           <CheckCircle2 className="w-10 h-10" />
@@ -242,8 +240,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
 
   if (showConfirm) {
     return (
-      <div className="w-full max-w-3xl mx-auto bg-white/90 backdrop-blur-xl p-6 sm:p-10 rounded-[2rem] shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100/50 animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-slate-50/80 rounded-full blur-3xl z-0 pointer-events-none"></div>
+      <div className="max-w-3xl mx-auto animate-in fade-in zoom-in-95 duration-300 relative">
         <div className="relative z-10 space-y-6">
         <h3 className="text-3xl font-black text-slate-900 tracking-tight mb-2">確認提交資料</h3>
         <p className="text-slate-500 font-medium mb-6">請再次確認您將提交的資料內容：</p>
@@ -300,10 +297,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto bg-white/90 backdrop-blur-xl p-6 sm:p-10 rounded-[2rem] shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100/50 relative overflow-hidden">
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-slate-50/80 rounded-full blur-3xl z-0 pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl z-0 pointer-events-none"></div>
-      
+    <div className="max-w-3xl mx-auto relative">
       <div className="relative z-10">
         <button 
           type="button"
@@ -408,13 +402,13 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
                    subj === 'mathScore' ? '數學' : 
                    subj === 'socialScore' ? '社會' : '自然'}
                 </label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 w-full sm:flex-1">
                   {scores.map(s => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => handleScoreSelect(subj, s)}
-                      className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all active:scale-95 flex-1 min-w-[3rem] sm:flex-none ${
+                      className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all active:scale-95 flex-1 min-w-[3rem] ${
                         (formData as any)[subj] === s 
                           ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 ring-2 ring-indigo-600 ring-offset-2' 
                           : 'bg-slate-50 text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50'
@@ -428,13 +422,13 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
            ))}
            <div className="relative group sm:flex sm:items-center sm:gap-4 sm:py-4">
               <label className="block text-sm font-bold text-slate-600 mb-3 sm:mb-0 sm:w-16 flex-shrink-0">作文</label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 w-full sm:flex-1">
                  {essayScores.map(s => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => handleScoreSelect('essayScore', s)}
-                      className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all active:scale-95 flex-1 min-w-[4rem] sm:flex-none ${
+                      className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all active:scale-95 flex-1 min-w-[3.5rem] ${
                         formData.essayScore === s 
                           ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 ring-2 ring-indigo-600 ring-offset-2' 
                           : 'bg-slate-50 text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50'
