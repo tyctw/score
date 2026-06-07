@@ -64,6 +64,19 @@
                 600: '#2563eb',
                 700: '#1d4ed8',
               }
+            },
+            keyframes: {
+              shimmer: {
+                '100%': { transform: 'translateX(100%)' },
+              },
+              slideUp: {
+                '0%': { transform: 'translateY(100%)', opacity: 0 },
+                '100%': { transform: 'translateY(0)', opacity: 1 },
+              }
+            },
+            animation: {
+              shimmer: 'shimmer 1.5s infinite',
+              slideUp: 'slideUp 0.3s ease-out forwards',
             }
           }
         }
@@ -84,6 +97,14 @@
       .scrollbar-thin::-webkit-scrollbar-thumb {
         background-color: #cbd5e1;
         border-radius: 4px;
+      }
+      
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
       }
     </style>
   <script type="importmap">

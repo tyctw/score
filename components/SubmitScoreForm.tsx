@@ -139,6 +139,8 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
 
   // showConfirm and success will be handled as modals.
 
+  const is115Locked = formData.examYear === '115' && Date.now() < new Date('2026-06-16T12:00:00+08:00').getTime();
+
   return (
     <div className="max-w-3xl mx-auto relative">
       <div className="relative z-10">
@@ -156,19 +158,20 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
            <p className="text-slate-500 font-medium text-sm sm:text-base leading-relaxed max-w-xl">您的每一次分享，都將化作學弟妹未來選填志願時的一盞明燈，感謝您的熱心參與！</p>
         </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8 text-slate-700">
-         
-         <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 p-5 rounded-2xl flex items-start gap-4 shadow-sm shadow-amber-100/50">
-          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-             <Gift className="w-5 h-5 text-amber-600" />
-          </div>
-          <div>
-            <h4 className="font-bold text-amber-900 mb-1">🎁 專屬回饋活動</h4>
-            <p className="text-sm font-medium text-amber-800/80 leading-relaxed">
-              填寫完整成績與序位資料，送出後即可獲得<strong className="text-amber-900">「全國落點分析」專屬邀請碼</strong>！
-            </p>
-          </div>
-       </div>
+      <form onSubmit={handleSubmit} className="space-y-8 text-slate-700 bg-white/60 backdrop-blur-3xl border border-white p-6 sm:p-10 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative">
+         <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent rounded-[2.5rem] pointer-events-none"></div>
+         <div className="relative z-10 space-y-8">
+           <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 p-5 rounded-2xl flex items-start gap-4 shadow-sm shadow-amber-100/50">
+            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+               <Gift className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <h4 className="font-bold text-amber-900 mb-1">🎁 專屬回饋活動</h4>
+              <p className="text-sm font-medium text-amber-800/80 leading-relaxed">
+                填寫完整成績與序位資料，送出後即可獲得<strong className="text-amber-900">「全國落點分析」專屬邀請碼</strong>！
+              </p>
+            </div>
+         </div>
 
        {/* Email */}
        <div className="group/field relative">
@@ -203,7 +206,9 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
              className="w-full px-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none font-medium text-slate-700 transition-all shadow-sm hover:border-slate-300 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:1.5em_1.5em] bg-no-repeat bg-[position:right_1rem_center]"
              required
            >
-             <option value="115">115</option>
+             {Date.now() >= new Date('2026-06-16T12:00:00+08:00').getTime() 
+                 ? <option value="115">115</option>
+                 : <option value="115">115 (未開放)</option>}
              <option value="114">114</option>
              <option value="113">113</option>
              <option value="112">112</option>
@@ -356,11 +361,15 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
           </button>
           <button 
             type="submit" 
-            disabled={loading}
-            className="w-full sm:w-2/3 px-4 py-4 rounded-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-xl shadow-slate-900/20 hover:shadow-slate-900/30 hover:from-slate-800 hover:to-slate-700 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group active:scale-[0.98] disabled:opacity-70 disabled:hover:translate-y-0 disabled:active:scale-100"
+            disabled={loading || is115Locked}
+            className="w-full sm:w-2/3 px-4 py-4 rounded-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-xl shadow-slate-900/20 hover:shadow-slate-900/30 hover:from-slate-800 hover:to-slate-700 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group active:scale-[0.98] disabled:opacity-70 disabled:hover:translate-y-0 disabled:active:scale-100 disabled:cursor-not-allowed"
           >
             {loading ? (
               <Loader2 className="w-6 h-6 animate-spin text-slate-300" />
+            ) : is115Locked ? (
+              <span className="flex items-center gap-2">
+                 尚未開放填寫
+              </span>
             ) : (
               <span className="flex items-center gap-2">
                  送出成績資料
@@ -389,6 +398,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
          </div>,
          document.body
        )}
+       </div>
       </form>
 
       {/* Confirm Modal */}
