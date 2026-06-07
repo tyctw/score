@@ -634,7 +634,7 @@ const App: React.FC = () => {
       </header>
 
       {showSubmitView ? (
-        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full z-10 relative flex justify-center">
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full z-10 relative flex flex-col items-center">
            <div className="w-full max-w-3xl">
               <SubmitScoreForm
                  onSubmited={() => {
