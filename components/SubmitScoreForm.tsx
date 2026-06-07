@@ -67,6 +67,11 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (formData.examYear === '115' && Date.now() < new Date('2026-06-16T12:00:00+08:00').getTime()) {
+      setError('115年度系統預計將於 2026/06/16 12:00 開放填寫');
+      return;
+    }
+
     // Client-side validation for score buttons
     const requiredScores = ['chineseScore', 'englishScore', 'mathScore', 'socialScore', 'scienceScore', 'essayScore'];
     for (const field of requiredScores) {
@@ -131,7 +136,11 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
 
   if (success) {
     return (
-      <div className="py-6 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500">
+      <div className="bg-white rounded-[2rem] p-6 md:p-12 shadow-xl shadow-slate-200/50 border border-slate-100 max-w-3xl mx-auto flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-emerald-50/80 rounded-full blur-3xl z-0 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-blue-50/50 rounded-full blur-3xl z-0 pointer-events-none"></div>
+        <div className="relative z-10 w-full flex flex-col items-center">
         <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-500 text-white rounded-full flex items-center justify-center mb-6 shadow-xl shadow-emerald-500/30 animate-[bounce_1s_ease-in-out]">
           <CheckCircle2 className="w-10 h-10" />
         </div>
@@ -227,14 +236,17 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
         <button onClick={onSubmited} className="px-10 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 hover:-translate-y-1 transition-all shadow-xl shadow-slate-200 w-full sm:w-auto text-lg active:scale-95">
           完成 / 關閉
         </button>
+        </div>
       </div>
     );
   }
 
   if (showConfirm) {
     return (
-      <div className="space-y-6 px-1 pb-6 pt-2 animate-in fade-in zoom-in-95 duration-300">
-        <h3 className="text-2xl font-black text-slate-900 mb-2">確認提交資料</h3>
+      <div className="bg-white rounded-[2rem] p-6 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100 max-w-3xl mx-auto animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-slate-50/80 rounded-full blur-3xl z-0 pointer-events-none"></div>
+        <div className="relative z-10 space-y-6">
+        <h3 className="text-3xl font-black text-slate-900 tracking-tight mb-2">確認提交資料</h3>
         <p className="text-slate-500 font-medium mb-6">請再次確認您將提交的資料內容：</p>
         
         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
@@ -276,21 +288,42 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
             className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 shadow-md shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <>
+              <span className="flex items-center gap-2">
                 <Loader2 className="w-5 h-5 animate-spin" />
                 提交中...
-              </>
+              </span>
             ) : '確認並送出'}
           </button>
+        </div>
         </div>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 text-slate-700 max-h-[85vh] overflow-y-auto px-2 pb-6 pt-2 scrollbar-thin">
-       
-       <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-4 rounded-2xl flex items-start gap-4">
+    <div className="bg-white rounded-[2rem] p-6 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100 max-w-3xl mx-auto relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-slate-50/80 rounded-full blur-3xl z-0 pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-blue-50/50 rounded-full blur-3xl z-0 pointer-events-none"></div>
+      
+      <div className="relative z-10">
+        <button 
+          type="button"
+          onClick={onCancel}
+          className="group flex items-center gap-2 text-slate-500 font-bold text-sm mb-6 hover:text-slate-900 transition-colors bg-slate-50 hover:bg-slate-100 px-4 py-2 rounded-full border border-slate-100 shadow-sm w-fit active:scale-95"
+        >
+          <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+          返回落點首頁
+        </button>
+
+        <div className="mb-8">
+           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-3">提供序位資料</h2>
+           <p className="text-slate-500 font-medium text-sm sm:text-base leading-relaxed max-w-xl">您的每一次分享，都將化作學弟妹未來選填志願時的一盞明燈，感謝您的熱心參與！</p>
+        </div>
+
+      <form onSubmit={handleSubmit} className="space-y-8 text-slate-700">
+         
+         <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 p-5 rounded-2xl flex items-start gap-4 shadow-sm shadow-amber-100/50">
           <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
              <Gift className="w-5 h-5 text-amber-600" />
           </div>
@@ -303,24 +336,24 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
        </div>
 
        {/* Email */}
-       <div>
-         <div className="flex items-center justify-between mb-2">
+       <div className="group/field relative">
+         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
             <label className="block text-sm font-bold text-slate-700">電子郵件 <span className="text-red-500">*</span></label>
-            <span className="text-xs font-medium text-slate-400">不會顯示在網頁上</span>
+            <span className="text-xs font-medium text-slate-400 mt-1 sm:mt-0 flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> 不會顯示在網頁上，僅作核對用</span>
          </div>
          <div className="relative group">
-           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
-             <Mail className="w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-           </div>
-           <input
-             type="email"
-             name="email"
-             required
-             value={formData.email}
-             onChange={handleChange}
-             placeholder="your@email.com"
-             className="w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 font-medium shadow-sm hover:border-slate-300"
-           />
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
+              <Mail className="w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            </div>
+            <input
+              type="email"
+              name="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="您的常用 Email"
+              className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300 font-medium shadow-sm hover:border-slate-300"
+            />
          </div>
        </div>
 
@@ -335,15 +368,19 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
              className="w-full px-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none font-medium text-slate-700 transition-all shadow-sm hover:border-slate-300 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:1.5em_1.5em] bg-no-repeat bg-[position:right_1rem_center]"
              required
            >
-             {Date.now() >= new Date('2026-06-16T12:00:00+08:00').getTime() && (
-               <option value="115">115</option>
-             )}
+             <option value="115">115</option>
              <option value="114">114</option>
              <option value="113">113</option>
              <option value="112">112</option>
              <option value="111">111</option>
              <option value="110">110</option>
            </select>
+           {formData.examYear === '115' && Date.now() < new Date('2026-06-16T12:00:00+08:00').getTime() && (
+             <div className="mt-2 text-sm font-bold text-amber-600 flex items-start gap-1 p-2 bg-amber-50 rounded-xl border border-amber-200">
+               <Info className="w-4 h-4 shrink-0 mt-0.5" />
+               <span>115年度系統預計於 2026/06/16 12:00 開放填寫資料</span>
+             </div>
+           )}
          </div>
          <div>
            <label className="block text-sm font-bold text-slate-700 mb-2">就學區域 <span className="text-red-500">*</span></label>
@@ -414,9 +451,10 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
        </div>
 
        {/* Ratios & Intervals */}
-       <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-[2rem] border border-indigo-100 shadow-sm shadow-indigo-100/50 space-y-5">
-         <h4 className="font-bold text-indigo-950 border-b border-indigo-200/60 pb-3 text-lg flex items-center gap-2">
-            序位與區間 <span className="text-indigo-500 text-sm font-medium">(請參考成績單)</span> <span className="text-red-500">*</span>
+       <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 sm:p-8 rounded-[2rem] border border-indigo-100 shadow-md shadow-indigo-100/30 space-y-6 relative overflow-hidden">
+         <div className="absolute top-0 right-0 w-32 h-32 bg-white/40 blur-2xl rounded-full mix-blend-overlay -mr-10 -mt-10 pointer-events-none"></div>
+         <h4 className="font-bold text-indigo-900 border-b border-indigo-200 pb-4 text-lg flex items-center gap-2 relative z-10">
+            序位與區間 <span className="text-indigo-500 text-sm font-medium bg-white/60 px-2 py-0.5 rounded-md border border-indigo-100">(請參考個人序位查詢網站中提供)</span> <span className="text-red-500">*</span>
          </h4>
          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
              <div className="space-y-2">
@@ -473,26 +511,26 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
        </div>
 
        {/* Submit buttons */}
-       <div className="flex gap-4 pt-6 mt-6 border-t border-slate-100">
+       <div className="flex flex-col-reverse sm:flex-row gap-4 pt-8 mt-8 border-t border-slate-100">
           <button 
             type="button" 
             onClick={onCancel}
-            className="flex-1 px-4 py-4 rounded-2xl border-2 border-slate-200 font-bold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.98]"
+            className="w-full sm:w-1/3 px-4 py-4 rounded-2xl border-2 border-slate-200 font-bold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.98]"
           >
-            取消
+            取消返回
           </button>
           <button 
             type="submit" 
             disabled={loading}
-            className="flex-[2] px-4 py-4 rounded-2xl font-bold bg-slate-900 text-white shadow-xl shadow-slate-900/10 hover:shadow-slate-900/20 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group active:scale-[0.98] disabled:opacity-70 disabled:hover:translate-y-0 disabled:active:scale-100"
+            className="w-full sm:w-2/3 px-4 py-4 rounded-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-xl shadow-slate-900/20 hover:shadow-slate-900/30 hover:from-slate-800 hover:to-slate-700 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group active:scale-[0.98] disabled:opacity-70 disabled:hover:translate-y-0 disabled:active:scale-100"
           >
             {loading ? (
               <Loader2 className="w-6 h-6 animate-spin text-slate-300" />
             ) : (
-              <>
+              <span className="flex items-center gap-2">
                  送出成績資料
                  <ChevronRight className="w-5 h-5 group-hover:translate-x-1 outline-none transition-transform" />
-              </>
+              </span>
             )}
           </button>
        </div>
@@ -515,6 +553,8 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
            </div>
          </div>
        )}
-    </form>
+      </form>
+      </div>
+    </div>
   );
 }

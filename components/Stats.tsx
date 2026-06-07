@@ -9,6 +9,12 @@ interface StatsProps {
 }
 
 export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
+  const [mounted, setMounted] = React.useState(false);
+  
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const totalCount = data.length;
   const recentYearCount = data.filter(d => d.examYear === '115').length;
   
@@ -52,6 +58,29 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
       year,
       avgMinRatio: Number((yearMap[year].minRatioSum / yearMap[year].count).toFixed(2)),
       avgMaxRatio: Number((yearMap[year].maxRatioSum / yearMap[year].count).toFixed(2)),
+    }));
+  }, [data]);
+
+  const intervalTrendData = useMemo(() => {
+    const yearMap: Record<string, { minIntervalSum: number; maxIntervalSum: number; count: number }> = {};
+    data.forEach(item => {
+      const year = item.examYear;
+      if (!year) return;
+      const minVal = parseFloat(item.minRankInterval as string);
+      const maxVal = parseFloat(item.maxRankInterval as string);
+      
+      if (!isNaN(minVal) && !isNaN(maxVal)) {
+        if (!yearMap[year]) yearMap[year] = { minIntervalSum: 0, maxIntervalSum: 0, count: 0 };
+        yearMap[year].minIntervalSum += minVal;
+        yearMap[year].maxIntervalSum += maxVal;
+        yearMap[year].count += 1;
+      }
+    });
+
+    return Object.keys(yearMap).sort().map(year => ({
+      year,
+      avgMinInterval: Math.round(yearMap[year].minIntervalSum / yearMap[year].count),
+      avgMaxInterval: Math.round(yearMap[year].maxIntervalSum / yearMap[year].count),
     }));
   }, [data]);
 
@@ -272,20 +301,51 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
           </h3>
           <p className="text-slate-500 text-sm mb-8 font-medium">觀察歷年平均序位比率（最小/最大）的變化情形，有助於研判各年度成績落在哪些區間。</p>
           <div className="h-80 w-full font-sans">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-              <LineChart data={yearTrendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} dx={-10} domain={['auto', 'auto']} unit="%" />
-                <RechartsTooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
-                  itemStyle={{ fontWeight: 'bold' }}
-                />
-                <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                <Line type="monotone" dataKey="avgMinRatio" name="平均最小序位比率(%)" stroke="#4f46e5" strokeWidth={3} activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="avgMaxRatio" name="平均最大序位比率(%)" stroke="#0ea5e9" strokeWidth={3} />
-              </LineChart>
-            </ResponsiveContainer>
+            {mounted && (
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                <LineChart data={yearTrendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                  <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} dx={-10} domain={['auto', 'auto']} unit="%" />
+                  <RechartsTooltip 
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                    itemStyle={{ fontWeight: 'bold' }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
+                  <Line type="monotone" dataKey="avgMinRatio" name="平均最小序位比率(%)" stroke="#4f46e5" strokeWidth={3} activeDot={{ r: 8 }} />
+                  <Line type="monotone" dataKey="avgMaxRatio" name="平均最大序位比率(%)" stroke="#0ea5e9" strokeWidth={3} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Absolute Interval Trend Chart */}
+      {intervalTrendData.length > 0 && (
+        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200">
+          <h3 className="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+             <TrendingUp className="w-6 h-6 text-violet-600" />
+             歷年各年度平均序位區間變化
+          </h3>
+          <p className="text-slate-500 text-sm mb-8 font-medium">觀察該區域歷年「絕對序位（人數區間）」的變化趨勢，讓您更直觀地掌握錄取分數與排名的浮動情況。</p>
+          <div className="h-80 w-full font-sans">
+            {mounted && (
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                <LineChart data={intervalTrendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                  <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} dx={-10} domain={['auto', 'auto']} />
+                  <RechartsTooltip 
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                    itemStyle={{ fontWeight: 'bold' }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
+                  <Line type="monotone" dataKey="avgMinInterval" name="平均最小序位區間(人)" stroke="#8b5cf6" strokeWidth={3} activeDot={{ r: 8 }} />
+                  <Line type="monotone" dataKey="avgMaxInterval" name="平均最大序位區間(人)" stroke="#c084fc" strokeWidth={3} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
       )}
@@ -301,34 +361,36 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
            
            <div className="w-full overflow-x-auto scroller-hide pb-4">
                <div className="min-w-[600px]" style={{ height: Math.max(300, heatmapData.regions.length * 40 + 80) }}>
-                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                   <ScatterChart margin={{ top: 20, right: 30, bottom: 20, left: 60 }}>
-                     <XAxis 
-                        type="category" 
-                        dataKey="year" 
-                        name="年度" 
-                        allowDuplicatedCategory={false} 
-                        axisLine={false} 
-                        tickLine={false} 
-                        tick={{ fontSize: 13, fill: '#64748b', fontWeight: 'bold' }} 
-                        dy={10}
-                     />
-                     <YAxis 
-                        type="category" 
-                        dataKey="region" 
-                        data={heatmapData.regions}
-                        name="區域" 
-                        allowDuplicatedCategory={false} 
-                        axisLine={false} 
-                        tickLine={false} 
-                        tick={{ fontSize: 13, fill: '#475569', fontWeight: 'bold' }} 
-                        dx={-10}
-                     />
-                     <ZAxis dataKey="avgA" range={[0, 5]} name="平均 A 數" />
-                     <RechartsTooltip cursor={{ fill: '#f8fafc' }} content={<HeatmapTooltip />} />
-                     <Scatter data={heatmapData.data} shape={<HeatmapSquare />} />
-                   </ScatterChart>
-                 </ResponsiveContainer>
+                 {mounted && (
+                   <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                     <ScatterChart margin={{ top: 20, right: 30, bottom: 20, left: 60 }}>
+                       <XAxis 
+                          type="category" 
+                          dataKey="year" 
+                          name="年度" 
+                          allowDuplicatedCategory={false} 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{ fontSize: 13, fill: '#64748b', fontWeight: 'bold' }} 
+                          dy={10}
+                       />
+                       <YAxis 
+                          type="category" 
+                          dataKey="region" 
+                          data={heatmapData.regions}
+                          name="區域" 
+                          allowDuplicatedCategory={false} 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{ fontSize: 13, fill: '#475569', fontWeight: 'bold' }} 
+                          dx={-10}
+                       />
+                       <ZAxis dataKey="avgA" range={[0, 5]} name="平均 A 數" />
+                       <RechartsTooltip cursor={{ fill: '#f8fafc' }} content={<HeatmapTooltip />} />
+                       <Scatter data={heatmapData.data} shape={<HeatmapSquare />} />
+                     </ScatterChart>
+                   </ResponsiveContainer>
+                 )}
                </div>
            </div>
         </div>

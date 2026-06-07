@@ -90,8 +90,9 @@ const App: React.FC = () => {
 
   const [data, setData] = useState<ScoreData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeModal, setActiveModal] = useState<'usage' | 'disclaimer' | 'contact' | 'compare' | 'submit' | null>(null);
+  const [activeModal, setActiveModal] = useState<'usage' | 'disclaimer' | 'contact' | 'compare' | null>(null);
   const [showStatsView, setShowStatsView] = useState(false);
+  const [showSubmitView, setShowSubmitView] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [pinnedItems, setPinnedItems] = useState<ScoreData[]>([]);
@@ -446,15 +447,6 @@ const App: React.FC = () => {
             </div>
           </div>
         );
-      case 'submit':
-        return (
-          <SubmitScoreForm
-            onSubmited={() => {
-              setActiveModal(null);
-            }}
-            onCancel={() => setActiveModal(null)}
-          />
-        );
       default:
         return null;
     }
@@ -466,7 +458,6 @@ const App: React.FC = () => {
       case 'disclaimer': return '免責聲明';
       case 'contact': return '聯絡我們';
       case 'compare': return '落點比較';
-      case 'submit': return '提供序位資料';
       default: return '';
     }
   };
@@ -510,7 +501,7 @@ const App: React.FC = () => {
               <div className="relative">
                  <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-3xl blur opacity-30"></div>
                  <button 
-                   onClick={() => { setActiveModal('submit'); setIsMenuOpen(false); }}
+                   onClick={() => { setShowSubmitView(true); setIsMenuOpen(false); window.scrollTo(0, 0); }}
                    className="relative w-full flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-transform"
                  >
                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
@@ -615,7 +606,7 @@ const App: React.FC = () => {
              
              <div className="w-px h-4 bg-slate-300 mx-2"></div>
 
-             <a href="https://tyctw.github.io/spare/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">落點分析</a>
+             <a href="https://tyctw.github.io/volunteer/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">志願選填</a>
              <a href="https://tyctw.github.io/shared/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">錄取分享</a>
              <button onClick={() => setActiveModal('contact')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">聯絡我們</button>
           </nav>
@@ -623,7 +614,7 @@ const App: React.FC = () => {
           {/* Actions */}
           <div className="flex items-center gap-3">
              <button 
-                onClick={() => setActiveModal('submit')}
+                onClick={() => { setShowSubmitView(true); window.scrollTo(0,0); }}
                 className="hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-200 hover:shadow-indigo-300 hover:from-indigo-700 hover:to-indigo-600 hover:-translate-y-0.5 transition-all duration-300 group ring-4 ring-indigo-50"
              >
                 <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -642,7 +633,19 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {showStatsView ? (
+      {showSubmitView ? (
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full z-10 relative flex justify-center">
+           <div className="w-full max-w-3xl">
+              <SubmitScoreForm
+                 onSubmited={() => {
+                   setShowSubmitView(false);
+                   loadData(); // Reload data after submission
+                 }}
+                 onCancel={() => setShowSubmitView(false)}
+              />
+           </div>
+        </main>
+      ) : showStatsView ? (
         <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full z-10 relative">
           <Stats 
             data={filteredData} 
@@ -701,7 +704,7 @@ const App: React.FC = () => {
 
            {/* Right side: Contribution Banner */}
            <div className="lg:col-span-5 flex-1 w-full relative z-10 flex">
-              <ContributionBanner onSubmitClick={() => setActiveModal('submit')} />
+              <ContributionBanner onSubmitClick={() => { setShowSubmitView(true); window.scrollTo(0,0); }} />
            </div>
         </div>
 
@@ -721,6 +724,7 @@ const App: React.FC = () => {
         ) : (
           <ScoreTable 
             data={filteredData} 
+            allData={data} 
             sortConfig={sortConfig}
             onSort={handleSort}
             onTogglePin={handleTogglePin}
