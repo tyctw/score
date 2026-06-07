@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ScoreData } from '../types';
-import { BarChart3, TrendingUp, Users, Target, BookOpen, Calculator, Globe, Book, Beaker, Map } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, Target, BookOpen, Calculator, Globe, Book, Beaker, Map, Award, ChevronDown, ChevronUp, Database } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, ZAxis, Cell } from 'recharts';
+import { nationalStatsData, examTotals } from '../nationalStats';
 
 interface StatsProps {
   data: ScoreData[];
@@ -10,6 +11,15 @@ interface StatsProps {
 
 export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
   const [mounted, setMounted] = React.useState(false);
+  const [expandedStatsRows, setExpandedStatsRows] = React.useState<Record<string, boolean>>({});
+  const [activeTab, setActiveTab] = React.useState<'platform' | 'national'>('platform');
+
+  const toggleNationalRow = (category: string) => {
+    setExpandedStatsRows(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
+  };
   
   React.useEffect(() => {
     setMounted(true);
@@ -264,12 +274,43 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
          </div>
       </div>
 
-      {/* Top Cards */}
-      <div className="flex flex-wrap gap-5">
-        <Card 
-          title="總計樣本數" 
-          value={totalCount} 
-          gradient="bg-gradient-to-br from-indigo-500 to-indigo-700"
+      <div className="flex gap-2 mb-8 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200/50 w-full md:w-fit">
+        <button
+          onClick={() => setActiveTab('platform')}
+          className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            activeTab === 'platform' 
+              ? 'bg-white text-indigo-600 shadow-sm border border-slate-200' 
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+           <div className="flex items-center justify-center gap-2">
+              <Database className="w-4 h-4" />
+              平台回報數據分析
+           </div>
+        </button>
+        <button
+          onClick={() => setActiveTab('national')}
+          className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            activeTab === 'national' 
+              ? 'bg-white text-indigo-600 shadow-sm border border-slate-200' 
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+           <div className="flex items-center justify-center gap-2">
+              <Award className="w-4 h-4" />
+              官方總體數據
+           </div>
+        </button>
+      </div>
+
+      {activeTab === 'platform' && (
+         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            {/* Top Cards */}
+            <div className="flex flex-wrap gap-5">
+              <Card 
+                title="總計樣本數" 
+                value={totalCount} 
+                gradient="bg-gradient-to-br from-indigo-500 to-indigo-700"
           shadowColor="shadow-indigo-500/30"
           trend="當前篩選結果"
           icon={<Users className="w-5 h-5 text-indigo-100" />}
@@ -401,9 +442,9 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
       <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200">
         <h3 className="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
            <BarChart3 className="w-6 h-6 text-indigo-600" />
-           整體落點積分組合分佈
+           目前分析資料積分組合分佈
         </h3>
-        <p className="text-slate-500 text-sm mb-8 font-medium">分析各標群（5A ~ 5B）的組成佔比，協助您判斷當前篩選條件下的成績總體分佈。</p>
+        <p className="text-slate-500 text-sm mb-8 font-medium">分析各標群（5A ~ 5B）在「目前條件與平台收集」的組成佔比。</p>
         
         <div className="space-y-6">
            {Object.entries(gradeStats).map(([label, count]) => {
@@ -431,6 +472,8 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
            })}
         </div>
       </div>
+
+
 
       {/* Subject Deep Dive */}
       <div className="bg-slate-50/80 rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200">
@@ -484,6 +527,96 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
             })}
          </div>
       </div>
+    </div>
+  )}
+
+  {activeTab === 'national' && (
+         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            {/* Official National Stats Section */}
+            <div className="bg-gradient-to-br from-indigo-50 to-white rounded-3xl p-6 md:p-8 shadow-md border border-indigo-100 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-100 rounded-full blur-3xl opacity-50 -mr-20 -mt-20 pointer-events-none"></div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+                 <Award className="w-6 h-6 text-indigo-600" />
+                 歷年全國考生成績組合比例（官方數據）
+              </h3>
+              <p className="text-slate-500 text-sm mb-6 font-medium">參考教育部官方公告之各等級類別全國人數與佔比，作為個人成績之對照母體群。</p>
+
+              <div className="overflow-x-auto w-full scroller-hide bg-white rounded-2xl border border-indigo-50 shadow-sm">
+                 <table className="w-full text-left border-collapse min-w-[600px]">
+                    <thead>
+                       <tr className="bg-indigo-50/50">
+                          <th className="p-4 font-bold text-slate-600 text-sm border-b border-indigo-100">等級組合</th>
+                          <th className="p-4 font-bold text-slate-600 text-sm border-b border-indigo-100 text-right">115年度佔比 (人數)</th>
+                          <th className="p-4 font-bold text-slate-600 text-sm border-b border-indigo-100 text-right">114年度佔比 (人數)</th>
+                          <th className="p-4 font-bold text-slate-600 text-sm border-b border-indigo-100 text-right">113年度佔比 (人數)</th>
+                       </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                       {nationalStatsData.map((row) => (
+                          <React.Fragment key={row.category}>
+                             <tr 
+                                className="hover:bg-indigo-50/30 transition-colors cursor-pointer group"
+                                onClick={() => toggleNationalRow(row.category)}
+                             >
+                                <td className="p-4 border-b border-slate-50 flex items-center gap-2">
+                                   <button className="text-slate-400 group-hover:text-indigo-600 transition-colors bg-slate-50 group-hover:bg-indigo-50 p-1 rounded-full">
+                                      {expandedStatsRows[row.category] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                   </button>
+                                   <span className="font-bold text-slate-800 font-mono tracking-tight">{row.category}</span>
+                                </td>
+                                <td className="p-4 border-b border-slate-50 text-right">
+                                   <div className="font-black text-indigo-600">{(row.stats as any)["115"]?.percentage.toFixed(2)}%</div>
+                                   <div className="text-xs text-slate-400 mt-0.5">{(row.stats as any)["115"]?.count.toLocaleString()} 人</div>
+                                </td>
+                                <td className="p-4 border-b border-slate-50 text-right">
+                                   <div className="font-bold text-slate-700">{(row.stats as any)["114"]?.percentage.toFixed(2)}%</div>
+                                   <div className="text-xs text-slate-400 mt-0.5">{(row.stats as any)["114"]?.count.toLocaleString()} 人</div>
+                                </td>
+                                <td className="p-4 border-b border-slate-50 text-right">
+                                   <div className="font-bold text-slate-700">{(row.stats as any)["113"]?.percentage.toFixed(2)}%</div>
+                                   <div className="text-xs text-slate-400 mt-0.5">{(row.stats as any)["113"]?.count.toLocaleString()} 人</div>
+                                </td>
+                             </tr>
+                             {expandedStatsRows[row.category] && (
+                                <tr className="bg-slate-50/50">
+                                   <td colSpan={4} className="p-0 border-b border-slate-100">
+                                      <div className="p-4 pl-12">
+                                         <div className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">寫作測驗級分分佈</div>
+                                         <div className="grid grid-cols-3 gap-4">
+                                            {["115", "114", "113"].map(year => {
+                                               const writing = (row.stats as any)[year]?.writing;
+                                               if (!writing) return <div key={year} />;
+                                               return (
+                                                  <div key={year} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                                     <div className="text-xs font-bold text-slate-700 mb-2 border-b border-slate-50 pb-1">{year} 年度</div>
+                                                     <div className="space-y-1.5 text-xs">
+                                                        <div className="flex justify-between items-center"><span className="text-slate-500 font-medium">六級分</span><span className="font-mono text-slate-700"><span className="font-bold text-indigo-600">{writing["6"]?.percentage.toFixed(2)}%</span> ({writing["6"]?.count.toLocaleString()})</span></div>
+                                                        <div className="flex justify-between items-center"><span className="text-slate-500 font-medium">五級分</span><span className="font-mono text-slate-700"><span className="font-bold text-slate-800">{writing["5"]?.percentage.toFixed(2)}%</span> ({writing["5"]?.count.toLocaleString()})</span></div>
+                                                        <div className="flex justify-between items-center"><span className="text-slate-500 font-medium">四級分</span><span className="font-mono text-slate-700"><span className="font-bold text-slate-800">{writing["4"]?.percentage.toFixed(2)}%</span> ({writing["4"]?.count.toLocaleString()})</span></div>
+                                                        <div className="flex justify-between items-center"><span className="text-slate-500 font-medium">三級分以下</span><span className="font-mono text-slate-700"><span className="font-bold text-slate-800">{writing["3"]?.percentage.toFixed(2)}%</span> ({writing["3"]?.count.toLocaleString()})</span></div>
+                                                     </div>
+                                                  </div>
+                                               )
+                                            })}
+                                         </div>
+                                      </div>
+                                   </td>
+                                </tr>
+                             )}
+                          </React.Fragment>
+                       ))}
+                       <tr className="bg-slate-50/50">
+                          <td className="p-4 font-bold text-slate-700">全國到考總人數</td>
+                          <td className="p-4 text-right font-black text-slate-800">{examTotals["115"].count.toLocaleString()}</td>
+                          <td className="p-4 text-right font-bold text-slate-600">{examTotals["114"].count.toLocaleString()}</td>
+                          <td className="p-4 text-right font-bold text-slate-600">{examTotals["113"].count.toLocaleString()}</td>
+                       </tr>
+                    </tbody>
+                 </table>
+              </div>
+            </div>
+         </div>
+      )}
     </div>
   );
 };
