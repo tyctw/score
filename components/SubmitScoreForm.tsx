@@ -402,13 +402,13 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
                    subj === 'mathScore' ? '數學' : 
                    subj === 'socialScore' ? '社會' : '自然'}
                 </label>
-                <div className="flex flex-wrap gap-2 w-full sm:flex-1">
+                <div className="flex gap-1 sm:gap-2 w-full sm:flex-1">
                   {scores.map(s => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => handleScoreSelect(subj, s)}
-                      className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all active:scale-95 flex-1 min-w-[3rem] ${
+                      className={`px-0 sm:px-3.5 py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold transition-all active:scale-95 flex-1 min-w-0 ${
                         (formData as any)[subj] === s 
                           ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 ring-2 ring-indigo-600 ring-offset-2' 
                           : 'bg-slate-50 text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50'
@@ -422,19 +422,19 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
            ))}
            <div className="relative group sm:flex sm:items-center sm:gap-4 sm:py-4">
               <label className="block text-sm font-bold text-slate-600 mb-3 sm:mb-0 sm:w-16 flex-shrink-0">作文</label>
-              <div className="flex flex-wrap gap-2 w-full sm:flex-1">
+              <div className="flex gap-1 sm:gap-2 w-full sm:flex-1">
                  {essayScores.map(s => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => handleScoreSelect('essayScore', s)}
-                      className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all active:scale-95 flex-1 min-w-[3.5rem] ${
+                      className={`px-1 sm:px-3.5 py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold transition-all active:scale-95 flex-1 min-w-0 ${
                         formData.essayScore === s 
                           ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 ring-2 ring-indigo-600 ring-offset-2' 
                           : 'bg-slate-50 text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50'
                       }`}
                     >
-                      {s}級分
+                      {s}<span className="hidden sm:inline">級分</span>
                     </button>
                  ))}
                </div>
