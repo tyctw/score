@@ -136,10 +136,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
 
   if (success) {
     return (
-      <div className="bg-white rounded-[2rem] p-6 md:p-12 shadow-xl shadow-slate-200/50 border border-slate-100 max-w-3xl mx-auto flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500 relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-emerald-50/80 rounded-full blur-3xl z-0 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-blue-50/50 rounded-full blur-3xl z-0 pointer-events-none"></div>
+      <div className="max-w-3xl mx-auto flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500 relative">
         <div className="relative z-10 w-full flex flex-col items-center">
         <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-500 text-white rounded-full flex items-center justify-center mb-6 shadow-xl shadow-emerald-500/30 animate-[bounce_1s_ease-in-out]">
           <CheckCircle2 className="w-10 h-10" />
@@ -243,8 +240,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
 
   if (showConfirm) {
     return (
-      <div className="bg-white rounded-[2rem] p-6 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100 max-w-3xl mx-auto animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-slate-50/80 rounded-full blur-3xl z-0 pointer-events-none"></div>
+      <div className="max-w-3xl mx-auto animate-in fade-in zoom-in-95 duration-300 relative">
         <div className="relative z-10 space-y-6">
         <h3 className="text-3xl font-black text-slate-900 tracking-tight mb-2">確認提交資料</h3>
         <p className="text-slate-500 font-medium mb-6">請再次確認您將提交的資料內容：</p>
@@ -301,11 +297,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
   }
 
   return (
-    <div className="bg-white rounded-[2rem] p-6 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100 max-w-3xl mx-auto relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-slate-50/80 rounded-full blur-3xl z-0 pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-blue-50/50 rounded-full blur-3xl z-0 pointer-events-none"></div>
-      
+    <div className="max-w-3xl mx-auto relative">
       <div className="relative z-10">
         <button 
           type="button"
