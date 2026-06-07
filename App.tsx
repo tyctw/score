@@ -558,7 +558,7 @@ const App: React.FC = () => {
 
             </div>
             <div className="p-6 border-t border-gray-100 text-center">
-              <p className="text-xs text-gray-400">© 2026 全國會考序位</p>
+              <p className="text-xs text-gray-400">© 2026 TW會考落點分析</p>
             </div>
           </div>
         </div>
@@ -585,8 +585,8 @@ const App: React.FC = () => {
                 <h1 className={`font-black tracking-tight leading-none transition-all duration-300 ${scrolled ? 'text-lg text-slate-800' : 'text-xl text-slate-900'}`}>
                   會考全國<span className="text-indigo-600">序位</span>分享
                 </h1>
-                <span className={`text-[10px] font-bold text-slate-400 uppercase tracking-widest transition-all duration-300 ${scrolled ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100 h-auto mt-0.5'}`}>
-                    Education Analytics
+                <span className={`text-[10px] font-bold text-slate-400 tracking-widest transition-all duration-300 ${scrolled ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100 h-auto mt-0.5'}`}>
+                    TW會考落點分析所屬網站
                 </span>
              </div>
           </div>
@@ -749,7 +749,7 @@ const App: React.FC = () => {
               <div className="p-2.5 bg-slate-900 rounded-xl shadow-lg shadow-slate-200">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
               </div>
-              <h4 className="font-bold text-slate-900 text-lg">會考全國序位分享平台</h4>
+              <h4 className="font-bold text-slate-900 text-lg">TW會考落點分析所屬網站 - 全國會考序位分享</h4>
           </div>
           
           <div className="flex flex-wrap justify-center gap-4 mb-8">
