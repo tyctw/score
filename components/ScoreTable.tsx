@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ScoreData, SortConfig, SortField } from '../types';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface ScoreTableProps {
   data: ScoreData[];
@@ -333,35 +332,30 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, allData, sortConfi
                         </div>
                     </div>
                     <div className="w-full h-px bg-slate-200 my-2"></div>
-                    <div className="flex justify-between items-start group/interval relative">
-                        <span className="text-xs font-bold text-slate-400 border-b border-dashed border-slate-300 cursor-help mt-0.5">排名區間</span>
+                    <div className="flex justify-between items-center group/interval relative">
+                        <span className="text-xs font-bold text-slate-400 border-b border-dashed border-slate-300 cursor-help">排名區間</span>
                         <div className="absolute left-0 bottom-full mb-1 opacity-0 group-hover/interval:opacity-100 transition-opacity duration-200 pointer-events-none w-max max-w-xs bg-slate-800 text-white text-[10px] rounded p-1.5 shadow-xl z-30">
-                           同分比對：相同成績在今年與去年間，全區排名的浮動差異
+                           同分比對：與去年全區最大區間的浮動差
                         </div>
-                        <div className="flex flex-col items-end gap-1.5">
-                            <div className="text-sm font-bold text-slate-600 font-mono flex items-center">
-                                {item.minRankInterval && item.maxRankInterval ? (
-                                    <span>{item.minRankInterval} - {item.maxRankInterval}</span>
-                                ) : (
-                                    <span className="text-slate-300">-</span>
-                                )}
-                            </div>
-                            {item.minRankInterval && item.maxRankInterval && previousYearComparison.get(item.id) && (() => {
-                                const comp = previousYearComparison.get(item.id)!;
-                                const diff = comp.diff;
-                                if (diff === 0) return <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-sans font-bold flex items-center gap-1 shadow-sm border border-slate-200/50"><Minus className="w-3 h-3" />與去年同分排名持平</span>;
-                                const isRankDrop = diff > 0;
-                                return (
-                                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-sans font-bold flex items-center gap-1 shadow-sm border ${
-                                    isRankDrop 
-                                        ? 'bg-rose-50 text-rose-600 border-rose-200/60' 
-                                        : 'bg-emerald-50 text-emerald-600 border-emerald-200/60'
-                                    }`}>
-                                    {isRankDrop ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
-                                    {isRankDrop ? `排名較去年後退 ${Math.abs(diff)} 名` : `排名較去年前進 ${Math.abs(diff)} 名`}
-                                    </span>
-                                );
-                            })()}
+                        <div className="text-sm font-bold text-slate-600 font-mono flex items-center gap-1.5">
+                            {item.minRankInterval && item.maxRankInterval ? (
+                                <>
+                                  <span>{item.minRankInterval} - {item.maxRankInterval}</span>
+                                  {previousYearComparison.get(item.id) && (() => {
+                                      const comp = previousYearComparison.get(item.id)!;
+                                      const diff = comp.diff;
+                                      if (diff === 0) return <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded font-sans font-bold">持平</span>;
+                                      const isUp = diff > 0;
+                                      return (
+                                         <span className={`text-[10px] px-1.5 py-0.5 rounded font-sans font-bold flex items-center ${isUp ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                                            {isUp ? '↑' : '↓'} {Math.abs(diff)}
+                                         </span>
+                                      );
+                                  })()}
+                                </>
+                            ) : (
+                                <span className="text-slate-300">-</span>
+                            )}
                         </div>
                     </div>
                     

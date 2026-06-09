@@ -249,13 +249,13 @@ const App: React.FC = () => {
             <div className="bg-gradient-to-br from-indigo-500 to-violet-600 p-8 rounded-[2rem] text-white relative overflow-hidden shadow-xl shadow-indigo-200">
                <div className="absolute top-0 right-0 -mr-8 -mt-8 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
                <div className="relative z-10 flex items-start gap-4">
-                  <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm shrink-0">
+                  <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
                      <Sparkles className="w-8 h-8 text-indigo-50" />
                   </div>
                   <div>
-                    <h4 className="text-xl font-black text-white mb-2 tracking-tight">會考落點分析系統導覽</h4>
-                    <p className="text-indigo-100 font-medium leading-relaxed text-sm">
-                      本系統透過收集學長姐歷年真實成績與序位數據，幫助家長與國三學生在志願選填前，能更準確地掌握自己的成績落點。跟著以下三個步驟，輕鬆完成落點評估：
+                    <h4 className="text-xl font-black text-white mb-2 tracking-tight">系統導覽</h4>
+                    <p className="text-indigo-100 font-medium leading-relaxed">
+                      本系統彙整歷年國中教育會考的成績統計，透過這三個簡單小步驟，幫助您精準獲取落點資訊，做為志願選填的堅實後盾。
                     </p>
                   </div>
                </div>
@@ -263,48 +263,42 @@ const App: React.FC = () => {
             
             {/* Steps Container */}
             <div className="space-y-4 px-2">
-              <div className="flex gap-6 group hover:bg-slate-50 p-4 rounded-3xl transition-colors border border-transparent hover:border-slate-200 hover:shadow-sm">
-                <div className="flex-shrink-0 w-14 h-14 bg-blue-50 border-2 border-blue-100 text-blue-600 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm group-hover:bg-blue-500 group-hover:border-blue-500 group-hover:text-white transition-all duration-300">
+              <div className="flex gap-6 group hover:bg-white p-4 rounded-3xl transition-colors border border-transparent hover:border-slate-100 hover:shadow-sm">
+                <div className="flex-shrink-0 w-14 h-14 bg-blue-50 border-2 border-blue-100 text-blue-600 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm group-hover:border-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
                    1
                 </div>
                 <div>
-                  <h4 className="flex items-center gap-2 font-bold text-slate-900 text-lg mb-2">
+                  <h4 className="flex items-center gap-2 font-bold text-slate-900 text-lg mb-1">
                     <Search className="w-5 h-5 text-blue-500" />
-                    搜尋對應成績，尋找參考依據
+                    選擇區域與年度
                   </h4>
-                  <p className="text-slate-600 leading-relaxed text-sm font-medium mb-1">
-                    志願選填最重要的指標是「排名區間」。請在上方篩選區輸入您的<span className="font-bold text-blue-600 mx-1">就學區域</span>與<span className="font-bold text-blue-600 mx-1">各科等級</span>，系統會列出歷屆跟您成績相近的學長姐資料，協助您預估自己落在什麼排名範圍內。
-                  </p>
+                  <p className="text-slate-500 leading-relaxed font-medium">使用畫面上方的「篩選控制列」，選擇所在的就學區域與欲參考的實施年度，系統會自動更新數據列表。</p>
                 </div>
               </div>
 
-              <div className="flex gap-6 group hover:bg-slate-50 p-4 rounded-3xl transition-colors border border-transparent hover:border-slate-200 hover:shadow-sm">
-                <div className="flex-shrink-0 w-14 h-14 bg-indigo-50 border-2 border-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm group-hover:bg-indigo-500 group-hover:border-indigo-500 group-hover:text-white transition-all duration-300">
+              <div className="flex gap-6 group hover:bg-white p-4 rounded-3xl transition-colors border border-transparent hover:border-slate-100 hover:shadow-sm">
+                <div className="flex-shrink-0 w-14 h-14 bg-indigo-50 border-2 border-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm group-hover:border-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-300">
                    2
                 </div>
                 <div>
-                  <h4 className="flex items-center gap-2 font-bold text-slate-900 text-lg mb-2">
+                  <h4 className="flex items-center gap-2 font-bold text-slate-900 text-lg mb-1">
                     <Pin className="w-5 h-5 text-indigo-500" />
-                    釘選落點，跨年度同分比對
+                    釘選比較落點
                   </h4>
-                  <p className="text-slate-600 leading-relaxed text-sm font-medium">
-                    找到符合的成績後，點擊資料卡右上角的「愛心」釘選。您可以釘選多筆不同年份的資料，系統會在比較區自動計算<span className="font-bold text-indigo-600 mx-1">同分趨勢</span>（例如：一樣 5A 的成績，今年與去年的排名落差多少），幫助您判斷目標學校的錄取風險。
-                  </p>
+                  <p className="text-slate-500 leading-relaxed font-medium">看見符合自身成績的資料卡片時，點擊卡片右上角的「愛心」圖示將其收入比較區，最多可同時精確比較 4 筆落點。</p>
                 </div>
               </div>
 
-              <div className="flex gap-6 group hover:bg-slate-50 p-4 rounded-3xl transition-colors border border-transparent hover:border-slate-200 hover:shadow-sm">
-                <div className="flex-shrink-0 w-14 h-14 bg-emerald-50 border-2 border-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm group-hover:bg-emerald-500 group-hover:border-emerald-500 group-hover:text-white transition-all duration-300">
+              <div className="flex gap-6 group hover:bg-white p-4 rounded-3xl transition-colors border border-transparent hover:border-slate-100 hover:shadow-sm">
+                <div className="flex-shrink-0 w-14 h-14 bg-emerald-50 border-2 border-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm group-hover:border-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
                    3
                 </div>
                 <div>
-                  <h4 className="flex items-center gap-2 font-bold text-slate-900 text-lg mb-2">
+                  <h4 className="flex items-center gap-2 font-bold text-slate-900 text-lg mb-1">
                     <Download className="w-5 h-5 text-emerald-500" />
-                    匯出數據，家庭討論好幫手
+                    匯出報表留存
                   </h4>
-                  <p className="text-slate-600 leading-relaxed text-sm font-medium">
-                    志願選填往往需要全家一起討論。您可以點選列表區上方的「下載 CSV」，將目前篩選出的成績區間表匯出成試算表。列印出來或傳給學校導師，讓選填志願會議更有數據支撐！
-                  </p>
+                  <p className="text-slate-500 leading-relaxed font-medium">完成篩選後，您可以隨時點選「匯出 CSV」按鈕將篩選結果下載至本地端，方便在無網路環境下反覆評估與討論。</p>
                 </div>
               </div>
             </div>
@@ -360,15 +354,11 @@ const App: React.FC = () => {
                                  <span className="text-xs font-bold text-slate-400 mb-1">{item.examYear}年</span>
                                  <span className="text-sm font-black text-slate-800">{item.region}</span>
                               </div>
-                              <div className="h-12 flex flex-col justify-center items-center text-center bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
-                                 <span className="text-lg font-black text-indigo-600 tracking-tight">
-                                     {item.minRatio === item.maxRatio ? `${item.minRatio}%` : `${item.minRatio}% ~ ${item.maxRatio}%`}
-                                 </span>
+                              <div className="h-12 flex flex-col justify-center items-center text-center bg-indigo-50/50 rounded-2xl border border-indigo-100/50 px-2 transition-all">
+                                 <span className="text-sm sm:text-base font-black text-indigo-600 tracking-tight whitespace-nowrap">{item.minRatio}% - {item.maxRatio}%</span>
                               </div>
-                              <div className="h-12 flex flex-col justify-center items-center text-center bg-slate-50/80 rounded-2xl border border-slate-100">
-                                 <span className="text-xs font-mono font-bold text-slate-600">
-                                    {item.minRankInterval && item.maxRankInterval ? `${item.minRankInterval} ~ ${item.maxRankInterval}` : (item.minRankInterval || item.maxRankInterval || '-')}
-                                 </span>
+                              <div className="h-12 flex flex-col justify-center items-center text-center bg-slate-50/80 rounded-2xl border border-slate-100 px-2">
+                                 <span className="text-xs font-mono font-bold text-slate-600 whitespace-nowrap">{item.minRankInterval || '-'} ~ {item.maxRankInterval || '-'}</span>
                               </div>
                            </div>
 

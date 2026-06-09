@@ -23,9 +23,9 @@ export const ComparisonDock: React.FC<ComparisonDockProps> = ({ items, onRemove,
             {items.map((item) => (
                <div key={item.id} className="relative flex-shrink-0 group animate-in zoom-in-50 duration-300">
                 <div className="bg-slate-50 rounded-xl px-2.5 py-1.5 text-xs font-bold border border-slate-200 flex items-center gap-1.5 shadow-sm">
-                   <span className="text-slate-500">{item.examYear}</span>
+                   <span className="text-slate-500 whitespace-nowrap">{item.examYear}</span>
                    <span className="w-px h-3 bg-slate-300"></span>
-                   <span className="text-indigo-600 tracking-tight">{item.minRatio === item.maxRatio ? `${item.minRatio}%` : `${item.minRatio}% ~ ${item.maxRatio}%`}</span>
+                   <span className="text-indigo-600 tracking-tight whitespace-nowrap">{item.minRatio}%~{item.maxRatio}%</span>
                 </div>
                 <button 
                   onClick={() => onRemove(item.id)}

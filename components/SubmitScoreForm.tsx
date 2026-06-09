@@ -139,8 +139,6 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
 
   // showConfirm and success will be handled as modals.
 
-  const is115Locked = formData.examYear === '115' && Date.now() < new Date('2026-06-16T12:00:00+08:00').getTime();
-
   return (
     <div className="max-w-3xl mx-auto relative">
       <div className="relative z-10">
@@ -206,9 +204,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
              className="w-full px-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none font-medium text-slate-700 transition-all shadow-sm hover:border-slate-300 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:1.5em_1.5em] bg-no-repeat bg-[position:right_1rem_center]"
              required
            >
-             {Date.now() >= new Date('2026-06-16T12:00:00+08:00').getTime() 
-                 ? <option value="115">115</option>
-                 : <option value="115">115 (未開放)</option>}
+             <option value="115">115</option>
              <option value="114">114</option>
              <option value="113">113</option>
              <option value="112">112</option>
@@ -361,14 +357,19 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
           </button>
           <button 
             type="submit" 
-            disabled={loading || is115Locked}
-            className="w-full sm:w-2/3 px-4 py-4 rounded-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-xl shadow-slate-900/20 hover:shadow-slate-900/30 hover:from-slate-800 hover:to-slate-700 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group active:scale-[0.98] disabled:opacity-70 disabled:hover:translate-y-0 disabled:active:scale-100 disabled:cursor-not-allowed"
+            disabled={loading || (formData.examYear === '115' && Date.now() < new Date('2026-06-16T12:00:00+08:00').getTime())}
+            className={`w-full sm:w-2/3 px-4 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 group transition-all active:scale-[0.98] disabled:opacity-70 disabled:hover:translate-y-0 disabled:active:scale-100 ${
+              (formData.examYear === '115' && Date.now() < new Date('2026-06-16T12:00:00+08:00').getTime())
+                ? 'bg-slate-200 text-slate-500 cursor-not-allowed shadow-none'
+                : 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-xl shadow-slate-900/20 hover:shadow-slate-900/30 hover:from-slate-800 hover:to-slate-700 hover:-translate-y-0.5'
+            }`}
           >
             {loading ? (
               <Loader2 className="w-6 h-6 animate-spin text-slate-300" />
-            ) : is115Locked ? (
+            ) : (formData.examYear === '115' && Date.now() < new Date('2026-06-16T12:00:00+08:00').getTime()) ? (
               <span className="flex items-center gap-2">
-                 尚未開放填寫
+                 未開放
+                 <Clock className="w-5 h-5 text-slate-400" />
               </span>
             ) : (
               <span className="flex items-center gap-2">
