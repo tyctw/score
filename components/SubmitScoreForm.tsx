@@ -462,8 +462,8 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
 
       {/* Success Modal */}
       {success && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[9999] overflow-y-auto flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-[2rem] p-6 md:p-10 max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-300 relative my-8">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-[2rem] p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto hide-scrollbar shadow-2xl animate-in zoom-in-95 duration-300 relative">
             <div className="relative z-10 w-full flex flex-col items-center text-center">
               <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-500 text-white rounded-full flex items-center justify-center mb-6 shadow-xl shadow-emerald-500/30 animate-[bounce_1s_ease-in-out]">
                 <CheckCircle2 className="w-10 h-10" />
