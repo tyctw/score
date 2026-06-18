@@ -304,7 +304,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
                   required
                   value={formData.minRatio}
                   onChange={handleChange}
-                  placeholder="例如: 1.25"
+                  placeholder="請輸入全區序位最小比率"
                   className="w-full px-4 py-3 bg-white border border-indigo-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-bold text-indigo-950 transition-all placeholder:text-indigo-300 placeholder:font-medium shadow-sm hover:border-indigo-300"
                 />
              </div>
@@ -317,7 +317,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
                   required
                   value={formData.maxRatio}
                   onChange={handleChange}
-                  placeholder="例如: 1.50"
+                  placeholder="請輸入全區序位最大比率 (%)"
                   className="w-full px-4 py-3 bg-white border border-indigo-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-bold text-indigo-950 transition-all placeholder:text-indigo-300 placeholder:font-medium shadow-sm hover:border-indigo-300"
                 />
              </div>
@@ -329,7 +329,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
                   required
                   value={formData.minRankInterval}
                   onChange={handleChange}
-                  placeholder="例如: 401"
+                  placeholder="請輸入全區序位最小區間"
                   className="w-full px-4 py-3 bg-white border border-indigo-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-bold text-indigo-950 transition-all placeholder:text-indigo-300 placeholder:font-medium shadow-sm hover:border-indigo-300"
                 />
              </div>
@@ -341,7 +341,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
                   required
                   value={formData.maxRankInterval}
                   onChange={handleChange}
-                  placeholder="例如: 450"
+                  placeholder="請輸入全區序位最大區間"
                   className="w-full px-4 py-3 bg-white border border-indigo-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-bold text-indigo-950 transition-all placeholder:text-indigo-300 placeholder:font-medium shadow-sm hover:border-indigo-300"
                 />
              </div>
