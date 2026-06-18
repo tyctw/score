@@ -10,16 +10,28 @@ const toText = (...values: unknown[]) => {
 };
 
 export const fetchScores = async (): Promise<ScoreData[]> => {
-  const { data, error } = await supabase
-    .from('scores')
-    .select('*');
+  const pageSize = 1000;
+  const rows: any[] = [];
 
-  if (error) {
-    console.error("Error fetching data from Supabase:", error);
-    throw error;
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await supabase
+      .from('scores')
+      .select('*')
+      .range(from, from + pageSize - 1);
+
+    if (error) {
+      console.error("Error fetching data from Supabase:", error);
+      throw error;
+    }
+
+    rows.push(...(data || []));
+
+    if (!data || data.length < pageSize) {
+      break;
+    }
   }
 
-  return (data || []).map((item: any, index: number) => ({
+  return rows.map((item: any, index: number) => ({
     id: toText(
       item.id,
       `${toText(item.timestamp) || Date.now()}-${index}-${Math.random().toString(36).substring(2, 11)}`
