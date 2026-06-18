@@ -317,7 +317,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
                   required
                   value={formData.maxRatio}
                   onChange={handleChange}
-                  placeholder="請輸入全區序位最大比率 (%)"
+                  placeholder="請輸入全區序位最大比率"
                   className="w-full px-4 py-3 bg-white border border-indigo-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-bold text-indigo-950 transition-all placeholder:text-indigo-300 placeholder:font-medium shadow-sm hover:border-indigo-300"
                 />
              </div>
