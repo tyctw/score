@@ -76,6 +76,14 @@ const interpolateValue = (start: string | number, end: string | number, ratio: n
   return Number.isInteger(value) ? String(value) : value.toFixed(2);
 };
 
+const interpolateIntegerValue = (start: string | number, end: string | number, ratio: number) => {
+  const startValue = parseRankNumber(start);
+  const endValue = parseRankNumber(end);
+  if (!Number.isFinite(startValue) || !Number.isFinite(endValue)) return '';
+
+  return String(Math.round(startValue + ((endValue - startValue) * ratio)));
+};
+
 const createInferredRows = (rows: ScoreData[]) => {
   const inferredRows: PrintRow[] = [];
   const groupMap = new Map<string, ScoreData[]>();
@@ -115,8 +123,8 @@ const createInferredRows = (rows: ScoreData[]) => {
           essayScore: interpolateValue(current.essayScore, next.essayScore, ratio),
           minRatio: interpolateValue(current.minRatio, next.minRatio, ratio),
           maxRatio: interpolateValue(current.maxRatio, next.maxRatio, ratio),
-          minRankInterval: interpolateValue(current.minRankInterval, next.minRankInterval, ratio),
-          maxRankInterval: interpolateValue(current.maxRankInterval, next.maxRankInterval, ratio),
+          minRankInterval: interpolateIntegerValue(current.minRankInterval, next.minRankInterval, ratio),
+          maxRankInterval: interpolateIntegerValue(current.maxRankInterval, next.maxRankInterval, ratio),
           inferred: true,
           inferredFrom: `${getGradeDetailScore(current)} / ${getGradeDetailScore(next)}`,
           inferredCategory: getGradeCategory(current),
