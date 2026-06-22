@@ -43,6 +43,30 @@ const chooseRepresentativeRecord = (current: ScoreData, next: ScoreData) => {
   return current;
 };
 
+const getRankSignature = (item: ScoreData) => [
+  String(item.minRatio ?? '').trim(),
+  String(item.maxRatio ?? '').trim(),
+  String(item.minRankInterval ?? '').trim(),
+  String(item.maxRankInterval ?? '').trim(),
+].join('|');
+
+const chooseRepresentativeFromSameScore = (items: ScoreData[]) => {
+  const rankGroups = new Map<string, ScoreData[]>();
+
+  items.forEach(item => {
+    const rankSignature = getRankSignature(item);
+    if (!rankGroups.has(rankSignature)) rankGroups.set(rankSignature, []);
+    rankGroups.get(rankSignature)!.push(item);
+  });
+
+  const repeatedRankGroups = Array.from(rankGroups.values())
+    .filter(group => group.length >= 2)
+    .sort((a, b) => b.length - a.length);
+
+  const candidates = repeatedRankGroups[0] || items;
+  return candidates.reduce(chooseRepresentativeRecord);
+};
+
 const interpolateValue = (start: string | number, end: string | number, ratio: number) => {
   const startValue = parseRankNumber(start);
   const endValue = parseRankNumber(end);
@@ -106,6 +130,19 @@ const createInferredRows = (rows: ScoreData[]) => {
   return inferredRows;
 };
 
+const getPrintCategoryRank = (item: PrintRow) => {
+  const category = item.inferredCategory || getGradeCategory(item);
+  const match = category.match(/^(\d+)A(\d+)B(\d+)C$/);
+  if (!match) return 0;
+
+  const [, aCount, bCount, cCount] = match.map(Number);
+  return (aCount * 1_000_000) + (bCount * 10_000) - cCount;
+};
+
+const getPrintDetailScore = (item: PrintRow) => (
+  item.inferredDetailScore ?? getGradeDetailScore(item)
+);
+
 export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) => {
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -119,15 +156,15 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
   ), [data, selectedRegion, selectedYear]);
 
   const baseRows = useMemo(() => {
-    const recordMap = new Map<string, ScoreData>();
+    const recordMap = new Map<string, ScoreData[]>();
 
     filteredSource.forEach(item => {
       const key = scoreIdentityKey(item);
-      const existing = recordMap.get(key);
-      recordMap.set(key, existing ? chooseRepresentativeRecord(existing, item) : item);
+      if (!recordMap.has(key)) recordMap.set(key, []);
+      recordMap.get(key)!.push(item);
     });
 
-    return Array.from(recordMap.values()).sort((a, b) => {
+    return Array.from(recordMap.values()).map(chooseRepresentativeFromSameScore).sort((a, b) => {
       const yearDiff = String(b.examYear).localeCompare(String(a.examYear), 'zh-Hant');
       if (yearDiff !== 0) return yearDiff;
 
@@ -147,14 +184,11 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
       const regionDiff = String(a.region).localeCompare(String(b.region), 'zh-Hant');
       if (regionDiff !== 0) return regionDiff;
 
-      if (a.inferred || b.inferred) {
-        const categoryDiff = String(a.inferredCategory || getGradeCategory(a)).localeCompare(String(b.inferredCategory || getGradeCategory(b)), 'zh-Hant');
-        if (categoryDiff !== 0) return categoryDiff;
+      const categoryRankDiff = getPrintCategoryRank(b) - getPrintCategoryRank(a);
+      if (categoryRankDiff !== 0) return categoryRankDiff;
 
-        const detailA = a.inferredDetailScore ?? getGradeDetailScore(a);
-        const detailB = b.inferredDetailScore ?? getGradeDetailScore(b);
-        if (detailA !== detailB) return detailB - detailA;
-      }
+      const detailDiff = getPrintDetailScore(b) - getPrintDetailScore(a);
+      if (detailDiff !== 0) return detailDiff;
 
       return compareByGradeRank(a, b);
     })

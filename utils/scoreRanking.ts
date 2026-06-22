@@ -73,6 +73,13 @@ export const getGradeRankScore = (item: ScoreData) => {
   return (aCount * 1_000_000) + (bCount * 10_000) + (detailScore * 100) + essayScore - (rankRatio / 100);
 };
 
+const getRankOrderScore = (item: ScoreData) => {
+  const { aCount, bCount } = getGradeCounts(item);
+  const detailScore = getGradeDetailScore(item);
+
+  return (aCount * 1_000_000) + (bCount * 10_000) + (detailScore * 100);
+};
+
 export const compareByGradeRank = (a: ScoreData, b: ScoreData) => {
   const rankA = getGradeRankScore(a);
   const rankB = getGradeRankScore(b);
@@ -130,7 +137,7 @@ export const detectRankOrderAnomalies = (items: ScoreData[]) => {
     const scoreGroups = new Map<number, ScoreData[]>();
 
     groupItems.forEach(item => {
-      const score = getGradeRankScore(item);
+      const score = getRankOrderScore(item);
       if (!scoreGroups.has(score)) scoreGroups.set(score, []);
       scoreGroups.get(score)!.push(item);
     });
