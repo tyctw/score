@@ -187,6 +187,170 @@ const formatTrendDiff = (value: number, unit = '') => {
   return `${sign}${Math.abs(value).toLocaleString('zh-TW')}${unit}`;
 };
 
+const escapeHtml = (value: unknown) => String(value ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#039;');
+
+const getRatioText = (item: PrintRow) => (
+  item.minRatio === item.maxRatio ? `${item.minRatio}%` : `${item.minRatio}% - ${item.maxRatio}%`
+);
+
+const getRankIntervalText = (item: PrintRow) => (
+  item.minRankInterval && item.maxRankInterval ? `${item.minRankInterval} - ${item.maxRankInterval}` : '-'
+);
+
+const buildStandalonePrintHtml = ({
+  rows,
+  selectedYear,
+  selectedRegion,
+  baseRowCount,
+  duplicateCount,
+  inferredCount,
+  anomalyCount,
+  showPreviousTrend,
+  previousTrendMap,
+  rankOrderAnomalies,
+}: {
+  rows: PrintRow[];
+  selectedYear: string;
+  selectedRegion: string;
+  baseRowCount: number;
+  duplicateCount: number;
+  inferredCount: number;
+  anomalyCount: number;
+  showPreviousTrend: boolean;
+  previousTrendMap: Map<string, PreviousTrend>;
+  rankOrderAnomalies: Map<string, { currentRank: number; higherScoreRank: number; higherScoreLabel: string }>;
+}) => {
+  const trendHeaders = showPreviousTrend
+    ? '<th>去年最大排名</th><th>排名趨勢</th><th>比率趨勢</th>'
+    : '';
+
+  const tableRows = rows.map((item, index) => {
+    const anomaly = item.inferred ? undefined : rankOrderAnomalies.get(item.id);
+    const previousTrend = showPreviousTrend && !item.inferred ? previousTrendMap.get(item.id) : undefined;
+    const rowClass = anomaly ? 'anomaly-row' : item.inferred ? 'inferred-row' : '';
+    const trendCells = showPreviousTrend ? `
+      <td>${previousTrend ? `${escapeHtml(previousTrend.previousYear)}：${escapeHtml(formatRankValue(previousTrend.previousMaxRank))}` : '-'}</td>
+      <td class="${previousTrend && previousTrend.rankDiff > 0 ? 'bad' : previousTrend && previousTrend.rankDiff < 0 ? 'good' : 'muted'}">${previousTrend ? escapeHtml(formatTrendDiff(previousTrend.rankDiff, '人')) : '-'}</td>
+      <td class="${previousTrend && previousTrend.ratioDiff > 0 ? 'bad' : previousTrend && previousTrend.ratioDiff < 0 ? 'good' : 'muted'}">${previousTrend ? `${escapeHtml(previousTrend.previousMinRatio)}% → ${escapeHtml(previousTrend.currentMinRatio)}% (${escapeHtml(formatTrendDiff(previousTrend.ratioDiff, '%'))})` : '-'}</td>
+    ` : '';
+    const dataLabel = item.inferred ? `推算：介於加數 ${item.inferredFrom}` : '原始';
+    const anomalyLabel = anomaly ? `倒掛：高分 ${anomaly.higherScoreLabel} 約 ${formatRankValue(anomaly.higherScoreRank)}` : '-';
+
+    return `
+      <tr class="${rowClass}">
+        <td>${index + 1}</td>
+        <td>${escapeHtml(item.examYear)}</td>
+        <td>${escapeHtml(item.region)}</td>
+        <td class="category">${escapeHtml(getPrintCategory(item))}</td>
+        <td>${escapeHtml(item.chineseScore)}</td>
+        <td>${escapeHtml(item.englishScore)}</td>
+        <td>${escapeHtml(item.mathScore)}</td>
+        <td>${escapeHtml(item.socialScore)}</td>
+        <td>${escapeHtml(item.scienceScore)}</td>
+        <td>${escapeHtml(item.essayScore)}</td>
+        <td class="mono">+${escapeHtml(getPrintPlusScore(item))}</td>
+        <td>${escapeHtml(getRatioText(item))}</td>
+        <td class="mono">${escapeHtml(getRankIntervalText(item))}</td>
+        ${trendCells}
+        <td class="${item.inferred ? 'warn' : 'muted'}">${escapeHtml(dataLabel)}</td>
+        <td class="${anomaly ? 'bad' : 'muted'}">${escapeHtml(anomalyLabel)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  return `<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>會考各區成績序位整理表</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif; background: #fff; }
+    .toolbar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 16px; }
+    .toolbar button { border: 1px solid #cbd5e1; background: #0f172a; color: #fff; border-radius: 10px; padding: 10px 14px; font-weight: 800; cursor: pointer; }
+    .toolbar button.secondary { background: #fff; color: #334155; }
+    .watermark { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .watermark span { position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%) rotate(-28deg); font-size: 64px; font-weight: 900; color: rgba(15, 23, 42, 0.08); white-space: nowrap; letter-spacing: 4px; }
+    .sheet { position: relative; z-index: 1; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 14px; }
+    .eyebrow { font-size: 12px; font-weight: 900; letter-spacing: 0.18em; color: #4f46e5; }
+    h1 { margin: 4px 0 4px; font-size: 28px; line-height: 1.2; }
+    .summary { color: #475569; font-size: 13px; font-weight: 700; }
+    .notice { margin-top: 10px; padding: 10px 12px; border: 1px solid #fcd34d; background: #fffbeb; color: #92400e; border-radius: 12px; font-size: 13px; font-weight: 800; max-width: 920px; }
+    .qr { display: flex; align-items: center; gap: 12px; text-align: right; font-size: 11px; color: #64748b; font-weight: 800; }
+    .qr img { width: 96px; height: 96px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 4px; background: #fff; }
+    .chips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; font-size: 12px; font-weight: 800; }
+    .chip { border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 10px; background: #f8fafc; }
+    table { width: 100%; border-collapse: collapse; font-size: 10px; }
+    th, td { border: 1px solid #e2e8f0; padding: 5px 6px; text-align: left; vertical-align: top; }
+    th { background: #f1f5f9; color: #475569; font-weight: 900; }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    .inferred-row { background: #fffbeb !important; }
+    .anomaly-row { background: #fff1f2 !important; }
+    .category { color: #4338ca; font-weight: 900; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 800; }
+    .muted { color: #94a3b8; }
+    .warn { color: #b45309; font-weight: 900; }
+    .bad { color: #be123c; font-weight: 900; }
+    .good { color: #047857; font-weight: 900; }
+    @media print {
+      body { padding: 0; }
+      .toolbar { display: none; }
+      .sheet { padding: 10mm; }
+      .header { break-inside: avoid; page-break-inside: avoid; }
+      tr { break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button class="secondary" onclick="window.close()">關閉</button>
+    <button onclick="window.print()">列印資料</button>
+  </div>
+  <div class="watermark" aria-hidden="true"><span>TW會考落點分析</span></div>
+  <main class="sheet">
+    <section class="header">
+      <div>
+        <div class="eyebrow">TW會考落點分析</div>
+        <h1>會考各區成績序位整理表</h1>
+        <div class="summary">${escapeHtml(selectedYear || '全部年度')} / ${escapeHtml(selectedRegion || '全部區域')}，已移除重複分數 ${Math.max(0, duplicateCount).toLocaleString('zh-TW')} 筆，推算缺失 ${inferredCount.toLocaleString('zh-TW')} 筆，序位倒掛 ${anomalyCount.toLocaleString('zh-TW')} 筆</div>
+        <div class="notice">僅供參考：本表依使用者回報資料自動整理、推算與比對，非官方公告資料。實際志願選填與錄取結果，仍應以各就學區及主管機關正式公告為準。</div>
+      </div>
+      <div class="qr">
+        <div>
+          <div>網站 QR Code</div>
+          <div>${escapeHtml(siteUrl)}</div>
+          <div>列印時間：${escapeHtml(new Date().toLocaleString('zh-TW'))}</div>
+        </div>
+        <img src="${escapeHtml(qrCodeUrl)}" alt="TW會考落點分析網站 QR Code" />
+      </div>
+    </section>
+    <section class="chips">
+      <div class="chip">列印筆數：${rows.length.toLocaleString('zh-TW')}</div>
+      <div class="chip">原始代表：${baseRowCount.toLocaleString('zh-TW')}</div>
+      <div class="chip">推算缺失：${inferredCount.toLocaleString('zh-TW')}</div>
+      <div class="chip">序位倒掛：${anomalyCount.toLocaleString('zh-TW')}</div>
+      <div class="chip">去年對照：${showPreviousTrend ? '顯示' : '未顯示'}</div>
+    </section>
+    <table>
+      <thead>
+        <tr>
+          <th>序</th><th>年度</th><th>區域</th><th>類別</th><th>國</th><th>英</th><th>數</th><th>社</th><th>自</th><th>作</th><th>加數</th><th>序位比率</th><th>排名區間</th>${trendHeaders}<th>資料</th><th>異常</th>
+        </tr>
+      </thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+  </main>
+</body>
+</html>`;
+};
+
 export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) => {
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -298,6 +462,30 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
     return result;
   }, [data, selectedRegion, sortedRows]);
 
+  const handleOpenStandalonePrintPage = () => {
+    const standaloneWindow = window.open('', '_blank', 'width=1280,height=900');
+    if (!standaloneWindow) {
+      window.print();
+      return;
+    }
+
+    standaloneWindow.document.open();
+    standaloneWindow.document.write(buildStandalonePrintHtml({
+      rows: sortedRows,
+      selectedYear,
+      selectedRegion,
+      baseRowCount: baseRows.length,
+      duplicateCount,
+      inferredCount,
+      anomalyCount,
+      showPreviousTrend,
+      previousTrendMap,
+      rankOrderAnomalies,
+    }));
+    standaloneWindow.document.close();
+    standaloneWindow.focus();
+  };
+
   return (
     <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 w-full z-10 relative rank-print-page">
       <style>{`
@@ -351,11 +539,11 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
             返回主畫面
           </button>
           <button
-            onClick={() => window.print()}
+            onClick={handleOpenStandalonePrintPage}
             className="px-5 py-3 rounded-2xl bg-slate-900 text-white border border-slate-700 font-bold shadow-lg hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
           >
             <Printer className="w-5 h-5" />
-            列印資料
+            開啟獨立列印頁
           </button>
         </div>
       </div>
@@ -467,7 +655,7 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
             <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2">原始代表：{baseRows.length.toLocaleString('zh-TW')}</div>
             <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2 text-amber-700">推算缺失：{inferredCount.toLocaleString('zh-TW')}</div>
             <div className="rounded-xl bg-rose-50 border border-rose-100 px-3 py-2 text-rose-700">序位倒掛：{anomalyCount.toLocaleString('zh-TW')}</div>
-            <div className="rounded-xl bg-indigo-50 border border-indigo-100 px-3 py-2 text-indigo-700">去年對照：{showPreviousTrend ? '顯示' : '未顯示'}</div>
+            <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2">去年對照：{showPreviousTrend ? '顯示' : '未顯示'}</div>
           </div>
         </div>
 
