@@ -530,7 +530,7 @@ const App: React.FC = () => {
         >
           <div className="flex flex-col h-full z-50">
             <div className="px-6 py-6 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-800">網站選單</h2>
+              <h2 className="text-xl font-bold text-gray-800">相關資源</h2>
               <button 
                 onClick={() => setIsMenuOpen(false)}
                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all"
@@ -574,7 +574,7 @@ const App: React.FC = () => {
 
               {/* External Links for Mobile */}
               <div className="space-y-3 pt-4 border-t border-slate-100">
-                 <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase ml-1">相關資源</h3>
+                 <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase ml-1">外部連結</h3>
                  <div className="space-y-2.5">
                     <a href={`https://tyctw.github.io/spare/?invite=${generateInvitationCode()}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white border border-slate-200 shadow-sm rounded-xl text-sm font-bold text-slate-700 active:scale-95 transition-transform w-full">
                        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
@@ -663,9 +663,10 @@ const App: React.FC = () => {
              
              <div className="w-px h-4 bg-slate-300 mx-2"></div>
 
-             <a href="https://tyctw.github.io/volunteer/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">志願選填</a>
-             <a href="https://tyctw.github.io/shared/" target="_blank" rel="noopener noreferrer" className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">錄取分享</a>
-             <button onClick={() => setActiveModal('contact')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">聯絡我們</button>
+             <button onClick={() => setIsMenuOpen(true)} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300 flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+                相關資源
+             </button>
           </nav>
 
           {/* Actions */}
@@ -684,6 +685,7 @@ const App: React.FC = () => {
              <button 
                 onClick={() => setIsMenuOpen(true)}
                 className="lg:hidden p-2.5 rounded-xl text-slate-500 hover:bg-white/80 backdrop-blur transition-all focus:outline-none hover:text-indigo-600 shadow-sm"
+                title="開啟相關資源"
              >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
              </button>
