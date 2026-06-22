@@ -7,56 +7,9 @@ import { Stats } from './components/Stats';
 import { Modal } from './components/Modal';
 import { ComparisonDock } from './components/ComparisonDock';
 import { SubmitScoreForm } from './components/SubmitScoreForm';
+import { RankPrintPage } from './components/RankPrintPage';
 import { Sparkles, Search, Pin, Download, AlertTriangle, Scale, ShieldAlert, Mail } from 'lucide-react';
-
-const scoreSubjects: Array<keyof Pick<ScoreData, 'chineseScore' | 'mathScore' | 'englishScore' | 'socialScore' | 'scienceScore'>> = [
-  'chineseScore',
-  'mathScore',
-  'englishScore',
-  'socialScore',
-  'scienceScore',
-];
-
-const normalizeGrade = (grade: string | number | undefined) => String(grade ?? '').trim().toUpperCase();
-
-const gradeBaseLevel = (grade: string) => {
-  if (grade.startsWith('A')) return 3;
-  if (grade.startsWith('B')) return 2;
-  if (grade.startsWith('C')) return 1;
-  return 0;
-};
-
-const gradeModifierPoint = (grade: string) => {
-  if (grade.includes('++')) return 2;
-  if (grade.includes('+')) return 1;
-  return 0;
-};
-
-const parseNumber = (value: string | number | undefined) => {
-  const parsed = parseFloat(String(value ?? '').replace(/,/g, ''));
-  return Number.isFinite(parsed) ? parsed : 0;
-};
-
-const getGradeRankScore = (item: ScoreData) => {
-  let aCount = 0;
-  let bCount = 0;
-  let detailScore = 0;
-
-  scoreSubjects.forEach(subject => {
-    const grade = normalizeGrade(item[subject]);
-    const baseLevel = gradeBaseLevel(grade);
-
-    if (baseLevel === 3) aCount += 1;
-    if (baseLevel === 2) bCount += 1;
-
-    detailScore += baseLevel * 10 + gradeModifierPoint(grade);
-  });
-
-  const essayScore = parseNumber(item.essayScore);
-  const rankRatio = parseNumber(item.minRatio);
-
-  return (aCount * 1_000_000) + (bCount * 10_000) + (detailScore * 100) + essayScore - (rankRatio / 100);
-};
+import { getGradeRankScore, parseRankNumber } from './utils/scoreRanking';
 
 
 // Data Loading Animation Component
@@ -142,6 +95,7 @@ const App: React.FC = () => {
   const [activeModal, setActiveModal] = useState<'usage' | 'disclaimer' | 'contact' | 'compare' | null>(null);
   const [showStatsView, setShowStatsView] = useState(false);
   const [showSubmitView, setShowSubmitView] = useState(false);
+  const [showRankPrintView, setShowRankPrintView] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [pinnedItems, setPinnedItems] = useState<ScoreData[]>([]);
@@ -278,8 +232,8 @@ const App: React.FC = () => {
         valB = getGradeRankScore(b);
       }
       if (field === 'minRatio') {
-        valA = parseNumber(valA as string | number);
-        valB = parseNumber(valB as string | number);
+        valA = parseRankNumber(valA as string | number);
+        valB = parseRankNumber(valB as string | number);
       }
       if (field === 'timestamp') {
         valA = new Date(valA as string).getTime();
@@ -289,8 +243,8 @@ const App: React.FC = () => {
       if (valA < valB) return -1 * order;
       if (valA > valB) return 1 * order;
       if (field === 'gradeRank') {
-        const ratioA = parseNumber(a.minRatio);
-        const ratioB = parseNumber(b.minRatio);
+        const ratioA = parseRankNumber(a.minRatio);
+        const ratioB = parseRankNumber(b.minRatio);
         if (ratioA < ratioB) return -1;
         if (ratioA > ratioB) return 1;
       }
@@ -591,7 +545,7 @@ const App: React.FC = () => {
               <div className="relative">
                  <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-3xl blur opacity-30"></div>
                  <button 
-                   onClick={() => { setShowSubmitView(true); setIsMenuOpen(false); window.scrollTo(0, 0); }}
+                   onClick={() => { setShowSubmitView(true); setShowStatsView(false); setShowRankPrintView(false); setIsMenuOpen(false); window.scrollTo(0, 0); }}
                    className="relative w-full flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-transform"
                  >
                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
@@ -605,9 +559,13 @@ const App: React.FC = () => {
               <div className="space-y-3">
                  <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase ml-1">功能與說明</h3>
                  <div className="grid grid-cols-2 gap-2">
-                    <button onClick={() => { setShowStatsView(true); setIsMenuOpen(false); window.scrollTo(0, 0); }} className="p-3 col-span-2 bg-indigo-50 border border-indigo-100 rounded-xl text-sm font-bold text-indigo-700 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                    <button onClick={() => { setShowStatsView(true); setShowSubmitView(false); setShowRankPrintView(false); setIsMenuOpen(false); window.scrollTo(0, 0); }} className="p-3 col-span-2 bg-indigo-50 border border-indigo-100 rounded-xl text-sm font-bold text-indigo-700 active:scale-95 transition-transform flex items-center justify-center gap-2">
                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                        歷年趨勢分析
+                    </button>
+                    <button onClick={() => { setShowRankPrintView(true); setShowStatsView(false); setShowSubmitView(false); setIsMenuOpen(false); window.scrollTo(0, 0); }} className="p-3 col-span-2 bg-slate-900 border border-slate-700 rounded-xl text-sm font-bold text-white active:scale-95 transition-transform flex items-center justify-center gap-2">
+                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" /></svg>
+                       序位整理列印
                     </button>
                     <button onClick={() => { setActiveModal('usage'); setIsMenuOpen(false); }} className="p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 active:scale-95 transition-transform text-center shadow-sm">使用說明</button>
                     <button onClick={() => { setActiveModal('disclaimer'); setIsMenuOpen(false); }} className="p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 active:scale-95 transition-transform text-center shadow-sm">免責聲明</button>
@@ -670,7 +628,7 @@ const App: React.FC = () => {
           {/* Logo */}
           <div 
             className="flex items-center gap-3 cursor-pointer group select-none" 
-            onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
+            onClick={() => { setShowStatsView(false); setShowSubmitView(false); setShowRankPrintView(false); window.scrollTo({top: 0, behavior: 'smooth'}); }}
           >
              <div className="relative overflow-hidden w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-[0_4px_20px_rgba(99,102,241,0.4)] group-hover:shadow-[0_4px_25px_rgba(99,102,241,0.6)] group-hover:scale-105 transition-all duration-300">
                 <div className="absolute inset-0 bg-white/20 blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -692,9 +650,13 @@ const App: React.FC = () => {
               ? 'bg-slate-50/50 border border-slate-200/50' 
               : 'bg-white/30 border border-white/50 shadow-sm'
             }`}>
-             <button onClick={() => { setShowStatsView(true); window.scrollTo(0, 0); }} className="px-5 py-2 rounded-full text-sm font-bold text-indigo-700 hover:bg-indigo-50 transition-all duration-300 flex items-center gap-1.5">
+             <button onClick={() => { setShowStatsView(true); setShowSubmitView(false); setShowRankPrintView(false); window.scrollTo(0, 0); }} className="px-5 py-2 rounded-full text-sm font-bold text-indigo-700 hover:bg-indigo-50 transition-all duration-300 flex items-center gap-1.5">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                 趨勢分析
+             </button>
+             <button onClick={() => { setShowRankPrintView(true); setShowStatsView(false); setShowSubmitView(false); window.scrollTo(0, 0); }} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300 flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" /></svg>
+                序位列印
              </button>
              <button onClick={() => setActiveModal('usage')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">使用說明</button>
              <button onClick={() => setActiveModal('disclaimer')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">免責聲明</button>
@@ -709,7 +671,7 @@ const App: React.FC = () => {
           {/* Actions */}
           <div className="flex items-center gap-3">
              <button 
-                onClick={() => { setShowSubmitView(true); window.scrollTo(0,0); }}
+                onClick={() => { setShowSubmitView(true); setShowStatsView(false); setShowRankPrintView(false); window.scrollTo(0,0); }}
                 className="hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm bg-slate-900 border border-slate-700 text-white shadow-lg shadow-indigo-500/20 hover:scale-105 hover:shadow-indigo-500/30 transition-all duration-300 group relative overflow-hidden"
              >
                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -735,12 +697,18 @@ const App: React.FC = () => {
               <SubmitScoreForm
                  onSubmited={() => {
                    setShowSubmitView(false);
+                   setShowRankPrintView(false);
                    loadData(); // Reload data after submission
                  }}
                  onCancel={() => setShowSubmitView(false)}
               />
            </div>
         </main>
+      ) : showRankPrintView ? (
+        <RankPrintPage
+          data={data}
+          onBack={() => setShowRankPrintView(false)}
+        />
       ) : showStatsView ? (
         <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full z-10 relative">
           <Stats 
@@ -802,7 +770,7 @@ const App: React.FC = () => {
 
            {/* Right side: Contribution Banner */}
            <div className="lg:col-span-5 flex-1 w-full relative z-10 flex">
-              <ContributionBanner onSubmitClick={() => { setShowSubmitView(true); window.scrollTo(0,0); }} />
+              <ContributionBanner onSubmitClick={() => { setShowSubmitView(true); setShowStatsView(false); setShowRankPrintView(false); window.scrollTo(0,0); }} />
            </div>
         </div>
 
