@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ScoreData, SortConfig, SortField } from '../types';
+import { detectRankOrderAnomalies, formatRankValue } from '../utils/scoreRanking';
 
 interface ScoreTableProps {
   data: ScoreData[];
@@ -92,6 +93,10 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, allData, sortConfi
 
     return idsWithVariations;
   }, [data]);
+
+  const rankOrderAnomalies = useMemo(() => (
+    detectRankOrderAnomalies(allData)
+  ), [allData]);
 
   const previousYearComparison = useMemo(() => {
     const comparisons = new Map<string, { diff: number }>();
@@ -239,12 +244,17 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, allData, sortConfi
         {currentItems.map((item, index) => {
           const isPinned = pinnedItems.some(p => p.id === item.id);
           const hasVariation = variationIds.has(item.id);
+          const rankOrderAnomaly = rankOrderAnomalies.get(item.id);
 
           return (
             <div 
                 key={item.id} 
                 className={`group bg-white/70 backdrop-blur-xl rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border transition-all duration-500 relative hover:z-50 ${
-                    isPinned ? 'border-indigo-400 ring-4 ring-indigo-50 shadow-lg' : 'border-white hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:border-indigo-100 hover:-translate-y-2 hover:bg-white'
+                    isPinned
+                    ? 'border-indigo-400 ring-4 ring-indigo-50 shadow-lg'
+                    : rankOrderAnomaly
+                    ? 'border-rose-300 ring-4 ring-rose-50 shadow-lg'
+                    : 'border-white hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:border-indigo-100 hover:-translate-y-2 hover:bg-white'
                 }`}
             >
                 {/* Decorative background blob */}
@@ -299,6 +309,19 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, allData, sortConfi
                                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-slate-900 text-white text-xs rounded-xl opacity-0 group-hover/tooltip:opacity-100 transition-all duration-200 pointer-events-none z-30 text-center shadow-xl transform translate-y-2 group-hover/tooltip:translate-y-0">
                                     <p className="font-bold mb-1 text-amber-300">⚠️ 注意</p>
                                     此分數在同年度有多筆不同的序位資料，可能來自不同回報來源或區間。
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                                </div>
+                            </div>
+                        )}
+                        {rankOrderAnomaly && (
+                            <div className="group/tooltip relative">
+                                <span className="cursor-help px-2 py-1 rounded-lg bg-rose-100 text-rose-700 text-[10px] font-bold border border-rose-200 flex items-center gap-1 shadow-sm">
+                                    <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z" /></svg>
+                                    序位倒掛
+                                </span>
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-3 bg-slate-900 text-white text-xs rounded-xl opacity-0 group-hover/tooltip:opacity-100 transition-all duration-200 pointer-events-none z-30 text-center shadow-xl transform translate-y-2 group-hover/tooltip:translate-y-0">
+                                    <p className="font-bold mb-1 text-rose-300">同區序位可能異常</p>
+                                    較高分群（{rankOrderAnomaly.higherScoreLabel}）序位約 {formatRankValue(rankOrderAnomaly.higherScoreRank)}，此筆序位卻在 {formatRankValue(rankOrderAnomaly.currentRank)}。
                                     <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
                                 </div>
                             </div>

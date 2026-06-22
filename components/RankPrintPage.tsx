@@ -4,8 +4,12 @@ import { REGIONS, YEARS } from '../constants';
 import { ScoreData } from '../types';
 import {
   compareByGradeRank,
+  detectRankOrderAnomalies,
+  formatRankValue,
   getGradeCategory,
+  getGradeCounts,
   getGradeDetailScore,
+  getGradePlusScore,
   parseRankNumber,
   scoreIdentityKey,
 } from '../utils/scoreRanking';
@@ -14,6 +18,14 @@ interface RankPrintPageProps {
   data: ScoreData[];
   onBack: () => void;
 }
+
+type PrintRow = ScoreData & {
+  inferred?: boolean;
+  inferredFrom?: string;
+  inferredCategory?: string;
+  inferredDetailScore?: number;
+  inferredPlusScore?: number;
+};
 
 const chooseRepresentativeRecord = (current: ScoreData, next: ScoreData) => {
   const currentMinRatio = parseRankNumber(current.minRatio);
@@ -31,6 +43,69 @@ const chooseRepresentativeRecord = (current: ScoreData, next: ScoreData) => {
   return current;
 };
 
+const interpolateValue = (start: string | number, end: string | number, ratio: number) => {
+  const startValue = parseRankNumber(start);
+  const endValue = parseRankNumber(end);
+  if (!Number.isFinite(startValue) || !Number.isFinite(endValue)) return '';
+
+  const value = startValue + ((endValue - startValue) * ratio);
+  return Number.isInteger(value) ? String(value) : value.toFixed(2);
+};
+
+const createInferredRows = (rows: ScoreData[]) => {
+  const inferredRows: PrintRow[] = [];
+  const groupMap = new Map<string, ScoreData[]>();
+
+  rows.forEach(item => {
+    const key = `${item.examYear}|${item.region}|${getGradeCategory(item)}`;
+    if (!groupMap.has(key)) groupMap.set(key, []);
+    groupMap.get(key)!.push(item);
+  });
+
+  groupMap.forEach(groupRows => {
+    const sortedGroup = [...groupRows].sort(compareByGradeRank);
+
+    for (let index = 0; index < sortedGroup.length - 1; index += 1) {
+      const current = sortedGroup[index];
+      const next = sortedGroup[index + 1];
+      const currentDetail = getGradeDetailScore(current);
+      const nextDetail = getGradeDetailScore(next);
+      const { aCount, bCount, cCount } = getGradeCounts(current);
+      const categoryBaseScore = (aCount * 30) + (bCount * 20) + (cCount * 10);
+      const gap = currentDetail - nextDetail;
+
+      if (gap <= 1) continue;
+
+      for (let missingDetail = currentDetail - 1; missingDetail > nextDetail; missingDetail -= 1) {
+        const ratio = (currentDetail - missingDetail) / gap;
+
+        inferredRows.push({
+          ...current,
+          id: `inferred-${current.id}-${next.id}-${missingDetail}`,
+          timestamp: '',
+          chineseScore: '-',
+          englishScore: '-',
+          mathScore: '-',
+          socialScore: '-',
+          scienceScore: '-',
+          essayScore: interpolateValue(current.essayScore, next.essayScore, ratio),
+          minRatio: interpolateValue(current.minRatio, next.minRatio, ratio),
+          maxRatio: interpolateValue(current.maxRatio, next.maxRatio, ratio),
+          minRankInterval: interpolateValue(current.minRankInterval, next.minRankInterval, ratio),
+          maxRankInterval: interpolateValue(current.maxRankInterval, next.maxRankInterval, ratio),
+          inferred: true,
+          inferredFrom: `${getGradeDetailScore(current)} / ${getGradeDetailScore(next)}`,
+          inferredCategory: getGradeCategory(current),
+          inferredDetailScore: missingDetail,
+          inferredPlusScore: Math.max(0, missingDetail - categoryBaseScore),
+        });
+      }
+    }
+  });
+
+  return inferredRows;
+};
+
 export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) => {
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -43,7 +118,7 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
     })
   ), [data, selectedRegion, selectedYear]);
 
-  const sortedRows = useMemo(() => {
+  const baseRows = useMemo(() => {
     const recordMap = new Map<string, ScoreData>();
 
     filteredSource.forEach(item => {
@@ -63,7 +138,32 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
     });
   }, [filteredSource]);
 
-  const duplicateCount = filteredSource.length - sortedRows.length;
+  const inferredRows = useMemo(() => createInferredRows(baseRows), [baseRows]);
+  const sortedRows: PrintRow[] = useMemo(() => (
+    [...baseRows, ...inferredRows].sort((a, b) => {
+      const yearDiff = String(b.examYear).localeCompare(String(a.examYear), 'zh-Hant');
+      if (yearDiff !== 0) return yearDiff;
+
+      const regionDiff = String(a.region).localeCompare(String(b.region), 'zh-Hant');
+      if (regionDiff !== 0) return regionDiff;
+
+      if (a.inferred || b.inferred) {
+        const categoryDiff = String(a.inferredCategory || getGradeCategory(a)).localeCompare(String(b.inferredCategory || getGradeCategory(b)), 'zh-Hant');
+        if (categoryDiff !== 0) return categoryDiff;
+
+        const detailA = a.inferredDetailScore ?? getGradeDetailScore(a);
+        const detailB = b.inferredDetailScore ?? getGradeDetailScore(b);
+        if (detailA !== detailB) return detailB - detailA;
+      }
+
+      return compareByGradeRank(a, b);
+    })
+  ), [baseRows, inferredRows]);
+
+  const duplicateCount = filteredSource.length - baseRows.length;
+  const inferredCount = inferredRows.length;
+  const rankOrderAnomalies = useMemo(() => detectRankOrderAnomalies(baseRows), [baseRows]);
+  const anomalyCount = rankOrderAnomalies.size;
 
   return (
     <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 w-full z-10 relative rank-print-page">
@@ -105,7 +205,7 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
       </div>
 
       <div className="no-print bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div>
             <label className="block text-sm font-bold text-slate-600 mb-2">年度</label>
             <select
@@ -135,6 +235,32 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
               <div className="text-2xl font-black">{sortedRows.length.toLocaleString('zh-TW')}</div>
             </div>
           </div>
+          <div className={`rounded-2xl p-4 flex items-center gap-3 border ${
+            anomalyCount > 0 ? 'bg-rose-50 text-rose-700 border-rose-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'
+          }`}>
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-black ${
+              anomalyCount > 0 ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
+            }`}>
+              !
+            </div>
+            <div>
+              <div className="text-xs font-bold opacity-75">序位倒掛</div>
+              <div className="text-2xl font-black">{anomalyCount.toLocaleString('zh-TW')}</div>
+            </div>
+          </div>
+          <div className={`rounded-2xl p-4 flex items-center gap-3 border ${
+            inferredCount > 0 ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-slate-50 text-slate-500 border-slate-100'
+          }`}>
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-black ${
+              inferredCount > 0 ? 'bg-amber-500 text-white' : 'bg-slate-300 text-white'
+            }`}>
+              +
+            </div>
+            <div>
+              <div className="text-xs font-bold opacity-75">自動推算</div>
+              <div className="text-2xl font-black">{inferredCount.toLocaleString('zh-TW')}</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -143,7 +269,7 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
           <div>
             <h3 className="text-xl font-black text-slate-900">會考各區成績序位整理表</h3>
             <p className="text-sm text-slate-500 font-medium mt-1">
-              {selectedYear || '全部年度'} / {selectedRegion || '全部區域'}，已移除重複分數 {Math.max(0, duplicateCount).toLocaleString('zh-TW')} 筆
+              {selectedYear || '全部年度'} / {selectedRegion || '全部區域'}，已移除重複分數 {Math.max(0, duplicateCount).toLocaleString('zh-TW')} 筆，推算缺失 {inferredCount.toLocaleString('zh-TW')} 筆，序位倒掛 {anomalyCount.toLocaleString('zh-TW')} 筆
             </p>
           </div>
           <div className="text-xs font-bold text-slate-400">
@@ -165,33 +291,55 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
                 <th className="text-left px-3 py-3 font-black">社</th>
                 <th className="text-left px-3 py-3 font-black">自</th>
                 <th className="text-left px-3 py-3 font-black">作</th>
-                <th className="text-left px-3 py-3 font-black">加數值</th>
+                <th className="text-left px-3 py-3 font-black">加數</th>
                 <th className="text-left px-3 py-3 font-black">序位比率</th>
                 <th className="text-left px-3 py-3 font-black">排名區間</th>
+                <th className="text-left px-3 py-3 font-black">資料</th>
+                <th className="text-left px-3 py-3 font-black">異常</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {sortedRows.map((item, index) => (
-                <tr key={`${scoreIdentityKey(item)}-${index}`} className="print-break-avoid odd:bg-white even:bg-slate-50/60">
-                  <td className="px-3 py-2 font-bold text-slate-400">{index + 1}</td>
-                  <td className="px-3 py-2 font-bold text-slate-700">{item.examYear}</td>
-                  <td className="px-3 py-2 font-bold text-slate-700">{item.region}</td>
-                  <td className="px-3 py-2 font-black text-indigo-700">{getGradeCategory(item)}</td>
-                  <td className="px-3 py-2 font-bold">{item.chineseScore}</td>
-                  <td className="px-3 py-2 font-bold">{item.englishScore}</td>
-                  <td className="px-3 py-2 font-bold">{item.mathScore}</td>
-                  <td className="px-3 py-2 font-bold">{item.socialScore}</td>
-                  <td className="px-3 py-2 font-bold">{item.scienceScore}</td>
-                  <td className="px-3 py-2 font-bold">{item.essayScore}</td>
-                  <td className="px-3 py-2 font-mono text-slate-500">{getGradeDetailScore(item)}</td>
-                  <td className="px-3 py-2 font-bold text-slate-700">
-                    {item.minRatio === item.maxRatio ? `${item.minRatio}%` : `${item.minRatio}% - ${item.maxRatio}%`}
-                  </td>
-                  <td className="px-3 py-2 font-mono text-slate-600">
-                    {item.minRankInterval && item.maxRankInterval ? `${item.minRankInterval} - ${item.maxRankInterval}` : '-'}
-                  </td>
-                </tr>
-              ))}
+              {sortedRows.map((item, index) => {
+                const anomaly = item.inferred ? undefined : rankOrderAnomalies.get(item.id);
+
+                return (
+                  <tr key={`${scoreIdentityKey(item)}-${index}`} className={`print-break-avoid ${anomaly ? 'bg-rose-50/80' : item.inferred ? 'bg-amber-50/80' : 'odd:bg-white even:bg-slate-50/60'}`}>
+                    <td className="px-3 py-2 font-bold text-slate-400">{index + 1}</td>
+                    <td className="px-3 py-2 font-bold text-slate-700">{item.examYear}</td>
+                    <td className="px-3 py-2 font-bold text-slate-700">{item.region}</td>
+                    <td className="px-3 py-2 font-black text-indigo-700">{item.inferredCategory || getGradeCategory(item)}</td>
+                    <td className="px-3 py-2 font-bold">{item.chineseScore}</td>
+                    <td className="px-3 py-2 font-bold">{item.englishScore}</td>
+                    <td className="px-3 py-2 font-bold">{item.mathScore}</td>
+                    <td className="px-3 py-2 font-bold">{item.socialScore}</td>
+                    <td className="px-3 py-2 font-bold">{item.scienceScore}</td>
+                    <td className="px-3 py-2 font-bold">{item.essayScore}</td>
+                    <td className="px-3 py-2 font-mono text-slate-700 font-bold">+{item.inferredPlusScore ?? getGradePlusScore(item)}</td>
+                    <td className="px-3 py-2 font-bold text-slate-700">
+                      {item.minRatio === item.maxRatio ? `${item.minRatio}%` : `${item.minRatio}% - ${item.maxRatio}%`}
+                    </td>
+                    <td className="px-3 py-2 font-mono text-slate-600">
+                      {item.minRankInterval && item.maxRankInterval ? `${item.minRankInterval} - ${item.maxRankInterval}` : '-'}
+                    </td>
+                    <td className="px-3 py-2 text-xs font-bold">
+                      {item.inferred ? (
+                        <span className="text-amber-700">推算：介於加數 {item.inferredFrom}</span>
+                      ) : (
+                        <span className="text-slate-500">原始</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-xs font-bold">
+                      {anomaly ? (
+                        <span className="text-rose-700">
+                          倒掛：高分 {anomaly.higherScoreLabel} 約 {formatRankValue(anomaly.higherScoreRank)}
+                        </span>
+                      ) : (
+                        <span className="text-slate-300">-</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

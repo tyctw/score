@@ -57,6 +57,13 @@ export const getGradeDetailScore = (item: ScoreData) => (
   }, 0)
 );
 
+export const getGradePlusScore = (item: ScoreData) => (
+  scoreSubjects.reduce((sum, subject) => {
+    const grade = normalizeGrade(item[subject]);
+    return sum + gradeModifierPoint(grade);
+  }, 0)
+);
+
 export const getGradeRankScore = (item: ScoreData) => {
   const { aCount, bCount } = getGradeCounts(item);
   const detailScore = getGradeDetailScore(item);
@@ -85,3 +92,79 @@ export const scoreIdentityKey = (item: ScoreData) => [
   ...scoreSubjects.map(subject => normalizeGrade(item[subject])),
   String(item.essayScore ?? '').trim(),
 ].join('|');
+
+export interface RankOrderAnomaly {
+  currentRank: number;
+  higherScoreRank: number;
+  higherScoreLabel: string;
+}
+
+const getComparableRank = (item: ScoreData) => {
+  const ratio = parseRankNumber(item.minRatio);
+  if (ratio > 0) return ratio;
+
+  const interval = parseRankNumber(item.minRankInterval);
+  return interval > 0 ? interval : Number.POSITIVE_INFINITY;
+};
+
+export const formatRankValue = (value: number) => (
+  Number.isFinite(value) ? value.toLocaleString('zh-TW') : '-'
+);
+
+export const detectRankOrderAnomalies = (items: ScoreData[]) => {
+  const anomalies = new Map<string, RankOrderAnomaly>();
+  const groups = new Map<string, ScoreData[]>();
+
+  items.forEach(item => {
+    if (!item.id || !item.examYear || !item.region) return;
+
+    const rankValue = getComparableRank(item);
+    if (!Number.isFinite(rankValue)) return;
+
+    const groupKey = `${item.examYear}|${item.region}`;
+    if (!groups.has(groupKey)) groups.set(groupKey, []);
+    groups.get(groupKey)!.push(item);
+  });
+
+  groups.forEach(groupItems => {
+    const scoreGroups = new Map<number, ScoreData[]>();
+
+    groupItems.forEach(item => {
+      const score = getGradeRankScore(item);
+      if (!scoreGroups.has(score)) scoreGroups.set(score, []);
+      scoreGroups.get(score)!.push(item);
+    });
+
+    let bestHigherRank = Number.POSITIVE_INFINITY;
+    let bestHigherLabel = '';
+
+    Array.from(scoreGroups.entries())
+      .sort(([scoreA], [scoreB]) => scoreB - scoreA)
+      .forEach(([_, sameScoreItems]) => {
+        sameScoreItems.forEach(item => {
+          const currentRank = getComparableRank(item);
+          if (bestHigherLabel && currentRank < bestHigherRank) {
+            anomalies.set(item.id, {
+              currentRank,
+              higherScoreRank: bestHigherRank,
+              higherScoreLabel: bestHigherLabel,
+            });
+          }
+        });
+
+        const bestInSameScore = sameScoreItems.reduce((best, item) => {
+          const currentRank = getComparableRank(item);
+          return currentRank < best.rank
+            ? { rank: currentRank, label: getGradeCategory(item) }
+            : best;
+        }, { rank: Number.POSITIVE_INFINITY, label: '' });
+
+        if (bestInSameScore.rank < bestHigherRank) {
+          bestHigherRank = bestInSameScore.rank;
+          bestHigherLabel = bestInSameScore.label;
+        }
+      });
+  });
+
+  return anomalies;
+};
