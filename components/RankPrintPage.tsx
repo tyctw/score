@@ -27,6 +27,19 @@ type PrintRow = ScoreData & {
   inferredPlusScore?: number;
 };
 
+type PreviousTrend = {
+  previousYear: string;
+  previousMaxRank: number;
+  currentMaxRank: number;
+  rankDiff: number;
+  previousMinRatio: number;
+  currentMinRatio: number;
+  ratioDiff: number;
+};
+
+const siteUrl = 'https://tyctw.github.io/score/';
+const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=8&data=${encodeURIComponent(siteUrl)}`;
+
 const chooseRepresentativeRecord = (current: ScoreData, next: ScoreData) => {
   const currentMinRatio = parseRankNumber(current.minRatio);
   const nextMinRatio = parseRankNumber(next.minRatio);
@@ -139,7 +152,7 @@ const createInferredRows = (rows: ScoreData[]) => {
 };
 
 const getPrintCategoryRank = (item: PrintRow) => {
-  const category = item.inferredCategory || getGradeCategory(item);
+  const category = getPrintCategory(item);
   const match = category.match(/^(\d+)A(\d+)B(\d+)C$/);
   if (!match) return 0;
 
@@ -151,9 +164,33 @@ const getPrintDetailScore = (item: PrintRow) => (
   item.inferredDetailScore ?? getGradeDetailScore(item)
 );
 
+const getPrintCategory = (item: PrintRow) => (
+  item.inferredCategory || getGradeCategory(item)
+);
+
+const getPrintPlusScore = (item: PrintRow) => (
+  item.inferredPlusScore ?? getGradePlusScore(item)
+);
+
+const getTrendKey = (item: PrintRow | ScoreData) => {
+  const category = 'inferredCategory' in item && item.inferredCategory ? item.inferredCategory : getGradeCategory(item);
+  const plusScore = 'inferredPlusScore' in item && item.inferredPlusScore !== undefined
+    ? item.inferredPlusScore
+    : getGradePlusScore(item);
+
+  return `${item.examYear}|${item.region}|${category}|${plusScore}`;
+};
+
+const formatTrendDiff = (value: number, unit = '') => {
+  if (!Number.isFinite(value) || value === 0) return '持平';
+  const sign = value > 0 ? '+' : '-';
+  return `${sign}${Math.abs(value).toLocaleString('zh-TW')}${unit}`;
+};
+
 export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) => {
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
+  const [showPreviousTrend, setShowPreviousTrend] = useState(false);
 
   const filteredSource = useMemo(() => (
     data.filter(item => {
@@ -206,6 +243,60 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
   const inferredCount = inferredRows.length;
   const rankOrderAnomalies = useMemo(() => detectRankOrderAnomalies(baseRows), [baseRows]);
   const anomalyCount = rankOrderAnomalies.size;
+  const previousTrendMap = useMemo(() => {
+    const trendSource = data.filter(item => {
+      if (selectedRegion && item.region !== selectedRegion) return false;
+      return true;
+    });
+    const grouped = new Map<string, ScoreData[]>();
+
+    trendSource.forEach(item => {
+      const exactScoreKey = scoreIdentityKey(item);
+      if (!grouped.has(exactScoreKey)) grouped.set(exactScoreKey, []);
+      grouped.get(exactScoreKey)!.push(item);
+    });
+
+    const representatives = Array.from(grouped.values()).map(chooseRepresentativeFromSameScore);
+    const byTrendKey = new Map<string, ScoreData>();
+
+    representatives.forEach(item => {
+      const trendKey = getTrendKey(item);
+      const existing = byTrendKey.get(trendKey);
+      byTrendKey.set(trendKey, existing ? chooseRepresentativeRecord(existing, item) : item);
+    });
+
+    const result = new Map<string, PreviousTrend>();
+
+    sortedRows.forEach(item => {
+      const year = parseInt(String(item.examYear), 10);
+      if (!year || item.inferred) return;
+
+      const currentMaxRank = parseRankNumber(item.maxRankInterval);
+      const currentMinRatio = parseRankNumber(item.minRatio);
+      if (!currentMaxRank || !currentMinRatio) return;
+
+      const previousYear = String(year - 1);
+      const previousKey = `${previousYear}|${item.region}|${getPrintCategory(item)}|${getPrintPlusScore(item)}`;
+      const previous = byTrendKey.get(previousKey);
+      if (!previous) return;
+
+      const previousMaxRank = parseRankNumber(previous.maxRankInterval);
+      const previousMinRatio = parseRankNumber(previous.minRatio);
+      if (!previousMaxRank || !previousMinRatio) return;
+
+      result.set(item.id, {
+        previousYear,
+        previousMaxRank,
+        currentMaxRank,
+        rankDiff: currentMaxRank - previousMaxRank,
+        previousMinRatio,
+        currentMinRatio,
+        ratioDiff: Number((currentMinRatio - previousMinRatio).toFixed(2)),
+      });
+    });
+
+    return result;
+  }, [data, selectedRegion, sortedRows]);
 
   return (
     <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 w-full z-10 relative rank-print-page">
@@ -218,8 +309,31 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
           .print-table { font-size: 10px !important; }
           .print-table th, .print-table td { padding: 5px 6px !important; }
           .print-break-avoid { break-inside: avoid; page-break-inside: avoid; }
+          .print-watermark {
+            display: block !important;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+          }
+          .print-watermark span {
+            position: absolute;
+            top: 46%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-28deg);
+            font-size: 64px;
+            font-weight: 900;
+            color: rgba(15, 23, 42, 0.08);
+            white-space: nowrap;
+            letter-spacing: 4px;
+          }
+          .print-content { position: relative; z-index: 1; }
         }
       `}</style>
+
+      <div className="print-watermark hidden" aria-hidden="true">
+        <span>TW會考落點分析</span>
+      </div>
 
       <div className="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
@@ -304,18 +418,56 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
             </div>
           </div>
         </div>
+        <label className="mt-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 cursor-pointer w-fit max-w-full">
+          <input
+            type="checkbox"
+            checked={showPreviousTrend}
+            onChange={(event) => setShowPreviousTrend(event.target.checked)}
+            className="w-4 h-4 accent-indigo-600"
+          />
+          <span className="text-sm font-bold text-slate-700">
+            顯示去年同區、同類別、同加數的最大排名人數與序位比率趨勢
+          </span>
+        </label>
       </div>
 
-      <section className="print-sheet bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-end justify-between gap-3 print-break-avoid">
-          <div>
-            <h3 className="text-xl font-black text-slate-900">會考各區成績序位整理表</h3>
-            <p className="text-sm text-slate-500 font-medium mt-1">
-              {selectedYear || '全部年度'} / {selectedRegion || '全部區域'}，已移除重複分數 {Math.max(0, duplicateCount).toLocaleString('zh-TW')} 筆，推算缺失 {inferredCount.toLocaleString('zh-TW')} 筆，序位倒掛 {anomalyCount.toLocaleString('zh-TW')} 筆
-            </p>
+      <section className="print-sheet print-content bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="p-5 border-b border-slate-200 print-break-avoid">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
+            <div className="space-y-3">
+              <div>
+                <div className="text-xs font-black tracking-[0.2em] text-indigo-600 uppercase">TW會考落點分析</div>
+                <h3 className="text-2xl font-black text-slate-900 mt-1">會考各區成績序位整理表</h3>
+                <p className="text-sm text-slate-500 font-medium mt-1">
+                  {selectedYear || '全部年度'} / {selectedRegion || '全部區域'}，已移除重複分數 {Math.max(0, duplicateCount).toLocaleString('zh-TW')} 筆，推算缺失 {inferredCount.toLocaleString('zh-TW')} 筆，序位倒掛 {anomalyCount.toLocaleString('zh-TW')} 筆
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800 max-w-3xl">
+                僅供參考：本表依使用者回報資料自動整理、推算與比對，非官方公告資料。實際志願選填與錄取結果，仍應以各就學區及主管機關正式公告為準。
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="text-right">
+                <div className="text-xs font-bold text-slate-400">網站 QR Code</div>
+                <div className="text-xs font-bold text-slate-600 mt-1 break-all max-w-[160px]">{siteUrl}</div>
+                <div className="text-xs font-bold text-slate-400 mt-2">列印時間：{new Date().toLocaleString('zh-TW')}</div>
+              </div>
+              <img
+                src={qrCodeUrl}
+                alt="TW會考落點分析網站 QR Code"
+                className="w-24 h-24 rounded-xl border border-slate-200 bg-white p-1"
+              />
+            </div>
           </div>
-          <div className="text-xs font-bold text-slate-400">
-            列印時間：{new Date().toLocaleString('zh-TW')}
+
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-2 text-xs font-bold text-slate-600">
+            <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2">列印筆數：{sortedRows.length.toLocaleString('zh-TW')}</div>
+            <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2">原始代表：{baseRows.length.toLocaleString('zh-TW')}</div>
+            <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2 text-amber-700">推算缺失：{inferredCount.toLocaleString('zh-TW')}</div>
+            <div className="rounded-xl bg-rose-50 border border-rose-100 px-3 py-2 text-rose-700">序位倒掛：{anomalyCount.toLocaleString('zh-TW')}</div>
+            <div className="rounded-xl bg-indigo-50 border border-indigo-100 px-3 py-2 text-indigo-700">去年對照：{showPreviousTrend ? '顯示' : '未顯示'}</div>
           </div>
         </div>
 
@@ -336,6 +488,13 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
                 <th className="text-left px-3 py-3 font-black">加數</th>
                 <th className="text-left px-3 py-3 font-black">序位比率</th>
                 <th className="text-left px-3 py-3 font-black">排名區間</th>
+                {showPreviousTrend && (
+                  <>
+                    <th className="text-left px-3 py-3 font-black">去年最大排名</th>
+                    <th className="text-left px-3 py-3 font-black">排名趨勢</th>
+                    <th className="text-left px-3 py-3 font-black">比率趨勢</th>
+                  </>
+                )}
                 <th className="text-left px-3 py-3 font-black">資料</th>
                 <th className="text-left px-3 py-3 font-black">異常</th>
               </tr>
@@ -343,26 +502,44 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
             <tbody className="divide-y divide-slate-100">
               {sortedRows.map((item, index) => {
                 const anomaly = item.inferred ? undefined : rankOrderAnomalies.get(item.id);
+                const previousTrend = showPreviousTrend && !item.inferred ? previousTrendMap.get(item.id) : undefined;
 
                 return (
                   <tr key={`${scoreIdentityKey(item)}-${index}`} className={`print-break-avoid ${anomaly ? 'bg-rose-50/80' : item.inferred ? 'bg-amber-50/80' : 'odd:bg-white even:bg-slate-50/60'}`}>
                     <td className="px-3 py-2 font-bold text-slate-400">{index + 1}</td>
                     <td className="px-3 py-2 font-bold text-slate-700">{item.examYear}</td>
                     <td className="px-3 py-2 font-bold text-slate-700">{item.region}</td>
-                    <td className="px-3 py-2 font-black text-indigo-700">{item.inferredCategory || getGradeCategory(item)}</td>
+                    <td className="px-3 py-2 font-black text-indigo-700">{getPrintCategory(item)}</td>
                     <td className="px-3 py-2 font-bold">{item.chineseScore}</td>
                     <td className="px-3 py-2 font-bold">{item.englishScore}</td>
                     <td className="px-3 py-2 font-bold">{item.mathScore}</td>
                     <td className="px-3 py-2 font-bold">{item.socialScore}</td>
                     <td className="px-3 py-2 font-bold">{item.scienceScore}</td>
                     <td className="px-3 py-2 font-bold">{item.essayScore}</td>
-                    <td className="px-3 py-2 font-mono text-slate-700 font-bold">+{item.inferredPlusScore ?? getGradePlusScore(item)}</td>
+                    <td className="px-3 py-2 font-mono text-slate-700 font-bold">+{getPrintPlusScore(item)}</td>
                     <td className="px-3 py-2 font-bold text-slate-700">
                       {item.minRatio === item.maxRatio ? `${item.minRatio}%` : `${item.minRatio}% - ${item.maxRatio}%`}
                     </td>
                     <td className="px-3 py-2 font-mono text-slate-600">
                       {item.minRankInterval && item.maxRankInterval ? `${item.minRankInterval} - ${item.maxRankInterval}` : '-'}
                     </td>
+                    {showPreviousTrend && (
+                      <>
+                        <td className="px-3 py-2 font-mono text-slate-600">
+                          {previousTrend ? `${previousTrend.previousYear}：${formatRankValue(previousTrend.previousMaxRank)}` : '-'}
+                        </td>
+                        <td className={`px-3 py-2 text-xs font-bold ${
+                          previousTrend && previousTrend.rankDiff > 0 ? 'text-rose-700' : previousTrend && previousTrend.rankDiff < 0 ? 'text-emerald-700' : 'text-slate-400'
+                        }`}>
+                          {previousTrend ? formatTrendDiff(previousTrend.rankDiff, '人') : '-'}
+                        </td>
+                        <td className={`px-3 py-2 text-xs font-bold ${
+                          previousTrend && previousTrend.ratioDiff > 0 ? 'text-rose-700' : previousTrend && previousTrend.ratioDiff < 0 ? 'text-emerald-700' : 'text-slate-400'
+                        }`}>
+                          {previousTrend ? `${previousTrend.previousMinRatio}% → ${previousTrend.currentMinRatio}% (${formatTrendDiff(previousTrend.ratioDiff, '%')})` : '-'}
+                        </td>
+                      </>
+                    )}
                     <td className="px-3 py-2 text-xs font-bold">
                       {item.inferred ? (
                         <span className="text-amber-700">推算：介於加數 {item.inferredFrom}</span>
