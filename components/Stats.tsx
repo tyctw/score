@@ -8,6 +8,33 @@ interface StatsProps {
   onBack: () => void;
 }
 
+const registrationStats = [
+  {
+    year: '115',
+    total: 182868,
+    group: 181298,
+    individual: 1570,
+    topDistricts: [
+      { name: '新北考區', count: 28926 },
+      { name: '中投考區', count: 28324 },
+      { name: '臺北考區', count: 20975 },
+    ],
+  },
+  {
+    year: '114',
+    total: 175247,
+    group: 173436,
+    individual: 1811,
+    topDistricts: [
+      { name: '新北考區', count: 27421 },
+      { name: '中投考區', count: 27135 },
+      { name: '臺北考區', count: 20201 },
+    ],
+  },
+];
+
+const formatCount = (value: number) => value.toLocaleString('zh-TW');
+
 export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
   const [mounted, setMounted] = React.useState(false);
   
@@ -17,6 +44,7 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
 
   const totalCount = data.length;
   const recentYearCount = data.filter(d => d.examYear === '115').length;
+  const registrationGrowth = registrationStats[0].total - registrationStats[1].total;
   
   // Logic for Grade Composition (5A, 4A, etc.)
   const getACount = (item: ScoreData) => {
@@ -290,6 +318,64 @@ export const Stats: React.FC<StatsProps> = ({ data, onBack }) => {
           trend="頂尖群像參考"
           icon={<BarChart3 className="w-5 h-5 text-orange-100" />}
         />
+      </div>
+
+      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
+          <div>
+            <h3 className="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+              <Users className="w-6 h-6 text-indigo-600" />
+              114 / 115 年全國報名人數概覽
+            </h3>
+            <p className="text-slate-500 text-sm font-medium">
+              統計全國 18 個考區及大陸考場報名規模，和上方使用者回報樣本數分開呈現。
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100 font-black w-fit">
+            <TrendingUp className="w-4 h-4" />
+            115 年較 114 年增加 {formatCount(registrationGrowth)} 人
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {registrationStats.map(stat => (
+            <div key={stat.year} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+              <div className="flex items-start justify-between gap-4 mb-5">
+                <div>
+                  <div className="text-sm font-black text-indigo-600 mb-1">{stat.year} 年</div>
+                  <div className="text-3xl font-black text-slate-900">{formatCount(stat.total)}</div>
+                  <div className="text-xs font-bold text-slate-400 mt-1">全國總報名人數</div>
+                </div>
+                <div className="text-right text-sm font-bold text-slate-500">
+                  <div>集體 {formatCount(stat.group)}</div>
+                  <div>個別 {formatCount(stat.individual)}</div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {stat.topDistricts.map((district, index) => (
+                  <div key={district.name} className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-xs font-black text-slate-500">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-3 text-sm font-bold">
+                        <span className="text-slate-700">{district.name}</span>
+                        <span className="text-slate-900">{formatCount(district.count)} 人</span>
+                      </div>
+                      <div className="mt-1 h-2 rounded-full bg-white overflow-hidden border border-slate-100">
+                        <div
+                          className="h-full rounded-full bg-indigo-500"
+                          style={{ width: `${Math.round((district.count / stat.topDistricts[0].count) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Year Trend Chart */}

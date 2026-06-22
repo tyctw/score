@@ -227,6 +227,7 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, allData, sortConfi
       {/* Sorting Toolbar */}
       <div className="bg-white/40 backdrop-blur-md p-2 rounded-2xl border border-white/50 shadow-sm flex items-center gap-3 overflow-x-auto hide-scrollbar">
          <span className="pl-3 text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:block">排序方式</span>
+         <SortButton field="gradeRank" label="成績序位" />
          <SortButton field="timestamp" label="更新時間" />
          <SortButton field="minRatio" label="序位比率" />
          <SortButton field="examYear" label="年度" />

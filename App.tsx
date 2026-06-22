@@ -9,6 +9,55 @@ import { ComparisonDock } from './components/ComparisonDock';
 import { SubmitScoreForm } from './components/SubmitScoreForm';
 import { Sparkles, Search, Pin, Download, AlertTriangle, Scale, ShieldAlert, Mail } from 'lucide-react';
 
+const scoreSubjects: Array<keyof Pick<ScoreData, 'chineseScore' | 'mathScore' | 'englishScore' | 'socialScore' | 'scienceScore'>> = [
+  'chineseScore',
+  'mathScore',
+  'englishScore',
+  'socialScore',
+  'scienceScore',
+];
+
+const normalizeGrade = (grade: string | number | undefined) => String(grade ?? '').trim().toUpperCase();
+
+const gradeBaseLevel = (grade: string) => {
+  if (grade.startsWith('A')) return 3;
+  if (grade.startsWith('B')) return 2;
+  if (grade.startsWith('C')) return 1;
+  return 0;
+};
+
+const gradeModifierPoint = (grade: string) => {
+  if (grade.includes('++')) return 2;
+  if (grade.includes('+')) return 1;
+  return 0;
+};
+
+const parseNumber = (value: string | number | undefined) => {
+  const parsed = parseFloat(String(value ?? '').replace(/,/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const getGradeRankScore = (item: ScoreData) => {
+  let aCount = 0;
+  let bCount = 0;
+  let detailScore = 0;
+
+  scoreSubjects.forEach(subject => {
+    const grade = normalizeGrade(item[subject]);
+    const baseLevel = gradeBaseLevel(grade);
+
+    if (baseLevel === 3) aCount += 1;
+    if (baseLevel === 2) bCount += 1;
+
+    detailScore += baseLevel * 10 + gradeModifierPoint(grade);
+  });
+
+  const essayScore = parseNumber(item.essayScore);
+  const rankRatio = parseNumber(item.minRatio);
+
+  return (aCount * 1_000_000) + (bCount * 10_000) + (detailScore * 100) + essayScore - (rankRatio / 100);
+};
+
 
 // Data Loading Animation Component
 const DataLoadingAnimation = () => (
@@ -108,7 +157,7 @@ const App: React.FC = () => {
   });
 
   const [sortConfig, setSortConfig] = useState<SortConfig>({
-    field: 'timestamp',
+    field: 'gradeRank',
     order: 'desc'
   });
 
@@ -224,9 +273,13 @@ const App: React.FC = () => {
       let valA = a[field];
       let valB = b[field];
 
+      if (field === 'gradeRank') {
+        valA = getGradeRankScore(a);
+        valB = getGradeRankScore(b);
+      }
       if (field === 'minRatio') {
-        valA = parseFloat(valA as string) || 0;
-        valB = parseFloat(valB as string) || 0;
+        valA = parseNumber(valA as string | number);
+        valB = parseNumber(valB as string | number);
       }
       if (field === 'timestamp') {
         valA = new Date(valA as string).getTime();
@@ -235,6 +288,12 @@ const App: React.FC = () => {
 
       if (valA < valB) return -1 * order;
       if (valA > valB) return 1 * order;
+      if (field === 'gradeRank') {
+        const ratioA = parseNumber(a.minRatio);
+        const ratioB = parseNumber(b.minRatio);
+        if (ratioA < ratioB) return -1;
+        if (ratioA > ratioB) return 1;
+      }
       return 0;
     });
   }, [data, filters, sortConfig]);

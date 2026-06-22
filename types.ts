@@ -27,7 +27,7 @@ export interface FilterState {
   scienceScore: string;
 }
 
-export type SortField = 'timestamp' | 'region' | 'examYear' | 'minRatio';
+export type SortField = 'timestamp' | 'region' | 'examYear' | 'minRatio' | 'gradeRank';
 export type SortOrder = 'asc' | 'desc';
 
 export interface SortConfig {
