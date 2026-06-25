@@ -54,6 +54,11 @@
         "@type": "Organization",
         "name": "TYCTW 會考落點",
         "url": "https://tyctw.github.io/"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://tyctw.github.io/shared/",
+        "query-input": "required name=search_term_string"
       }
     }
     </script>
@@ -116,8 +121,9 @@
             background-color: #f3f4f6;
             min-height: 100vh;
         }
-
+        
         /* Ambient Background with Noise */
+        
         .ambient-bg {
             position: fixed;
             top: 0;
@@ -131,7 +137,7 @@
                 radial-gradient(at 100% 0%, hsla(339,49%,30%,0) 0, transparent 50%);
             background-size: 100% 100%;
         }
-
+        
         .ambient-orbs {
             position: fixed;
             top: 0;
@@ -142,19 +148,22 @@
             overflow: hidden;
             background: #f8fafc;
         }
-
+        
         .orb {
             position: absolute;
             border-radius: 50%;
             filter: blur(80px);
             opacity: 0.6;
         }
-
+        
         .orb-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #e0e7ff; animation: float 10s infinite alternate; }
+        
         .orb-2 { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: #fce7f3; animation: float 12s infinite alternate-reverse; }
+        
         .orb-3 { top: 40%; left: 40%; width: 30vw; height: 30vw; background: #fae8ff; opacity: 0.4; animation: float 15s infinite alternate; }
-
+        
         /* Noise Texture */
+        
         .noise-overlay {
             position: fixed;
             top: 0;
@@ -166,8 +175,9 @@
             pointer-events: none;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
-
+        
         /* Glassmorphism Classes */
+        
         .glass-panel {
             background: rgba(255, 255, 255, 0.65);
             backdrop-filter: blur(12px);
@@ -175,7 +185,7 @@
             border: 1px solid rgba(255, 255, 255, 0.8);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
         }
-
+        
         .glass-header {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(20px) saturate(180%);
@@ -183,13 +193,19 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
         }
-
+        
         /* Scrollbar */
+        
         ::-webkit-scrollbar { width: 6px; }
+        
         ::-webkit-scrollbar-track { background: transparent; }
+        
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
         ::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
     </style>
+
+<link rel="stylesheet" href="/index.css">
 <script type="importmap">
 {
   "imports": {
@@ -204,7 +220,7 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <script type="module" crossorigin src="./assets/index-Ds-OV9vy.js"></script>
 </head>
 <body class="text-slate-800 antialiased min-h-screen">
     <div class="ambient-orbs">
@@ -229,7 +245,6 @@
         </div>
     </div>
     
-    <script type="module" src="/index.tsx"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6966991656561179"
      crossorigin="anonymous"></script>
                     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H9X7EC127P"></script>

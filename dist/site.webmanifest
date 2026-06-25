@@ -1,0 +1,19 @@
+{
+  "name": "會考落點導航",
+  "short_name": "會考落點",
+  "description": "查詢歷年錄取分數、比較會考成績與匿名分享錄取結果。",
+  "lang": "zh-Hant-TW",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

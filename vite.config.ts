@@ -1,24 +1,12 @@
-import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    return {
-      base: '/score/',
-      server: {
-        port: 3000,
-        host: '0.0.0.0',
-      },
-      plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, '.'),
-        }
-      }
-    };
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  base: './', // 設定相對路徑，確保在 GitHub Pages 子目錄能正確運作
+  define: {
+    // 避免 process is not defined 錯誤 (如果程式碼中有用到 process.env)
+    'process.env': {} 
+  }
 });
