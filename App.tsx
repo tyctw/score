@@ -8,7 +8,7 @@ import { Modal } from './components/Modal';
 import { ComparisonDock } from './components/ComparisonDock';
 import { SubmitScoreForm } from './components/SubmitScoreForm';
 import { RankPrintPage } from './components/RankPrintPage';
-import { Sparkles, Search, Pin, Download, AlertTriangle, Scale, ShieldAlert, Mail } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, BarChart3, BookOpen, Database, Gift, Search, Pin, Download, AlertTriangle, Scale, ShieldAlert, Mail, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import { getGradeRankScore, parseRankNumber } from './utils/scoreRanking';
 
 
@@ -42,43 +42,68 @@ const DataLoadingAnimation = () => (
 
 // New CTA Component for Contribution
 const ContributionBanner = ({ onSubmitClick }: { onSubmitClick: () => void }) => (
-  <div className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.06)] group transform transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] w-full h-full flex flex-col justify-center">
-    {/* Abstract Background Elements inside banner */}
-    <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-gradient-to-br from-purple-300/40 to-indigo-300/40 rounded-full blur-3xl opacity-80 group-hover:opacity-100 transition-opacity duration-700"></div>
-    <div className="absolute bottom-[-10%] left-[-10%] w-56 h-56 bg-gradient-to-tr from-cyan-300/40 to-blue-300/40 rounded-full blur-3xl opacity-60"></div>
-    
-    <div className="relative z-10 flex flex-col items-center justify-between p-6 sm:p-8 xl:p-12 gap-6 sm:gap-8 text-center h-full">
-      <div className="flex flex-col items-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold border border-indigo-100 shadow-sm mb-4">
-           <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-            </span>
-           資料募集計畫
-        </div>
-        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 mb-3 sm:mb-4 tracking-tight leading-tight">
-          你的成績，<br className="block sm:hidden" /><span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">是學弟妹的燈塔</span>
-        </h3>
-        <p className="text-slate-600 font-medium max-w-sm leading-relaxed text-sm sm:text-base px-2">
-          每一筆回報資料都能讓落點分析更精準。<span className="text-amber-500 font-bold block mt-1 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">🎁 填寫送「全國落點分析」專屬邀請碼！</span>
-        </p>
+  <aside className="relative isolate w-full overflow-hidden rounded-[1.75rem] border border-indigo-100 bg-white p-5 text-slate-900 shadow-xl shadow-indigo-100/70 sm:rounded-[2rem] sm:p-8 lg:p-9">
+    <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-indigo-200/70 blur-3xl" />
+    <div className="absolute -bottom-28 -left-20 h-64 w-64 rounded-full bg-cyan-100/80 blur-3xl" />
+    <div className="relative">
+      <div className="mb-7 flex items-center justify-between">
+        <span className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-xs font-bold tracking-wide text-indigo-700"><Database className="h-3.5 w-3.5" />資料募集計畫</span>
+        <Gift className="h-6 w-6 text-amber-500" aria-hidden="true" />
       </div>
-
-      <div className="w-full relative">
-        <button 
-          onClick={onSubmitClick}
-          className="relative w-full lg:w-auto bg-slate-900 overflow-hidden text-white hover:bg-slate-800 px-8 py-4 rounded-2xl font-bold shadow-lg shadow-indigo-500/10 hover:-translate-y-1 hover:shadow-indigo-500/20 transition-all duration-300 flex items-center justify-center gap-3 group/btn mx-auto border border-slate-700"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-          <div className="relative z-10 w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center group-hover/btn:scale-110 transition-transform">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
-          </div>
-          <span className="text-lg relative z-10">立即回報序位</span>
-        </button>
-      </div>
+      <h3 className="max-w-sm text-[1.75rem] font-black leading-[1.15] tracking-tight sm:text-4xl">你的成績，<br /><span className="text-indigo-600">是學弟妹的燈塔</span></h3>
+      <p className="mt-4 max-w-md text-sm font-medium leading-7 text-slate-600 sm:text-base">每一筆匿名回報，都讓未來考生的落點分析更接近真實。</p>
+      <button onClick={onSubmitClick} className="group mt-7 flex w-full items-center justify-between rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-4 font-black text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:from-indigo-500 hover:to-violet-500 active:translate-y-0">
+        <span>立即回報序位</span><span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-indigo-600 transition-transform group-hover:translate-x-1"><ArrowUpRight className="h-4 w-4" /></span>
+      </button>
+      <p className="mt-3 text-center text-xs font-bold text-amber-600">🎁 完成填寫送「全國落點分析」專屬邀請碼</p>
     </div>
-  </div>
+  </aside>
 );
+
+const InformationPage = ({ page, onBack }: { page: 'usage' | 'disclaimer'; onBack: () => void }) => {
+  const isUsage = page === 'usage';
+  const steps = [
+    ['01', '選擇區域與年度', '從篩選控制列選擇所在就學區與欲參考的會考年度，列表會立即更新。', Search, 'text-blue-600 bg-blue-50 border-blue-100'],
+    ['02', '釘選比較落點', '把值得參考的資料加入比較區，一次最多可精確比較 4 筆落點。', Pin, 'text-indigo-600 bg-indigo-50 border-indigo-100'],
+    ['03', '匯出資料留存', '完成篩選後，可將結果匯出為 CSV，方便和家人、老師一起討論。', Download, 'text-emerald-600 bg-emerald-50 border-emerald-100'],
+  ] as const;
+
+  return <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-24 relative z-10">
+    <button onClick={onBack} className="mb-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 shadow-sm transition hover:border-indigo-200 hover:text-indigo-700"><ArrowLeft className="h-4 w-4" />返回資料首頁</button>
+    {isUsage ? <>
+      <section className="relative overflow-hidden rounded-[2.25rem] border border-indigo-100 bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 px-7 py-10 text-white shadow-xl shadow-indigo-200 sm:px-12 sm:py-14">
+        <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/15 blur-3xl" />
+        <div className="relative max-w-2xl"><span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold"><BookOpen className="h-3.5 w-3.5" />使用說明</span><h2 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">三步找到參考落點</h2><p className="mt-4 text-base font-medium leading-7 text-indigo-100 sm:text-lg">將歷年回報資料化為容易比較的資訊，幫你更有方向地規劃下一步。</p></div>
+      </section>
+      <section className="mt-8 grid gap-4 md:grid-cols-3">{steps.map(([number, title, description, Icon, color]) => <article key={number} className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm"><div className={`flex h-11 w-11 items-center justify-center rounded-2xl border ${color}`}><Icon className="h-5 w-5" /></div><p className="mt-6 text-xs font-black tracking-[0.18em] text-slate-400">STEP {number}</p><h3 className="mt-2 text-xl font-black text-slate-900">{title}</h3><p className="mt-3 text-sm font-medium leading-6 text-slate-500">{description}</p></article>)}</section>
+      <section className="mt-8 rounded-[2rem] border border-slate-100 bg-white p-7 sm:p-9"><h3 className="text-xl font-black text-slate-900">如何讓資料真正幫上忙</h3><div className="mt-5 grid gap-6 md:grid-cols-2"><div><h4 className="font-black text-indigo-700">先建立志願層次</h4><p className="mt-2 text-sm font-medium leading-7 text-slate-600">以自己的序位區間對照歷年回報資料，將志願分成安全、適中與挑戰三類。三種層次都應放入你願意就讀的學校或科別，而不是只追逐單一校名。</p></div><div><h4 className="font-black text-indigo-700">再回到個人選擇</h4><p className="mt-2 text-sm font-medium leading-7 text-slate-600">序位只回答「相對位置」，無法替你決定適不適合。請一起考量興趣、校科特色、通勤、家庭安排與未來生涯方向。</p></div><div><h4 className="font-black text-indigo-700">比較功能怎麼用</h4><p className="mt-2 text-sm font-medium leading-7 text-slate-600">可將最多 4 筆資料加入比較，觀察不同年度、就學區或成績組合的差異。比較結果是整理工具，不代表錄取機率或官方預測。</p></div><div><h4 className="font-black text-indigo-700">回報前請再確認</h4><p className="mt-2 text-sm font-medium leading-7 text-slate-600">回報資料前，請核對會考各科、作文、就學區與序位區間。避免填入可辨識個人身分的資訊，也請不要代替他人回報未經確認的資料。</p></div></div></section>
+      <section className="mt-5 rounded-[2rem] border border-amber-100 bg-amber-50 p-6 sm:p-8"><h3 className="text-lg font-black text-amber-950">使用時請記得</h3><ul className="mt-3 space-y-2 text-sm font-medium leading-6 text-amber-900/80"><li>• 本站資料適合交叉參考，不應單獨作為志願選填或升學決策依據。</li><li>• 不同就學區、年度與招生管道的比序規則可能不同，請勿直接互相比較。</li><li>• 最終請依當年度所屬就學區的招生簡章、公告與學校輔導建議確認。</li></ul></section>
+    </> : <>
+      <section className="relative overflow-hidden rounded-[2.25rem] border border-amber-200 bg-amber-50 px-7 py-10 sm:px-12 sm:py-14"><Scale className="absolute -right-8 -top-8 h-56 w-56 text-amber-200/70" /><div className="relative max-w-2xl"><span className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white/80 px-3 py-1.5 text-xs font-bold text-amber-700"><ShieldAlert className="h-3.5 w-3.5" />免責聲明</span><h2 className="mt-5 text-4xl font-black tracking-tight text-amber-950 sm:text-5xl">請將資料視為參考</h2><p className="mt-4 text-base font-medium leading-7 text-amber-900/75 sm:text-lg">本站排名、區間與落點數據並非政府官方發布的保證文件，請搭配正式招生資訊審慎評估。</p></div></section>
+      <section className="mt-8 grid gap-5 md:grid-cols-2"><article className="rounded-[2rem] border border-slate-100 bg-white p-7 shadow-sm"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-600"><AlertTriangle className="h-6 w-6" /></div><h3 className="mt-6 text-xl font-black text-slate-900">資料來源與限制</h3><p className="mt-3 font-medium leading-7 text-slate-500">本站資料可能來自使用者回報、公開可取得資訊與歷年資料整理。雖會進行合理性檢查與格式整理，仍可能存在填報錯誤、資料缺漏、時效落差、抽樣偏差或解讀差異。</p></article><article className="rounded-[2rem] border border-slate-100 bg-white p-7 shadow-sm"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-600"><Scale className="h-6 w-6" /></div><h3 className="mt-6 text-xl font-black text-slate-900">非官方資訊與決策責任</h3><p className="mt-3 font-medium leading-7 text-slate-500">本站不是教育主管機關、招生委員會或學校，內容不構成錄取保證、升學諮詢、法律意見或任何形式的承諾。招生名額、超額比序、志願序及同分比序均可能調整，使用者應自行判斷並以官方公告為準。</p></article><article className="rounded-[2rem] border border-slate-100 bg-white p-7 shadow-sm"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-600"><ShieldCheck className="h-6 w-6" /></div><h3 className="mt-6 text-xl font-black text-slate-900">個人資料與回報內容</h3><p className="mt-3 font-medium leading-7 text-slate-500">請勿回報姓名、身分證字號、聯絡方式、准考證號或其他可直接辨識個人的資訊。回報者應確認內容為自己可合法提供且盡力正確的資料；本站得為維護資料品質而調整、隱藏或移除明顯異常內容。</p></article><article className="rounded-[2rem] border border-slate-100 bg-white p-7 shadow-sm"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-600"><ArrowUpRight className="h-6 w-6" /></div><h3 className="mt-6 text-xl font-black text-slate-900">外部連結與服務可用性</h3><p className="mt-3 font-medium leading-7 text-slate-500">本站可能提供其他網站連結，該等網站的內容、隱私政策、服務狀態與安全性由其營運者負責。本站亦不保證服務不中斷、資料永遠可用或所有功能均無錯誤。</p></article></section>
+      <section className="mt-5 rounded-[2rem] border border-slate-200 bg-slate-50 p-6 sm:p-8"><h3 className="text-lg font-black text-slate-900">建議的確認順序</h3><ol className="mt-3 space-y-2 text-sm font-medium leading-6 text-slate-600"><li>1. 查閱當年度所屬就學區的免試入學簡章與公告。</li><li>2. 與國中導師、輔導老師及家長討論志願內容。</li><li>3. 再將本站資料作為補充參考，而非唯一判斷來源。</li></ol></section>
+    </>}
+  </main>;
+};
+
+const ArticleView = ({ page, onIndex }: { page: 'rank' | 'help'; onIndex: () => void }) => {
+  const rank = page === 'rank';
+  return <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 px-5 pb-24 pt-28 sm:px-6">
+    <button onClick={onIndex} className="mb-10 inline-flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-indigo-700"><ArrowLeft className="h-4 w-4" />升學指南</button>
+    <article className="rounded-[2rem] border border-slate-100 bg-white px-6 py-10 shadow-xl shadow-slate-200/30 sm:px-12 sm:py-14">
+      <header className="border-b border-slate-100 pb-9"><p className="text-sm font-bold tracking-[0.18em] text-indigo-600">升學指南 · 115 會考</p><h1 className="mt-5 text-4xl font-black leading-tight tracking-tight text-slate-950 sm:text-5xl">{rank ? '會考序位怎麼看？' : '序位對誰有幫助？'}</h1><p className="mt-5 text-lg font-medium leading-8 text-slate-600">{rank ? '先別急著把序位當成錄取預言。它真正的作用，是在志願選填前，讓你知道自己大約站在所屬就學區的哪個位置。' : '序位不是只屬於高分考生的數字。只要正在思考志願怎麼填，它就能幫助考生、家長與老師把模糊的焦慮，變成可以討論的選項。'}</p></header>
+      {rank ? <div className="mt-10 [&>p]:mt-5 [&>p]:text-[16px] [&>p]:font-medium [&>p]:leading-8 [&>p]:text-slate-600 [&>h2]:mt-12 [&>h2]:border-l-4 [&>h2]:border-indigo-500 [&>h2]:pl-4 [&>h2]:text-2xl [&>h2]:font-black [&>h2]:leading-tight [&>h2]:text-slate-900 [&>blockquote]:my-8 [&>blockquote]:border-l-4 [&>blockquote]:border-indigo-500 [&>blockquote]:bg-indigo-50 [&>blockquote]:px-5 [&>blockquote]:py-4 [&>blockquote]:text-lg [&>blockquote]:font-bold [&>blockquote]:leading-8 [&>blockquote]:text-indigo-950"><p>在高中高職免試入學中，學生可於志願選填期間查詢個別序位區間。這份資料以所屬就學區的免試入學超額比序為基礎，且<strong>不含志願序</strong>；它不是某一所學校的排名，也不是你一定會錄取或落榜的判斷。</p><blockquote>把序位看成一張地圖上的座標：它告訴你目前的位置，但不會替你決定目的地。</blockquote><h2>先看「區間」，不要追求單一名次</h2><p>官方以「序位比率區間」和「累積人數區間」呈現資料，而非公布一個精確名次。區間的設計是為了兼顧個人資料保護與比序同分情況；因此，看到百分比時，重點是理解自己大約位於前、中或後段，而不是把它當成絕對順位。</p><h2>百分比越小，代表什麼？</h2><p>在同一就學區、同一套超額比序基礎下，較小的序位比率通常代表位於較前段。但不同年度的報名人數、招生名額與比序規則會變動；不同就學區的規則也不必然相同，所以不能直接把不同地區或不同年份的百分比拿來比較。</p><h2>怎麼用在志願選填？</h2><p>先用自己的區間對照歷年資料，為志願建立安全、適中與挑戰三個層次。接著，把興趣、校科特色、通勤距離與自己願不願意就讀放回來思考。最後，務必依當年度所屬就學區的招生簡章與比序規定檢查；名額與同分比序都可能改變。</p><h2>最常見的誤解</h2><p>「我的序位在某個範圍，所以一定能上某校」是最常見也最需要避免的解讀。實際分發仍會受到志願序、招生名額、他人選填與各區規則影響。序位能幫你降低盲選，不會取代最後的決策。</p></div> : <div className="mt-10 [&>p]:mt-5 [&>p]:text-[16px] [&>p]:font-medium [&>p]:leading-8 [&>p]:text-slate-600 [&>h2]:mt-12 [&>h2]:border-l-4 [&>h2]:border-violet-500 [&>h2]:pl-4 [&>h2]:text-2xl [&>h2]:font-black [&>h2]:leading-tight [&>h2]:text-slate-900 [&>blockquote]:my-8 [&>blockquote]:border-l-4 [&>blockquote]:border-violet-500 [&>blockquote]:bg-violet-50 [&>blockquote]:px-5 [&>blockquote]:py-4 [&>blockquote]:text-lg [&>blockquote]:font-bold [&>blockquote]:leading-8 [&>blockquote]:text-violet-950"><p>考完會考後，很多人先問的是「這樣能上哪裡？」序位提供的不是一句答案，而是一個可以開始討論的起點。不同角色使用它的方式不同，但共同原則都是：把它當參考，而不是保證。</p><h2>對考生：把選擇排出層次</h2><p>考生可以利用序位區間整理志願，不必只盯著一所學校。先列出自己真心想讀的校科，再依資料與風險分成安全、適中與挑戰選項。這能避免志願全押在同一類型，也能讓選填更貼近自己的興趣與生活條件。</p><h2>對家長：從比較成績，轉向討論方向</h2><p>家長最能幫上的忙，不是把孩子的序位拿去和別人比較，而是一起理解選項。可以問問孩子：想讀的是什麼科別？通勤能接受多遠？哪些志願即使錄取也不想去？這些問題往往比猜一所學校的錄取線更重要。</p><blockquote>好的志願表不是把最熱門的學校排在前面，而是把自己願意走的路排清楚。</blockquote><h2>對老師與輔導者：補足個別差異</h2><p>老師與輔導者可將序位搭配生涯輔導紀錄、模擬選填與學生的個人意願，協助學生檢查志願層次是否過度集中。它是一項輔助工具，不適合單獨作為建議或評價學生的依據。</p><h2>還要注意五專的規則不同</h2><p>若學生同時考慮五專，不能直接沿用高中高職免試入學的判斷。五專優先免試入學為全國一區，各項比序與採計規定另有簡章；必須分開查閱、分開規劃。</p></div>}
+      <footer className="mt-12 border-t border-slate-100 pt-6 text-sm font-medium leading-7 text-slate-500">本文整理自教育部與各就學區免試入學公開資訊。招生名額、比序項目與日程每年可能更新，請以<a className="font-bold text-indigo-600 underline underline-offset-4" href="https://www.entry.edu.tw/" target="_blank" rel="noopener noreferrer">當年度免試入學委員會與所屬就學區簡章</a>為準。</footer>
+    </article>
+  </main>;
+};
+
+const GuidePage = ({ page, onBack, onOpen }: { page: 'index' | 'rank' | 'help'; onBack: () => void; onOpen: (page: 'index' | 'rank' | 'help') => void }) => {
+  if (page === 'index') return <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-24 relative z-10"><button onClick={onBack} className="mb-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 shadow-sm transition hover:text-indigo-700"><ArrowLeft className="h-4 w-4" />返回資料首頁</button><section className="rounded-[2.25rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-900 px-7 py-11 text-white shadow-2xl shadow-indigo-200 sm:px-12"><span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-indigo-100"><BookOpen className="h-3.5 w-3.5" />升學指南</span><h2 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">看懂序位，<br />再安排志願</h2><p className="mt-4 max-w-xl font-medium leading-7 text-indigo-100">用正確的方式理解個別序位區間，把它當成規劃志願的座標，而不是錄取保證。</p></section><section className="mt-8 grid gap-5 md:grid-cols-2"><button onClick={() => onOpen('rank')} className="group rounded-[2rem] border border-slate-100 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl"><BarChart3 className="h-9 w-9 text-indigo-600" /><p className="mt-6 text-xs font-black tracking-[0.16em] text-indigo-500">GUIDE 01</p><h3 className="mt-2 text-2xl font-black text-slate-900">會考序位怎麼看？</h3><p className="mt-3 font-medium leading-7 text-slate-500">認識比率區間、累積人數與超額比序的真正意義。</p><span className="mt-6 inline-flex items-center gap-1 font-bold text-indigo-600">閱讀文章 <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></span></button><button onClick={() => onOpen('help')} className="group rounded-[2rem] border border-slate-100 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl"><Users className="h-9 w-9 text-violet-600" /><p className="mt-6 text-xs font-black tracking-[0.16em] text-violet-500">GUIDE 02</p><h3 className="mt-2 text-2xl font-black text-slate-900">序位對誰有幫助？</h3><p className="mt-3 font-medium leading-7 text-slate-500">考生、家長與輔導老師如何各自使用這份資訊。</p><span className="mt-6 inline-flex items-center gap-1 font-bold text-violet-600">閱讀文章 <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></span></button></section></main>;
+  return <ArticleView page={page} onIndex={() => onOpen('index')} />;
+  const rank = page === 'rank';
+  return <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-24 relative z-10"><button onClick={() => onOpen('index')} className="mb-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 shadow-sm transition hover:text-indigo-700"><ArrowLeft className="h-4 w-4" />回到升學指南</button><article className="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-xl shadow-slate-200/40 sm:p-10"><span className="inline-flex rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700">升學指南</span><h1 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">{rank ? '會考序位怎麼看？' : '序位對誰有幫助？'}</h1><p className="mt-5 border-l-4 border-indigo-500 pl-4 text-lg font-medium leading-8 text-slate-600">{rank ? '序位是免試入學志願選填期間的參考座標，反映你在所屬就學區、依超額比序（未含志願序）比較後所處的位置。' : '序位能協助把「成績感覺」轉成更具體的比較資訊；它最適合用於討論志願策略，而不是替任何人預測唯一答案。'}</p>{rank ? <div className="mt-10 space-y-8 text-slate-600"><section><h2 className="text-2xl font-black text-slate-900">先看懂三個重點</h2><div className="mt-4 grid gap-4 sm:grid-cols-3"><div className="rounded-2xl bg-indigo-50 p-5"><h3 className="font-black text-indigo-900">序位比率區間</h3><p className="mt-2 text-sm leading-6">以百分比呈現你在就學區中的位置；數字越小，代表位於較前段。</p></div><div className="rounded-2xl bg-violet-50 p-5"><h3 className="font-black text-violet-900">累積人數區間</h3><p className="mt-2 text-sm leading-6">對應區間內的可能人數。官方以區間呈現，不是單一精確名次。</p></div><div className="rounded-2xl bg-slate-50 p-5"><h3 className="font-black text-slate-900">未含志願序</h3><p className="mt-2 text-sm leading-6">查詢基礎不含志願序；真正分發仍會依各區規則與志願排序進行。</p></div></div></section><section><h2 className="text-2xl font-black text-slate-900">正確使用方式</h2><ol className="mt-4 space-y-3"><li><b>1. 以所屬就學區為準：</b>不同就學區的比序項目、順序與招生條件可能不同。</li><li><b>2. 對照歷年資料：</b>把序位區間與學校歷年錄取情況一起看，並保留安全、適中與挑戰的志願層次。</li><li><b>3. 以當年度簡章為最終依據：</b>名額、招生規則與同分比序可能調整，不能只憑舊資料決定。</li></ol></section><section className="rounded-2xl border border-amber-100 bg-amber-50 p-5"><h2 className="font-black text-amber-950">不要這樣解讀</h2><p className="mt-2 leading-7 text-amber-900/75">序位不是保證錄取某校的名次，也不能直接拿不同就學區或不同年度的百分比互相比較。它是規劃工具，不是錄取結果。</p></section></div> : <div className="mt-10 space-y-8 text-slate-600"><section><h2 className="text-2xl font-black text-slate-900">對考生：把志願分成三層</h2><p className="mt-3 leading-7">可用自己的序位區間對照歷年資料，建立「安全、適中、挑戰」的志願清單；再回到興趣、能力、通勤與校科特色，填入真正願意就讀的選項。</p></section><section><h2 className="text-2xl font-black text-slate-900">對家長：把焦慮轉成討論</h2><p className="mt-3 leading-7">序位提供共同語言，能協助討論風險與選項，但不應只追逐單一校名。請和孩子一起確認生涯方向、就學區規則與每個志願的接受度。</p></section><section><h2 className="text-2xl font-black text-slate-900">對老師與輔導者：輔助個別化建議</h2><p className="mt-3 leading-7">序位可搭配生涯輔導紀錄、模擬選填與學生意願，協助辨識需補強志願層次或重新檢視選擇的學生；不宜單獨作為建議依據。</p></section><section className="rounded-2xl border border-indigo-100 bg-indigo-50 p-5"><h2 className="font-black text-indigo-950">所有人都該記得</h2><p className="mt-2 leading-7 text-indigo-900/75">高中高職免試入學與五專優先免試入學的規則並不相同。若考慮五專，請另查當年度五專招生簡章與比序規定。</p></section></div>}<div className="mt-10 border-t border-slate-100 pt-6 text-sm font-medium text-slate-500">資料依據：各就學區免試入學系統及教育部公告；請以<a className="font-bold text-indigo-600 underline underline-offset-4" href="https://www.entry.edu.tw/" target="_blank" rel="noopener noreferrer">當年度全國高級中等學校免試入學委員會</a>與所屬就學區簡章為準。</div></article></main>;
+};
 
 const App: React.FC = () => {
   const generateInvitationCode = () => {
@@ -96,6 +121,8 @@ const App: React.FC = () => {
   const [showStatsView, setShowStatsView] = useState(false);
   const [showSubmitView, setShowSubmitView] = useState(false);
   const [showRankPrintView, setShowRankPrintView] = useState(false);
+  const [infoPage, setInfoPage] = useState<'usage' | 'disclaimer' | null>(null);
+  const [guidePage, setGuidePage] = useState<'index' | 'rank' | 'help' | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [pinnedItems, setPinnedItems] = useState<ScoreData[]>([]);
@@ -526,55 +553,63 @@ const App: React.FC = () => {
           onClick={() => setIsMenuOpen(false)}
         />
         <div 
-          className={`absolute right-0 top-0 h-full w-80 bg-white/95 backdrop-blur-xl shadow-2xl transform transition-transform duration-300 cubic-bezier(0.4, 0, 0.2, 1) ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="navigation-menu-title"
+          className={`absolute right-0 top-0 h-full w-full max-w-[24rem] overflow-hidden border-l border-white/70 bg-slate-50/95 shadow-2xl backdrop-blur-2xl transform transition-transform duration-300 cubic-bezier(0.4, 0, 0.2, 1) ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
         >
           <div className="flex flex-col h-full z-50">
-            <div className="px-6 py-6 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-800">相關資源</h2>
+            <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 px-6 py-7 text-white">
+              <div className="absolute -right-10 -top-12 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
+              <div className="relative flex items-center justify-between">
+              <div><p className="text-xs font-bold tracking-[0.16em] text-indigo-100">NAVIGATION</p><h2 id="navigation-menu-title" className="mt-1 text-2xl font-black tracking-tight">探索更多功能</h2></div>
               <button 
                 onClick={() => setIsMenuOpen(false)}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all"
+                className="rounded-full bg-white/15 p-2 text-white/80 transition-all hover:rotate-90 hover:bg-white hover:text-indigo-700"
+                aria-label="關閉選單"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
+              </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 flex flex-col gap-6">
               
               {/* High Priority CTA for Mobile */}
               <div className="relative">
-                 <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-3xl blur opacity-30"></div>
+                 <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-3xl blur opacity-25"></div>
                  <button 
-                   onClick={() => { setShowSubmitView(true); setShowStatsView(false); setShowRankPrintView(false); setIsMenuOpen(false); window.scrollTo(0, 0); }}
-                   className="relative w-full flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-transform"
+                   onClick={() => { setInfoPage(null); setShowSubmitView(true); setShowStatsView(false); setShowRankPrintView(false); setIsMenuOpen(false); window.scrollTo(0, 0); }}
+                   className="relative w-full flex items-center justify-between gap-3 bg-slate-950 text-white p-4 rounded-2xl font-bold shadow-lg shadow-slate-300 active:scale-[0.98] transition-transform"
                  >
                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                    </div>
-                   <span className="text-lg">立即回報成績</span>
+                   <span className="text-lg">立即回報成績</span><ArrowUpRight className="h-5 w-5" />
                  </button>
               </div>
 
               {/* Internal Links for Mobile */}
               <div className="space-y-3">
-                 <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase ml-1">功能與說明</h3>
+                 <h3 className="text-xs font-black tracking-[0.16em] text-slate-400 uppercase ml-1">站內功能</h3>
                  <div className="grid grid-cols-2 gap-2">
-                    <button onClick={() => { setShowStatsView(true); setShowSubmitView(false); setShowRankPrintView(false); setIsMenuOpen(false); window.scrollTo(0, 0); }} className="p-3 col-span-2 bg-indigo-50 border border-indigo-100 rounded-xl text-sm font-bold text-indigo-700 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                    <button onClick={() => { setInfoPage(null); setShowStatsView(true); setShowSubmitView(false); setShowRankPrintView(false); setIsMenuOpen(false); window.scrollTo(0, 0); }} className="p-4 col-span-2 bg-white border border-indigo-100 rounded-2xl text-sm font-bold text-indigo-700 shadow-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                        歷年趨勢分析
                     </button>
-                    <button onClick={() => { setShowRankPrintView(true); setShowStatsView(false); setShowSubmitView(false); setIsMenuOpen(false); window.scrollTo(0, 0); }} className="p-3 col-span-2 bg-slate-900 border border-slate-700 rounded-xl text-sm font-bold text-white active:scale-95 transition-transform flex items-center justify-center gap-2">
+                    <button onClick={() => { setInfoPage(null); setShowRankPrintView(true); setShowStatsView(false); setShowSubmitView(false); setIsMenuOpen(false); window.scrollTo(0, 0); }} className="p-4 col-span-2 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 shadow-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" /></svg>
                        序位整理列印
                     </button>
-                    <button onClick={() => { setActiveModal('usage'); setIsMenuOpen(false); }} className="p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 active:scale-95 transition-transform text-center shadow-sm">使用說明</button>
-                    <button onClick={() => { setActiveModal('disclaimer'); setIsMenuOpen(false); }} className="p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 active:scale-95 transition-transform text-center shadow-sm">免責聲明</button>
+                    <button onClick={() => { setGuidePage('index'); setIsMenuOpen(false); window.scrollTo(0, 0); }} className="p-3 col-span-2 bg-violet-50 border border-violet-100 rounded-2xl text-sm font-bold text-violet-700 active:scale-[0.98] transition-transform text-center">閱讀升學指南</button>
+                    <button onClick={() => { setInfoPage('usage'); setIsMenuOpen(false); window.scrollTo(0, 0); }} className="p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 active:scale-95 transition-transform text-center shadow-sm">使用說明</button>
+                    <button onClick={() => { setInfoPage('disclaimer'); setIsMenuOpen(false); window.scrollTo(0, 0); }} className="p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 active:scale-95 transition-transform text-center shadow-sm">免責聲明</button>
                  </div>
               </div>
 
               {/* External Links for Mobile */}
-              <div className="space-y-3 pt-4 border-t border-slate-100">
-                 <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase ml-1">外部連結</h3>
+              <div className="space-y-3 pt-1">
+                 <h3 className="text-xs font-black tracking-[0.16em] text-slate-400 uppercase ml-1">延伸工具</h3>
                  <div className="space-y-2.5">
                     <a href={`https://tyctw.github.io/spare/?invite=${generateInvitationCode()}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white border border-slate-200 shadow-sm rounded-xl text-sm font-bold text-slate-700 active:scale-95 transition-transform w-full">
                        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
@@ -626,9 +661,11 @@ const App: React.FC = () => {
           : 'bg-white/40 backdrop-blur-md border border-white/40 shadow-sm px-6 py-4'
         }`}>
           {/* Logo */}
-          <div 
-            className="flex items-center gap-3 cursor-pointer group select-none" 
-            onClick={() => { setShowStatsView(false); setShowSubmitView(false); setShowRankPrintView(false); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+          <button 
+            type="button"
+            aria-label="回到全國會考序位分享首頁"
+            className="flex items-center gap-3 cursor-pointer group select-none text-left" 
+            onClick={() => { setInfoPage(null); setShowStatsView(false); setShowSubmitView(false); setShowRankPrintView(false); window.scrollTo({top: 0, behavior: 'smooth'}); }}
           >
              <div className="relative overflow-hidden w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-[0_4px_20px_rgba(99,102,241,0.4)] group-hover:shadow-[0_4px_25px_rgba(99,102,241,0.6)] group-hover:scale-105 transition-all duration-300">
                 <div className="absolute inset-0 bg-white/20 blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -642,7 +679,7 @@ const App: React.FC = () => {
                     TW會考落點分析所屬網站
                 </span>
              </div>
-          </div>
+          </button>
 
           {/* Desktop Nav (Centered Pill) */}
           <nav className={`hidden lg:flex items-center p-1.5 rounded-full transition-all duration-500 ${
@@ -650,16 +687,16 @@ const App: React.FC = () => {
               ? 'bg-slate-50/50 border border-slate-200/50' 
               : 'bg-white/30 border border-white/50 shadow-sm'
             }`}>
-             <button onClick={() => { setShowStatsView(true); setShowSubmitView(false); setShowRankPrintView(false); window.scrollTo(0, 0); }} className="px-5 py-2 rounded-full text-sm font-bold text-indigo-700 hover:bg-indigo-50 transition-all duration-300 flex items-center gap-1.5">
+             <button onClick={() => { setInfoPage(null); setShowStatsView(true); setShowSubmitView(false); setShowRankPrintView(false); window.scrollTo(0, 0); }} className="px-5 py-2 rounded-full text-sm font-bold text-indigo-700 hover:bg-indigo-50 transition-all duration-300 flex items-center gap-1.5">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                 趨勢分析
              </button>
-             <button onClick={() => { setShowRankPrintView(true); setShowStatsView(false); setShowSubmitView(false); window.scrollTo(0, 0); }} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300 flex items-center gap-1.5">
+             <button onClick={() => { setInfoPage(null); setShowRankPrintView(true); setShowStatsView(false); setShowSubmitView(false); window.scrollTo(0, 0); }} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300 flex items-center gap-1.5">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" /></svg>
                 序位列印
              </button>
-             <button onClick={() => setActiveModal('usage')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">使用說明</button>
-             <button onClick={() => setActiveModal('disclaimer')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">免責聲明</button>
+             <button onClick={() => { setInfoPage('usage'); window.scrollTo(0, 0); }} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">使用說明</button>
+             <button onClick={() => { setInfoPage('disclaimer'); window.scrollTo(0, 0); }} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">免責聲明</button>
              
              <div className="w-px h-4 bg-slate-300 mx-2"></div>
 
@@ -672,7 +709,7 @@ const App: React.FC = () => {
           {/* Actions */}
           <div className="flex items-center gap-3">
              <button 
-                onClick={() => { setShowSubmitView(true); setShowStatsView(false); setShowRankPrintView(false); window.scrollTo(0,0); }}
+                onClick={() => { setInfoPage(null); setShowSubmitView(true); setShowStatsView(false); setShowRankPrintView(false); window.scrollTo(0,0); }}
                 className="hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm bg-slate-900 border border-slate-700 text-white shadow-lg shadow-indigo-500/20 hover:scale-105 hover:shadow-indigo-500/30 transition-all duration-300 group relative overflow-hidden"
              >
                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -686,6 +723,9 @@ const App: React.FC = () => {
                 onClick={() => setIsMenuOpen(true)}
                 className="lg:hidden p-2.5 rounded-xl text-slate-500 hover:bg-white/80 backdrop-blur transition-all focus:outline-none hover:text-indigo-600 shadow-sm"
                 title="開啟相關資源"
+                aria-label="開啟選單"
+                aria-expanded={isMenuOpen}
+                aria-controls="navigation-menu-title"
              >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
              </button>
@@ -693,7 +733,11 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {showSubmitView ? (
+      {guidePage ? (
+        <GuidePage page={guidePage} onBack={() => setGuidePage(null)} onOpen={setGuidePage} />
+      ) : infoPage ? (
+        <InformationPage page={infoPage} onBack={() => setInfoPage(null)} />
+      ) : showSubmitView ? (
         <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full z-10 relative flex flex-col items-center">
            <div className="w-full max-w-3xl">
               <SubmitScoreForm
@@ -722,16 +766,16 @@ const App: React.FC = () => {
         <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full z-10 relative">
         
         {/* Integrated Hero & Contribution Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-20 pt-8 lg:pt-12 items-stretch" id="hero-section">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 mb-12 sm:mb-20 pt-3 sm:pt-6 lg:pt-10 items-stretch" id="hero-section">
            
            {/* Left side: Main Title */}
-           <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left relative z-10 justify-center">
+           <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left relative z-10 justify-center py-3 lg:py-8">
               {/* Abstract background blobs (constrained) */}
               <div className="absolute inset-0 flex items-center justify-center opacity-40 pointer-events-none -z-10">
                 <div className="absolute w-[300px] sm:w-[400px] h-[300px] sm:h-[400px] bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse -left-20 top-0"></div>
               </div>
 
-              <div className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-white/70 backdrop-blur-md text-indigo-700 font-bold border border-indigo-100 shadow-[0_4px_20px_-4px_rgba(79,70,229,0.15)] mb-8">
+              <div className="inline-flex items-center justify-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-4 py-2 text-sm font-bold text-indigo-700 shadow-sm mb-7">
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-600"></span>
@@ -739,35 +783,39 @@ const App: React.FC = () => {
                   <span className="text-sm tracking-wide">更新至 115 年會考資料</span>
               </div>
               
-              <h2 className="text-4xl sm:text-6xl xl:text-[5rem] font-black tracking-tighter leading-[1.05] drop-shadow-sm mb-8 sm:mb-10 w-full text-slate-900">
-                  <span className="opacity-90">全國會考</span> <br className="hidden sm:block"/>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-600 leading-normal pb-2 block relative">
+              <h2 className="text-[2.85rem] sm:text-6xl xl:text-[5rem] font-black tracking-[-0.06em] leading-[1.03] mb-6 sm:mb-8 w-full text-slate-950">
+                  <span>全國會考</span> <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 leading-normal pb-2 block relative">
                      序位分享
                      <div className="absolute -bottom-2 sm:-bottom-4 left-1/2 lg:left-0 -translate-x-1/2 lg:translate-x-0 w-32 h-1.5 sm:w-48 sm:h-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-60"></div>
                   </span>
               </h2>
+
+              <p className="mb-6 sm:mb-8 max-w-xl text-[15px] font-medium leading-7 text-slate-600 sm:text-lg">匯集全國考生回報資料，快速對照你的序位與歷年落點，讓每一次選擇更有依據。</p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
                   <a 
                       href="https://tyctw.github.io/volunteer/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-8 py-4 bg-slate-900/90 backdrop-blur-md border border-slate-700/50 text-white rounded-2xl font-bold shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-indigo-500/20 hover:bg-slate-900 transition-all duration-300 text-lg flex justify-center items-center gap-3 group overflow-hidden relative"
+                      className="w-full sm:w-auto px-6 py-4 bg-slate-950 border border-slate-800 text-white rounded-2xl font-bold shadow-xl shadow-slate-900/15 hover:-translate-y-0.5 hover:shadow-indigo-500/20 transition-all duration-300 text-base flex justify-center items-center gap-3 group overflow-hidden relative"
                   >
                       <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-duration-500"></div>
+                      <BarChart3 className="relative z-10 h-5 w-5" />
                       <span className="relative z-10">立即查詢個人序位</span>
-                      <svg className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" /></svg>
+                      <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </a>
                   <a
                       href="https://rcpett.vercel.app/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-8 py-4 bg-white/60 backdrop-blur-md text-slate-800 rounded-2xl font-bold border border-white/60 shadow-sm hover:border-indigo-200 hover:bg-white/90 hover:text-indigo-700 hover:shadow-xl transition-all duration-300 text-lg flex items-center justify-center gap-3 group relative"
+                      className="w-full sm:w-auto px-6 py-4 bg-white text-slate-800 rounded-2xl font-bold border border-slate-200 shadow-sm hover:-translate-y-0.5 hover:border-indigo-200 hover:text-indigo-700 hover:shadow-lg transition-all duration-300 text-base flex items-center justify-center gap-3 group relative"
                   >
                       <span className="relative z-10">前往全國落點主站</span>
-                      <svg className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-300 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7-7m7 7H3" /></svg>
+                      <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </a>
               </div>
+              <div className="mt-6 sm:mt-7 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs sm:text-sm font-bold text-slate-500 lg:justify-start"><span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-emerald-500" />資料僅供參考</span><span className="inline-flex items-center gap-1.5"><Sparkles className="h-4 w-4 text-indigo-500" />持續更新中</span></div>
            </div>
 
            {/* Right side: Contribution Banner */}
@@ -811,39 +859,11 @@ const App: React.FC = () => {
       />
 
       {/* Footer */}
-      <footer className="bg-white/50 backdrop-blur-md border-t border-slate-200 py-12 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="flex justify-center items-center gap-3 mb-6">
-              <div className="p-2.5 bg-slate-900 rounded-xl shadow-lg shadow-slate-200">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-              </div>
-              <h4 className="font-bold text-slate-900 text-lg">TW會考落點分析所屬網站 - 全國會考序位分享</h4>
-          </div>
-          
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
-            <button 
-              onClick={() => setActiveModal('usage')}
-              className="text-slate-500 hover:text-indigo-600 font-medium transition-colors px-4 py-2 hover:bg-white rounded-xl"
-            >
-              使用說明
-            </button>
-            <button 
-              onClick={() => setActiveModal('disclaimer')}
-              className="text-slate-500 hover:text-amber-600 font-medium transition-colors px-4 py-2 hover:bg-white rounded-xl"
-            >
-              免責聲明
-            </button>
-            <button 
-              onClick={() => setActiveModal('contact')}
-              className="text-slate-500 hover:text-emerald-600 font-medium transition-colors px-4 py-2 hover:bg-white rounded-xl"
-            >
-              聯絡我們
-            </button>
-          </div>
-          
-          <p className="text-slate-400 text-sm">
-            © {new Date().getFullYear()} 資料僅供參考，實際錄取標準以官方公告為準。
-          </p>
+      <footer className="relative z-10 mt-auto border-t border-indigo-100 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-6 sm:px-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-100"><BarChart3 className="h-4 w-4" /></div><div><p className="text-sm font-black text-slate-800">全國會考序位分享</p><p className="text-[11px] font-medium text-slate-400">© {new Date().getFullYear()} · 資料僅供參考</p></div></div>
+          <div className="flex flex-wrap items-center gap-x-1 gap-y-1 text-sm font-bold"><button onClick={() => { setGuidePage('index'); window.scrollTo(0, 0); }} className="rounded-lg px-2.5 py-1.5 text-slate-500 transition hover:bg-indigo-50 hover:text-indigo-700">升學指南</button><button onClick={() => { setInfoPage('usage'); window.scrollTo(0, 0); }} className="rounded-lg px-2.5 py-1.5 text-slate-500 transition hover:bg-indigo-50 hover:text-indigo-700">使用說明</button><button onClick={() => { setInfoPage('disclaimer'); window.scrollTo(0, 0); }} className="rounded-lg px-2.5 py-1.5 text-slate-500 transition hover:bg-indigo-50 hover:text-indigo-700">免責聲明</button><button onClick={() => setActiveModal('contact')} className="rounded-lg px-2.5 py-1.5 text-slate-500 transition hover:bg-indigo-50 hover:text-indigo-700">聯絡我們</button></div>
+          <p className="flex items-center gap-1.5 text-xs font-medium text-amber-700"><ShieldCheck className="h-4 w-4" />以官方公告為準</p>
         </div>
       </footer>
 

@@ -138,7 +138,30 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
 
 
 
-  // showConfirm and success will be handled as modals.
+  if (success) {
+    return (
+      <section className="relative isolate mx-auto max-w-4xl overflow-hidden rounded-[2rem] border border-emerald-100 bg-white shadow-xl shadow-emerald-100/50 sm:rounded-[2.5rem]">
+        <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-br from-emerald-50 via-white to-indigo-50" />
+        <div className="relative px-5 py-10 sm:px-10 sm:py-14">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[1.75rem] bg-gradient-to-br from-emerald-400 to-emerald-500 text-white shadow-xl shadow-emerald-200"><CheckCircle2 className="h-10 w-10" /></div>
+            <span className="mt-6 inline-flex rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">資料回報完成</span>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">送出成功！謝謝你的分享</h2>
+            <p className="mx-auto mt-4 max-w-xl font-medium leading-7 text-slate-500">你的回報會成為下一位考生的參考，讓全國落點分析持續更貼近真實情況。</p>
+          </div>
+
+          <div className="mx-auto mt-10 max-w-2xl rounded-[1.75rem] border border-indigo-100 bg-gradient-to-br from-indigo-50 to-violet-50 p-5 sm:p-7">
+            <div className="flex items-start gap-4"><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-sm"><Gift className="h-5 w-5" /></div><div><p className="text-sm font-black text-indigo-950">完成回報禮</p><p className="mt-1 text-sm font-medium leading-6 text-indigo-900/70">你已獲得「全國落點分析」專屬邀請碼，可立即前往使用。</p></div></div>
+            <a href={`https://tyctw.github.io/spare/?invite=${generateInvitationCode()}`} target="_blank" rel="noopener noreferrer" className="group mt-6 flex items-center justify-between rounded-2xl bg-indigo-600 px-5 py-4 font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:bg-indigo-500"><span>前往全國落點分析</span><span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition-transform group-hover:translate-x-1"><ExternalLink className="h-4 w-4" /></span></a>
+            <a href="https://tyctw.github.io/invite/" target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center justify-center gap-2 rounded-2xl border border-indigo-100 bg-white px-5 py-3.5 text-sm font-bold text-indigo-700 transition hover:border-indigo-200 hover:bg-indigo-50"><Key className="h-4 w-4" />已有邀請碼？前往使用</a>
+          </div>
+
+          <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4 text-sm font-medium leading-6 text-slate-500"><span className="font-bold text-slate-700">提醒：</span>邀請碼將在本小時結束後失效，請儘早使用。</div>
+          <button onClick={onSubmited} className="mx-auto mt-8 flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900">返回序位資料首頁 <ChevronRight className="h-4 w-4" /></button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto relative">
@@ -383,12 +406,12 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
        </div>
 
        {error && typeof document !== 'undefined' && createPortal(
-         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+        <div role="alertdialog" aria-modal="true" aria-labelledby="error-dialog-title" className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
            <div className="bg-white rounded-[2rem] p-6 sm:p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95 duration-300">
              <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4">
                 <AlertTriangle className="w-8 h-8" />
              </div>
-             <h3 className="text-xl font-bold text-slate-900 mb-2">錯誤提示</h3>
+             <h3 id="error-dialog-title" className="text-xl font-bold text-slate-900 mb-2">錯誤提示</h3>
              <p className="text-slate-600 font-medium mb-6">{error}</p>
              <button 
                type="button"
@@ -406,36 +429,39 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
 
       {/* Confirm Modal */}
       {showConfirm && !success && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-[2rem] p-6 md:p-10 max-w-xl w-full shadow-2xl animate-in zoom-in-95 duration-300 relative overflow-hidden">
-            <h3 className="text-3xl font-black text-slate-900 tracking-tight mb-2">確認提交資料</h3>
-            <p className="text-slate-500 font-medium mb-6">請再次確認您將提交的資料內容：</p>
-            
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-               <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div><span className="text-slate-400 font-bold block mb-1">會考年度</span><span className="font-black text-slate-700 text-base">{formData.examYear}</span></div>
-                  <div><span className="text-slate-400 font-bold block mb-1">就學區</span><span className="font-black text-slate-700 text-base">{formData.region}</span></div>
+        <div role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" className="fixed inset-0 z-[9999] flex items-end justify-center bg-slate-950/45 p-0 backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-5">
+          <div className="flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-white shadow-2xl animate-in slide-in-from-bottom-6 duration-300 sm:max-h-[88vh] sm:rounded-[2rem] sm:zoom-in-95">
+            <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 px-6 py-8 text-white sm:px-9">
+              <div className="absolute -right-10 -top-12 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
+              <div className="relative flex items-start gap-4"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15"><CheckCircle2 className="h-6 w-6" aria-hidden="true" /></div><div><p className="text-xs font-bold tracking-[0.16em] text-indigo-100">FINAL CHECK</p><h3 id="confirm-dialog-title" className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">確認你的回報資料</h3><p className="mt-2 text-sm font-medium leading-6 text-indigo-100">送出後將用於彙整分析，請花一分鐘核對內容。</p></div></div>
+            </div>
+            <div className="overflow-y-auto hide-scrollbar p-5 sm:p-7">
+            <div className="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4 sm:p-5 space-y-5">
+               <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="rounded-xl bg-white p-3"><span className="text-slate-400 font-bold block mb-1 text-xs">會考年度</span><span className="font-black text-slate-800 text-lg">{formData.examYear}</span></div>
+                  <div className="rounded-xl bg-white p-3"><span className="text-slate-400 font-bold block mb-1 text-xs">就學區</span><span className="font-black text-slate-800 text-lg">{formData.region}</span></div>
                </div>
                
-               <div className="border-t border-slate-200 pt-4">
-                  <span className="text-slate-400 font-bold block mb-2 text-sm">各科成績</span>
+               <div className="border-t border-indigo-100 pt-4">
+                  <span className="text-indigo-800 font-black block mb-3 text-sm">各科成績</span>
                   <div className="flex flex-wrap gap-2">
-                     <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-700">國文 {formData.chineseScore}</span>
-                     <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-700">數學 {formData.mathScore}</span>
-                     <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-700">英文 {formData.englishScore}</span>
-                     <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-700">社會 {formData.socialScore}</span>
-                     <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-700">自然 {formData.scienceScore}</span>
-                     <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-700">作文 {formData.essayScore} 級分</span>
+                     <span className="bg-white border border-indigo-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-700">國文 <b className="text-indigo-600">{formData.chineseScore}</b></span>
+                     <span className="bg-white border border-indigo-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-700">數學 <b className="text-indigo-600">{formData.mathScore}</b></span>
+                     <span className="bg-white border border-indigo-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-700">英文 <b className="text-indigo-600">{formData.englishScore}</b></span>
+                     <span className="bg-white border border-indigo-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-700">社會 <b className="text-indigo-600">{formData.socialScore}</b></span>
+                     <span className="bg-white border border-indigo-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-700">自然 <b className="text-indigo-600">{formData.scienceScore}</b></span>
+                     <span className="bg-white border border-indigo-100 px-3 py-2 rounded-xl text-sm font-bold text-slate-700">作文 <b className="text-indigo-600">{formData.essayScore}</b> 級分</span>
                   </div>
                </div>
 
-               <div className="grid grid-cols-2 gap-4 text-sm border-t border-slate-200 pt-4">
-                  <div><span className="text-slate-400 font-bold block mb-1">序位區間</span><span className="font-black text-slate-700 text-base">{formData.minRankInterval} - {formData.maxRankInterval}</span></div>
-                  <div><span className="text-slate-400 font-bold block mb-1">序位比率</span><span className="font-black text-slate-700 text-base">{formData.minRatio}% - {formData.maxRatio}%</span></div>
+               <div className="grid grid-cols-2 gap-3 text-sm border-t border-indigo-100 pt-4">
+                  <div className="rounded-xl bg-white p-3"><span className="text-slate-400 font-bold block mb-1 text-xs">序位區間</span><span className="font-black text-slate-800">{formData.minRankInterval} – {formData.maxRankInterval}</span></div>
+                  <div className="rounded-xl bg-white p-3"><span className="text-slate-400 font-bold block mb-1 text-xs">序位比率</span><span className="font-black text-slate-800">{formData.minRatio}% – {formData.maxRatio}%</span></div>
                </div>
             </div>
 
-            <div className="flex gap-3 pt-6">
+            <p className="mt-4 text-center text-xs font-medium leading-5 text-slate-400">確認送出即表示你已核對資料內容，並同意以匿名方式用於統計分析。</p>
+            <div className="flex flex-col-reverse gap-3 pt-5 sm:flex-row">
               <button
                 type="button"
                 onClick={() => setShowConfirm(false)}
@@ -447,7 +473,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
               <button
                 onClick={handleConfirmSubmit}
                 disabled={loading}
-                className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 shadow-md shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl font-bold hover:from-indigo-500 hover:to-violet-500 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -457,8 +483,8 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
                 ) : '確認並送出'}
               </button>
             </div>
-          </div>
-        </div>,
+            </div></div>
+          </div>,
         document.body
       )}
 

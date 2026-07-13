@@ -52,29 +52,30 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onChange, onReset
   }, 0);
 
   return (
-    <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-6 lg:p-8 mb-8 relative transition-all hover:shadow-2xl hover:shadow-slate-200/60">
+    <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-4 sm:p-6 lg:p-8 mb-8 relative transition-all hover:shadow-2xl hover:shadow-slate-200/60">
       
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-4 border-b border-slate-100 pb-6">
-        <h3 className="text-xl sm:text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
-          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-[1rem] shadow-md shadow-indigo-200">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 sm:mb-8 gap-4 border-b border-slate-100 pb-5 sm:pb-6">
+        <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+          <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-xl sm:rounded-[1rem] shadow-md shadow-indigo-200">
              <SlidersHorizontal className="w-5 h-5" />
           </div>
           進階篩選與分析
         </h3>
         
-        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-            <div className="w-full sm:w-auto px-4 py-3 sm:py-2 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-md shadow-slate-200 flex items-center justify-center sm:justify-start gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full lg:w-auto">
+            <div aria-live="polite" aria-atomic="true" className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-md shadow-slate-200 flex items-center justify-center sm:justify-start gap-2">
               <Search className="w-4 h-4 text-indigo-400" />
               符合條件：{resultCount} 筆
             </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="grid grid-cols-3 items-center gap-2 w-full sm:flex sm:w-auto">
               {onReload && (
                 <button
                   onClick={handleReloadClick}
                   disabled={cooldown > 0}
-                  className={`flex-1 sm:flex-none justify-center px-3 py-3 sm:py-2 text-sm font-bold rounded-xl border flex items-center gap-1.5 transition-all shadow-sm ${
+                  aria-label={cooldown > 0 ? `請等待 ${cooldown} 秒後再重新整理資料` : '重新整理資料'}
+                  className={`flex-1 sm:flex-none justify-center px-2 sm:px-3 py-2.5 sm:py-2 text-xs sm:text-sm font-bold rounded-xl border flex items-center gap-1.5 transition-all shadow-sm ${
                     cooldown > 0 
                     ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed' 
                     : 'text-indigo-600 border-indigo-100 hover:bg-indigo-50 hover:border-indigo-200 bg-white hover:shadow-indigo-100'
@@ -87,7 +88,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onChange, onReset
               
               <button
                   onClick={onExport}
-                  className="flex-1 sm:flex-none justify-center px-3 py-3 sm:py-2 text-sm font-bold text-slate-700 bg-white hover:text-indigo-600 hover:bg-indigo-50 rounded-xl border border-slate-200 hover:border-indigo-200 transition-all shadow-sm flex items-center gap-1.5"
+                  aria-label="匯出目前篩選結果為 CSV"
+                  className="flex-1 sm:flex-none justify-center px-2 sm:px-3 py-2.5 sm:py-2 text-xs sm:text-sm font-bold text-slate-700 bg-white hover:text-indigo-600 hover:bg-indigo-50 rounded-xl border border-slate-200 hover:border-indigo-200 transition-all shadow-sm flex items-center gap-1.5"
                   title="匯出 CSV"
               >
                  <Download className="w-4 h-4 shrink-0" />
@@ -98,7 +100,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onChange, onReset
   
               <button
                   onClick={onReset}
-                  className="flex-1 sm:flex-none justify-center px-3 py-3 sm:py-2 text-sm font-bold text-slate-500 bg-white hover:text-red-600 hover:bg-red-50 rounded-xl border border-slate-200 hover:border-red-200 transition-all shadow-sm flex items-center gap-1.5 group"
+                  aria-label="清除所有篩選條件"
+                  className="flex-1 sm:flex-none justify-center px-2 sm:px-3 py-2.5 sm:py-2 text-xs sm:text-sm font-bold text-slate-500 bg-white hover:text-red-600 hover:bg-red-50 rounded-xl border border-slate-200 hover:border-red-200 transition-all shadow-sm flex items-center gap-1.5 group"
               >
                   <XCircle className="w-4 h-4 shrink-0 group-hover:rotate-90 transition-transform duration-300" />
                   <span className="whitespace-nowrap">清除</span>
@@ -107,7 +110,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onChange, onReset
         </div>
       </div>
       
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Top Row: Region & Year */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
            <div className="relative group">
@@ -152,7 +155,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onChange, onReset
         </div>
         
         {/* Divider / Toggle Button */}
-        <div className="relative flex justify-center py-4">
+        <div className="relative flex justify-center py-2 sm:py-4">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">
                 <div className="w-full border-t border-slate-200 border-dashed"></div>
             </div>
