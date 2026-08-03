@@ -57,12 +57,13 @@ export const getGradeDetailScore = (item: ScoreData) => (
   }, 0)
 );
 
-export const getGradePlusScore = (item: ScoreData) => (
-  scoreSubjects.reduce((sum, subject) => {
+export const getGradePlusScore = (item: ScoreData) => {
+  if (typeof item.inferredPlusScore === 'number') return item.inferredPlusScore;
+  return scoreSubjects.reduce((sum, subject) => {
     const grade = normalizeGrade(item[subject]);
     return sum + gradeModifierPoint(grade);
-  }, 0)
-);
+  }, 0);
+};
 
 export const getGradeRankScore = (item: ScoreData) => {
   const { aCount, bCount } = getGradeCounts(item);

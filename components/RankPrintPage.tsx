@@ -692,25 +692,96 @@ const LegacyRankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) => 
   );
 };
 
-const compactScore = (item: ScoreData) => [
-  item.chineseScore,
-  item.englishScore,
-  item.mathScore,
-  item.socialScore,
-  item.scienceScore,
-].join(' / ');
+const compactScore = (item: ScoreData) => {
+  if ('inferred' in item && item.inferred) {
+    return `推估 ${getPrintCategory(item as PrintRow)}｜細節分數 ${getPrintDetailScore(item as PrintRow)}`;
+  }
+  return [item.chineseScore, item.englishScore, item.mathScore, item.socialScore, item.scienceScore].join(' / ');
+};
+
+const estimateValue = (start: string | number, end: string | number, ratio: number, integer = false) => {
+  const startValue = parseRankNumber(start);
+  const endValue = parseRankNumber(end);
+  if (!Number.isFinite(startValue) || !Number.isFinite(endValue)) return '';
+  const value = startValue + ((endValue - startValue) * ratio);
+  return integer ? String(Math.round(value)) : Number(value.toFixed(2)).toString();
+};
+
+const hasUsableRankInterval = (item: ScoreData) => {
+  const hasNumber = (value: string | number) => String(value ?? '').trim() !== '' && Number.isFinite(parseRankNumber(value));
+  if (![item.minRatio, item.maxRatio, item.minRankInterval, item.maxRankInterval].every(hasNumber)) return false;
+  const minRatio = parseRankNumber(item.minRatio);
+  const maxRatio = parseRankNumber(item.maxRatio);
+  const minRank = parseRankNumber(item.minRankInterval);
+  const maxRank = parseRankNumber(item.maxRankInterval);
+  return minRatio >= 0 && maxRatio >= minRatio && minRank > 0 && maxRank >= minRank;
+};
+
+const createNeighbourEstimates = (sourceRows: ScoreData[]): PrintRow[] => {
+  const groups = new Map<string, ScoreData[]>();
+  sourceRows.filter(hasUsableRankInterval).forEach(item => {
+    const key = `${item.examYear}|${item.region}|${getGradeCategory(item)}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(item);
+  });
+
+  const estimates: PrintRow[] = [];
+  groups.forEach(group => {
+    const representativeByDetail = new Map<number, ScoreData>();
+    group.forEach(item => {
+      const detail = getGradeDetailScore(item);
+      const existing = representativeByDetail.get(detail);
+      representativeByDetail.set(detail, existing ? chooseRepresentativeRecord(existing, item) : item);
+    });
+    const points = Array.from(representativeByDetail.values()).sort((a, b) => getGradeDetailScore(b) - getGradeDetailScore(a));
+    for (let index = 0; index < points.length - 1; index += 1) {
+      const higher = points[index];
+      const lower = points[index + 1];
+      const higherDetail = getGradeDetailScore(higher);
+      const lowerDetail = getGradeDetailScore(lower);
+      const gap = higherDetail - lowerDetail;
+      // Large gaps do not have enough local evidence for a meaningful estimate.
+      if (gap <= 1 || gap > 6) continue;
+      const directionIsConsistent =
+        parseRankNumber(higher.minRatio) <= parseRankNumber(lower.minRatio) &&
+        parseRankNumber(higher.maxRatio) <= parseRankNumber(lower.maxRatio) &&
+        parseRankNumber(higher.minRankInterval) <= parseRankNumber(lower.minRankInterval) &&
+        parseRankNumber(higher.maxRankInterval) <= parseRankNumber(lower.maxRankInterval);
+      if (!directionIsConsistent) continue;
+      for (let detail = higherDetail - 1; detail > lowerDetail; detail -= 1) {
+        const ratio = (higherDetail - detail) / gap;
+        estimates.push({
+          ...higher,
+          id: `estimate-${higher.id}-${lower.id}-${detail}`,
+          timestamp: '',
+          chineseScore: '—', englishScore: '—', mathScore: '—', socialScore: '—', scienceScore: '—',
+          essayScore: estimateValue(higher.essayScore, lower.essayScore, ratio, true),
+          minRatio: estimateValue(higher.minRatio, lower.minRatio, ratio),
+          maxRatio: estimateValue(higher.maxRatio, lower.maxRatio, ratio),
+          minRankInterval: estimateValue(higher.minRankInterval, lower.minRankInterval, ratio, true),
+          maxRankInterval: estimateValue(higher.maxRankInterval, lower.maxRankInterval, ratio, true),
+          inferred: true,
+          inferredFrom: `${higherDetail} → ${lowerDetail}`,
+          inferredCategory: getGradeCategory(higher),
+          inferredDetailScore: detail,
+          inferredPlusScore: Math.max(0, detail - ((getGradeCategory(higher).match(/^(\d+)A(\d+)B(\d+)C$/)?.slice(1).map(Number).reduce((sum, count, position) => sum + count * [30, 20, 10][position], 0) || 0))),
+        });
+      }
+    }
+  });
+  return estimates;
+};
 
 export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) => {
   const [selectedYear, setSelectedYear] = useState(YEARS[0] || '');
   const [selectedRegion, setSelectedRegion] = useState('');
-  const [showPreviousTrend, setShowPreviousTrend] = useState(false);
 
   const sourceRows = useMemo(() => data.filter(item => (
     (!selectedYear || item.examYear === selectedYear) &&
     (!selectedRegion || item.region === selectedRegion)
   )), [data, selectedRegion, selectedYear]);
 
-  const rows = useMemo(() => {
+  const baseRows = useMemo(() => {
     const grouped = new Map<string, ScoreData[]>();
     sourceRows.forEach(item => {
       const key = scoreIdentityKey(item);
@@ -727,47 +798,23 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
       });
   }, [sourceRows]);
 
-  const previousTrendMap = useMemo(() => {
-    const allGroups = new Map<string, ScoreData[]>();
-    data.forEach(item => {
-      const key = scoreIdentityKey(item);
-      if (!allGroups.has(key)) allGroups.set(key, []);
-      allGroups.get(key)!.push(item);
-    });
-    const byTrendKey = new Map<string, ScoreData>();
-    Array.from(allGroups.values()).map(chooseRepresentativeFromSameScore).forEach(item => {
-      const key = getTrendKey(item);
-      const existing = byTrendKey.get(key);
-      byTrendKey.set(key, existing ? chooseRepresentativeRecord(existing, item) : item);
-    });
-
-    const trends = new Map<string, PreviousTrend>();
-    rows.forEach(item => {
-      const year = Number(item.examYear);
-      if (!Number.isInteger(year)) return;
-      const previous = byTrendKey.get(`${year - 1}|${item.region}|${getExactScoreProfile(item)}`);
-      const currentMaxRank = parseRankNumber(item.maxRankInterval);
-      const currentMinRatio = parseRankNumber(item.minRatio);
-      const previousMaxRank = previous ? parseRankNumber(previous.maxRankInterval) : 0;
-      const previousMinRatio = previous ? parseRankNumber(previous.minRatio) : 0;
-      if (!previous || !currentMaxRank || !currentMinRatio || !previousMaxRank || !previousMinRatio) return;
-      trends.set(item.id, {
-        previousYear: String(year - 1), previousMaxRank, currentMaxRank,
-        rankDiff: currentMaxRank - previousMaxRank,
-        previousMinRatio, currentMinRatio,
-        ratioDiff: Number((currentMinRatio - previousMinRatio).toFixed(2)),
-      });
-    });
-    return trends;
-  }, [data, rows]);
-
-  const duplicateCount = Math.max(0, sourceRows.length - rows.length);
+  const estimatedRows = useMemo(() => createNeighbourEstimates(baseRows), [baseRows]);
+  const rows = useMemo<PrintRow[]>(() => [...baseRows, ...estimatedRows].sort((a, b) => {
+    const regionDiff = String(a.region).localeCompare(String(b.region), 'zh-Hant');
+    if (regionDiff !== 0) return regionDiff;
+    const categoryDiff = getPrintCategoryRank(b) - getPrintCategoryRank(a);
+    if (categoryDiff !== 0) return categoryDiff;
+    return getPrintDetailScore(b) - getPrintDetailScore(a);
+  }), [baseRows, estimatedRows]);
+  const duplicateCount = Math.max(0, sourceRows.length - baseRows.length);
   const reportScope = `${selectedYear || '全部年度'} · ${selectedRegion || '全部區域'}`;
 
   return <main className="relative z-10 mx-auto w-full max-w-7xl flex-1 px-4 pb-20 pt-28 sm:px-6 lg:px-8 print-report-page">
-    <style>{`@media print { @page { size: A4 landscape; margin: 9mm; } body { background:#fff !important; } header, footer, .no-print { display:none !important; } .print-report-page { max-width:none !important; padding:0 !important; } .report-sheet { border:0 !important; box-shadow:none !important; } .report-table { font-size:9px !important; } .report-table th, .report-table td { padding:4px 5px !important; } .report-table thead { display:table-header-group; } .report-table tr { break-inside:avoid; page-break-inside:avoid; } }`}</style>
+    <style>{`.report-sheet > header > div > div:last-child { display: none; }`}</style>
+    <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-bold leading-6 text-amber-900">自動補齊已啟用：僅使用同年度、同就學區、同成績類別中，上下相鄰且序位方向一致的原始資料進行線性區間估算；目前產生 {estimatedRows.length.toLocaleString('zh-TW')} 筆推估列。推估列會明確標示，不能視為官方個人序位或錄取結果。</div>
+    <style>{`@media print { @page { size: A4 landscape; margin: 9mm; } body { background:#fff !important; } header, footer, .no-print { display:none !important; } ins.adsbygoogle, .adsbygoogle, ins[data-ad-client], iframe[id^="aswift_"], iframe[src*="googlesyndication"], iframe[src*="doubleclick"], [data-ad-client] { display:none !important; visibility:hidden !important; width:0 !important; height:0 !important; min-height:0 !important; margin:0 !important; padding:0 !important; } .print-report-page { max-width:none !important; padding:0 !important; } .report-sheet { border:0 !important; box-shadow:none !important; } .report-table { font-size:9px !important; } .report-table th, .report-table td { padding:4px 5px !important; } .report-table thead { display:table-header-group; } .report-table tr { break-inside:avoid; page-break-inside:avoid; } }`}</style>
     <div className="no-print mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><button onClick={onBack} className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-indigo-700"><ArrowLeft className="h-4 w-4" />返回資料首頁</button><h1 className="text-3xl font-black tracking-tight text-slate-950">會考各區成績序位整理表</h1><p className="mt-2 max-w-3xl font-medium leading-7 text-slate-500">以年度與就學區整理原始回報資料；不補推算序位，讓列印內容清楚區分已回報資料與尚未掌握的範圍。</p></div><button onClick={() => window.print()} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-slate-800"><Printer className="h-5 w-5" />列印此報表</button></div>
-    <section className="no-print mb-6 grid gap-4 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-[1fr_1fr_auto_auto]"><label className="text-sm font-bold text-slate-700">會考年度<select value={selectedYear} onChange={event => setSelectedYear(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-bold outline-none focus:border-indigo-500"><option value="">全部年度</option>{YEARS.map(year => <option key={year} value={year}>{year} 年</option>)}</select></label><label className="text-sm font-bold text-slate-700">就學區<select value={selectedRegion} onChange={event => setSelectedRegion(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-bold outline-none focus:border-indigo-500"><option value="">全部區域</option>{REGIONS.map(region => <option key={region} value={region}>{region}</option>)}</select></label><div className="rounded-xl bg-indigo-50 px-4 py-3"><p className="text-xs font-bold text-indigo-600">原始代表資料</p><p className="mt-1 text-2xl font-black text-indigo-950">{rows.length.toLocaleString('zh-TW')}</p></div><div className="rounded-xl bg-slate-50 px-4 py-3"><p className="text-xs font-bold text-slate-500">合併重複回報</p><p className="mt-1 text-2xl font-black text-slate-800">{duplicateCount.toLocaleString('zh-TW')}</p></div><label className="md:col-span-4 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700"><input type="checkbox" checked={showPreviousTrend} onChange={event => setShowPreviousTrend(event.target.checked)} className="h-4 w-4 accent-indigo-600" />顯示上一年度相同區域、五科與作文完全相同組合的觀察差異</label></section>
-    <section className="report-sheet overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm"><header className="border-b border-slate-200 px-6 py-6 print-break-avoid"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-black tracking-[0.18em] text-indigo-600">TW EXAM RANK REPORT</p><h2 className="mt-2 text-2xl font-black text-slate-950">會考各區成績序位整理表</h2><p className="mt-1 font-bold text-slate-500">{reportScope} · 原始代表資料 {rows.length.toLocaleString('zh-TW')} 筆</p></div><div className="rounded-xl bg-amber-50 px-4 py-3 text-right text-xs font-bold leading-5 text-amber-900">不以線性插值補推算<br />跨年度僅比較完全相同成績組合</div></div><p className="mt-4 text-sm font-medium leading-6 text-slate-500">本表僅供資料整理與志願討論。招生名額、超額比序、志願序及校科條件均以當年度各就學區公告為準。</p></header><div className="overflow-x-auto"><table className="report-table w-full min-w-[900px] text-sm"><thead className="bg-slate-950 text-left text-xs font-black tracking-wide text-white"><tr><th className="px-4 py-3">序</th><th className="px-4 py-3">年度／區域</th><th className="px-4 py-3">五科成績組合</th><th className="px-4 py-3">作文</th><th className="px-4 py-3">加數</th><th className="px-4 py-3">序位比率</th><th className="px-4 py-3">累積人數區間</th>{showPreviousTrend && <th className="px-4 py-3">去年同組合觀察</th>}<th className="px-4 py-3">資料狀態</th></tr></thead><tbody>{rows.map((item, index) => { const trend = showPreviousTrend ? previousTrendMap.get(item.id) : undefined; return <tr key={item.id} className="border-b border-slate-100 odd:bg-white even:bg-slate-50/70"><td className="px-4 py-3 font-bold text-slate-400">{index + 1}</td><td className="px-4 py-3"><p className="font-black text-slate-900">{item.examYear} 年</p><p className="mt-0.5 text-xs font-bold text-slate-500">{item.region}</p></td><td className="px-4 py-3 font-mono text-xs font-bold text-slate-700">{compactScore(item)}</td><td className="px-4 py-3 font-bold text-slate-700">{item.essayScore}</td><td className="px-4 py-3 font-mono font-bold text-indigo-700">+{getGradePlusScore(item)}</td><td className="px-4 py-3 font-bold text-slate-700">{getRatioText(item)}</td><td className="px-4 py-3 font-mono text-xs font-bold text-slate-600">{getRankIntervalText(item)}</td>{showPreviousTrend && <td className="px-4 py-3 text-xs font-bold text-slate-600">{trend ? <><p>{trend.previousYear} 年：{formatRankValue(trend.previousMaxRank)} 人</p><p className={trend.ratioDiff > 0 ? 'text-rose-700' : trend.ratioDiff < 0 ? 'text-emerald-700' : 'text-slate-500'}>{trend.previousMinRatio}% → {trend.currentMinRatio}% ({formatTrendDiff(trend.ratioDiff, '%')})</p></> : <span className="text-slate-300">無可比對資料</span>}</td>}<td className="px-4 py-3"><span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-700">原始回報</span></td></tr>; })}</tbody></table></div>{rows.length === 0 && <div className="px-6 py-16 text-center text-sm font-bold text-slate-400">此篩選條件目前沒有可列印的原始回報資料。</div>}<footer className="border-t border-slate-100 px-6 py-4 text-xs font-medium text-slate-400">列印時間：{new Date().toLocaleString('zh-TW')} · 資料僅供參考</footer></section>
+    <section className="no-print mb-6 grid gap-4 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-[1fr_1fr_auto_auto]"><label className="text-sm font-bold text-slate-700">會考年度<select value={selectedYear} onChange={event => setSelectedYear(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-bold outline-none focus:border-indigo-500"><option value="">全部年度</option>{YEARS.map(year => <option key={year} value={year}>{year} 年</option>)}</select></label><label className="text-sm font-bold text-slate-700">就學區<select value={selectedRegion} onChange={event => setSelectedRegion(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-bold outline-none focus:border-indigo-500"><option value="">全部區域</option>{REGIONS.map(region => <option key={region} value={region}>{region}</option>)}</select></label><div className="rounded-xl bg-indigo-50 px-4 py-3"><p className="text-xs font-bold text-indigo-600">原始代表資料</p><p className="mt-1 text-2xl font-black text-indigo-950">{rows.length.toLocaleString('zh-TW')}</p></div><div className="rounded-xl bg-slate-50 px-4 py-3"><p className="text-xs font-bold text-slate-500">合併重複回報</p><p className="mt-1 text-2xl font-black text-slate-800">{duplicateCount.toLocaleString('zh-TW')}</p></div></section>
+    <section className="report-sheet overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm"><header className="border-b border-slate-200 px-6 py-6 print-break-avoid"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-black tracking-[0.18em] text-indigo-600">TW EXAM RANK REPORT</p><h2 className="mt-2 text-2xl font-black text-slate-950">會考各區成績序位整理表</h2><p className="mt-1 font-bold text-slate-500">{reportScope} · 原始代表資料 {rows.length.toLocaleString('zh-TW')} 筆</p></div><div className="rounded-xl bg-amber-50 px-4 py-3 text-right text-xs font-bold leading-5 text-amber-900">不以線性插值補推算<br />僅整理本年度與區域資料</div></div><p className="mt-4 text-sm font-medium leading-6 text-slate-500">本表僅供資料整理與志願討論。招生名額、超額比序、志願序及校科條件均以當年度各就學區公告為準。</p></header><div className="overflow-x-auto"><table className="report-table w-full min-w-[900px] text-sm"><thead className="bg-slate-950 text-left text-xs font-black tracking-wide text-white"><tr><th className="px-4 py-3">序</th><th className="px-4 py-3">年度／區域</th><th className="px-4 py-3">五科成績組合</th><th className="px-4 py-3">作文</th><th className="px-4 py-3">加數</th><th className="px-4 py-3">序位比率</th><th className="px-4 py-3">累積人數區間</th><th className="px-4 py-3">資料狀態</th></tr></thead><tbody>{rows.map((item, index) => <tr key={item.id} className="border-b border-slate-100 odd:bg-white even:bg-slate-50/70"><td className="px-4 py-3 font-bold text-slate-400">{index + 1}</td><td className="px-4 py-3"><p className="font-black text-slate-900">{item.examYear} 年</p><p className="mt-0.5 text-xs font-bold text-slate-500">{item.region}</p></td><td className="px-4 py-3 font-mono text-xs font-bold text-slate-700">{compactScore(item)}</td><td className="px-4 py-3 font-bold text-slate-700">{item.essayScore}</td><td className="px-4 py-3 font-mono font-bold text-indigo-700">+{getGradePlusScore(item)}</td><td className="px-4 py-3 font-bold text-slate-700">{getRatioText(item)}</td><td className="px-4 py-3 font-mono text-xs font-bold text-slate-600">{getRankIntervalText(item)}</td><td className="px-4 py-3"><span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-700">原始回報</span></td></tr>)}</tbody></table></div>{rows.length === 0 && <div className="px-6 py-16 text-center text-sm font-bold text-slate-400">此篩選條件目前沒有可列印的原始回報資料。</div>}<footer className="border-t border-slate-100 px-6 py-4 text-xs font-medium text-slate-400">列印時間：{new Date().toLocaleString('zh-TW')} · 資料僅供參考</footer></section>
   </main>;
 };
