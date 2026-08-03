@@ -2,6 +2,20 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ScoreData, SortConfig, SortField } from '../types';
 import { detectRankOrderAnomalies, formatRankValue } from '../utils/scoreRanking';
 
+const hasClearlyInvalidRankData = (item: ScoreData) => {
+  const minRatio = Number(String(item.minRatio ?? '').replace(/,/g, ''));
+  const maxRatio = Number(String(item.maxRatio ?? '').replace(/,/g, ''));
+  const minRank = Number(String(item.minRankInterval ?? '').replace(/,/g, ''));
+  const maxRank = Number(String(item.maxRankInterval ?? '').replace(/,/g, ''));
+  if (![minRatio, maxRatio, minRank, maxRank].every(Number.isFinite)) return false;
+
+  // 1% 對應 1 人、或 100% 對應 100 人，屬於常見的示範值／誤填格式，不能作為序位資料使用。
+  return minRatio === maxRatio && minRank === maxRank && (
+    (minRatio === 1 && minRank === 1) ||
+    (minRatio === 100 && minRank === 100)
+  );
+};
+
 interface ScoreTableProps {
   data: ScoreData[];
   allData: ScoreData[];
@@ -245,12 +259,15 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, allData, sortConfi
           const isPinned = pinnedItems.some(p => p.id === item.id);
           const hasVariation = variationIds.has(item.id);
           const rankOrderAnomaly = rankOrderAnomalies.get(item.id);
+          const hasInvalidRankData = hasClearlyInvalidRankData(item);
 
           return (
             <div 
                 key={item.id} 
                 className={`group bg-white/70 backdrop-blur-xl rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border transition-all duration-500 relative hover:z-50 ${
-                    isPinned
+                    hasInvalidRankData
+                    ? 'border-rose-400 ring-4 ring-rose-50 shadow-lg'
+                    : isPinned
                     ? 'border-indigo-400 ring-4 ring-indigo-50 shadow-lg'
                     : rankOrderAnomaly
                     ? 'border-rose-300 ring-4 ring-rose-50 shadow-lg'
@@ -309,6 +326,19 @@ export const ScoreTable: React.FC<ScoreTableProps> = ({ data, allData, sortConfi
                                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-slate-900 text-white text-xs rounded-xl opacity-0 group-hover/tooltip:opacity-100 transition-all duration-200 pointer-events-none z-30 text-center shadow-xl transform translate-y-2 group-hover/tooltip:translate-y-0">
                                     <p className="font-bold mb-1 text-amber-300">⚠️ 注意</p>
                                     此分數在同年度有多筆不同的序位資料，可能來自不同回報來源或區間。
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                                </div>
+                            </div>
+                        )}
+                        {hasInvalidRankData && (
+                            <div className="group/tooltip relative">
+                                <span className="cursor-help px-2 py-1 rounded-lg bg-rose-600 text-white text-[10px] font-bold border border-rose-700 flex items-center gap-1 shadow-sm">
+                                    <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                    資料疑似錯誤
+                                </span>
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-60 p-3 bg-slate-900 text-white text-xs rounded-xl opacity-0 group-hover/tooltip:opacity-100 transition-all duration-200 pointer-events-none z-30 text-center shadow-xl transform translate-y-2 group-hover/tooltip:translate-y-0">
+                                    <p className="font-bold mb-1 text-rose-300">不納入序位參考</p>
+                                    「{item.minRatio}%／{item.minRankInterval} 人」屬於常見示範值或誤填格式，已標示為疑似錯誤資料。
                                     <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
                                 </div>
                             </div>

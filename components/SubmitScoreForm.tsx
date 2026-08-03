@@ -433,7 +433,7 @@ export const SubmitScoreForm: React.FC<SubmitScoreFormProps> = ({ onSubmited, on
           <div className="flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[2rem] bg-white shadow-2xl animate-in slide-in-from-bottom-6 duration-300 sm:max-h-[88vh] sm:rounded-[2rem] sm:zoom-in-95">
             <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 px-6 py-8 text-white sm:px-9">
               <div className="absolute -right-10 -top-12 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
-              <div className="relative flex items-start gap-4"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15"><CheckCircle2 className="h-6 w-6" aria-hidden="true" /></div><div><p className="text-xs font-bold tracking-[0.16em] text-indigo-100">FINAL CHECK</p><h3 id="confirm-dialog-title" className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">確認你的回報資料</h3><p className="mt-2 text-sm font-medium leading-6 text-indigo-100">送出後將用於彙整分析，請花一分鐘核對內容。</p></div></div>
+              <div className="relative flex items-start gap-4"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15"><CheckCircle2 className="h-6 w-6" aria-hidden="true" /></div><div><p className="text-xs font-bold tracking-[0.16em] text-indigo-100">FINAL CHECK</p><h3 id="confirm-dialog-title" className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">確認你的回報資料</h3></div></div>
             </div>
             <div className="overflow-y-auto hide-scrollbar p-5 sm:p-7">
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4 sm:p-5 space-y-5">
