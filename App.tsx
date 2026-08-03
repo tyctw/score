@@ -43,20 +43,21 @@ const DataLoadingAnimation = () => (
 
 // New CTA Component for Contribution
 const ContributionBanner = ({ onSubmitClick }: { onSubmitClick: () => void }) => (
-  <aside className="relative isolate w-full overflow-hidden rounded-[1.75rem] border border-indigo-100 bg-white p-5 text-slate-900 shadow-xl shadow-indigo-100/70 sm:rounded-[2rem] sm:p-8 lg:p-9">
-    <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-indigo-200/70 blur-3xl" />
-    <div className="absolute -bottom-28 -left-20 h-64 w-64 rounded-full bg-cyan-100/80 blur-3xl" />
+  <aside className="relative isolate w-full overflow-hidden rounded-[2rem] border border-slate-800 bg-slate-950 p-6 text-white shadow-2xl shadow-indigo-200/70 sm:p-8 lg:p-9">
+    <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-fuchsia-500/35 blur-3xl" />
+    <div className="absolute -bottom-28 -left-20 h-64 w-64 rounded-full bg-indigo-500/35 blur-3xl" />
+    <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(rgba(255,255,255,.9)_1px,transparent_1px)] [background-size:18px_18px]" />
     <div className="relative">
-      <div className="mb-7 flex items-center justify-between">
-        <span className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-xs font-bold tracking-wide text-indigo-700"><Database className="h-3.5 w-3.5" />資料募集計畫</span>
-        <Gift className="h-6 w-6 text-amber-500" aria-hidden="true" />
+      <div className="mb-8 flex items-center justify-between">
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold tracking-wide text-indigo-100"><Database className="h-3.5 w-3.5" />資料募集計畫</span>
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-400/15 text-amber-300"><Gift className="h-5 w-5" aria-hidden="true" /></span>
       </div>
-      <h3 className="max-w-sm text-[1.75rem] font-black leading-[1.15] tracking-tight sm:text-4xl">你的成績，<br /><span className="text-indigo-600">是學弟妹的燈塔</span></h3>
-      <p className="mt-4 max-w-md text-sm font-medium leading-7 text-slate-600 sm:text-base">每一筆匿名回報，都讓未來考生的落點分析更接近真實。</p>
-      <button onClick={onSubmitClick} className="group mt-7 flex w-full items-center justify-between rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-4 font-black text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:from-indigo-500 hover:to-violet-500 active:translate-y-0">
-        <span>立即回報序位</span><span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-indigo-600 transition-transform group-hover:translate-x-1"><ArrowUpRight className="h-4 w-4" /></span>
+      <h3 className="max-w-sm text-[1.85rem] font-black leading-[1.12] tracking-tight sm:text-4xl">你的成績，<br /><span className="bg-gradient-to-r from-indigo-300 via-violet-200 to-fuchsia-300 bg-clip-text text-transparent">是學弟妹的燈塔</span></h3>
+      <p className="mt-4 max-w-md text-sm font-medium leading-7 text-slate-300 sm:text-base">每一筆匿名回報，都讓未來考生的落點分析更接近真實。</p>
+      <button onClick={onSubmitClick} className="group mt-7 flex w-full items-center justify-between rounded-2xl bg-white px-5 py-4 font-black text-slate-900 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-indigo-50 active:translate-y-0">
+        <span>立即回報序位</span><span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-white transition-transform group-hover:translate-x-1"><ArrowUpRight className="h-4 w-4" /></span>
       </button>
-      <p className="mt-3 text-center text-xs font-bold text-amber-600">🎁 完成填寫送「全國落點分析」專屬邀請碼</p>
+      <p className="mt-3 text-center text-xs font-bold text-amber-200">🎁 完成填寫送「全國落點分析」專屬邀請碼</p>
     </div>
   </aside>
 );
@@ -789,11 +790,7 @@ const App: React.FC = () => {
           </button>
 
           {/* Desktop Nav (Centered Pill) */}
-          <nav className={`hidden lg:flex items-center p-1.5 rounded-full transition-all duration-500 ${
-              scrolled 
-              ? 'bg-slate-50/50 border border-slate-200/50' 
-              : 'bg-white/30 border border-white/50 shadow-sm'
-            }`}>
+          <nav className="hidden">
              <button onClick={() => navigate('stats')} className="px-5 py-2 rounded-full text-sm font-bold text-indigo-700 hover:bg-indigo-50 transition-all duration-300 flex items-center gap-1.5">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                 趨勢分析
@@ -829,7 +826,7 @@ const App: React.FC = () => {
 
              <button 
                 onClick={() => setIsMenuOpen(true)}
-                className="lg:hidden p-2.5 rounded-xl text-slate-500 hover:bg-white/80 backdrop-blur transition-all focus:outline-none hover:text-indigo-600 shadow-sm"
+                className="p-2.5 rounded-xl text-slate-500 hover:bg-white/80 backdrop-blur transition-all focus:outline-none hover:text-indigo-600 shadow-sm"
                 title="開啟相關資源"
                 aria-label="開啟選單"
                 aria-expanded={isMenuOpen}
@@ -879,16 +876,16 @@ const App: React.FC = () => {
         <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full z-10 relative">
         
         {/* Integrated Hero & Contribution Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 mb-12 sm:mb-20 pt-3 sm:pt-6 lg:pt-10 items-stretch" id="hero-section">
+        <div className="mb-12 grid grid-cols-1 items-stretch gap-6 pb-2 pt-3 sm:mb-16 sm:pt-6 lg:grid-cols-12 lg:gap-8 lg:pt-10" id="hero-section">
            
            {/* Left side: Main Title */}
-           <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left relative z-10 justify-center py-3 lg:py-8">
+           <div className="relative z-10 flex flex-col items-center justify-center overflow-hidden rounded-[2rem] border border-white/80 bg-white/75 p-7 text-center shadow-xl shadow-indigo-100/50 backdrop-blur-sm sm:p-10 lg:col-span-7 lg:items-start lg:text-left">
               {/* Abstract background blobs (constrained) */}
               <div className="absolute inset-0 flex items-center justify-center opacity-40 pointer-events-none -z-10">
-                <div className="absolute w-[300px] sm:w-[400px] h-[300px] sm:h-[400px] bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-pulse -left-20 top-0"></div>
+                <div className="absolute -left-20 top-0 h-[300px] w-[300px] animate-pulse rounded-full bg-indigo-200/70 blur-3xl sm:h-[400px] sm:w-[400px]"></div><div className="absolute -bottom-28 -right-24 h-72 w-72 rounded-full bg-fuchsia-200/55 blur-3xl"></div>
               </div>
 
-              <div className="inline-flex items-center justify-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-4 py-2 text-sm font-bold text-indigo-700 shadow-sm mb-7">
+              <div className="mb-7 inline-flex items-center justify-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-4 py-2 text-sm font-bold text-indigo-700 shadow-sm">
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-600"></span>
@@ -896,7 +893,7 @@ const App: React.FC = () => {
                   <span className="text-sm tracking-wide">更新至 115 年會考資料</span>
               </div>
               
-              <h2 className="text-[2.85rem] sm:text-6xl xl:text-[5rem] font-black tracking-[-0.06em] leading-[1.03] mb-6 sm:mb-8 w-full text-slate-950">
+              <h2 className="mb-6 w-full text-[2.85rem] font-black leading-[1.02] tracking-[-0.06em] text-slate-950 sm:mb-7 sm:text-6xl xl:text-[4.6rem]">
                   <span>全國會考</span> <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 leading-normal pb-2 block relative">
                      序位分享
@@ -904,14 +901,14 @@ const App: React.FC = () => {
                   </span>
               </h2>
 
-              <p className="mb-6 sm:mb-8 max-w-xl text-[15px] font-medium leading-7 text-slate-600 sm:text-lg">匯集全國考生回報資料，快速對照你的序位與歷年落點，讓每一次選擇更有依據。</p>
+              <p className="mb-7 max-w-xl text-[15px] font-medium leading-7 text-slate-600 sm:mb-8 sm:text-lg">匯集全國考生回報資料，快速對照你的序位與歷年落點，讓每一次選擇更有依據。</p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
                   <a 
                       href="https://tyctw.github.io/volunteer/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full sm:w-auto px-6 py-4 bg-slate-950 border border-slate-800 text-white rounded-2xl font-bold shadow-xl shadow-slate-900/15 hover:-translate-y-0.5 hover:shadow-indigo-500/20 transition-all duration-300 text-base flex justify-center items-center gap-3 group overflow-hidden relative"
+                      className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-slate-950 px-6 py-4 text-base font-bold text-white shadow-xl shadow-slate-900/15 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-indigo-500/20 sm:w-auto"
                   >
                       <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-duration-500"></div>
                       <BarChart3 className="relative z-10 h-5 w-5" />
@@ -922,13 +919,12 @@ const App: React.FC = () => {
                       href="https://rcpett.vercel.app/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full sm:w-auto px-6 py-4 bg-white text-slate-800 rounded-2xl font-bold border border-slate-200 shadow-sm hover:-translate-y-0.5 hover:border-indigo-200 hover:text-indigo-700 hover:shadow-lg transition-all duration-300 text-base flex items-center justify-center gap-3 group relative"
+                      className="group relative flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white/80 px-6 py-4 text-base font-bold text-slate-800 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-indigo-200 hover:text-indigo-700 hover:shadow-lg sm:w-auto"
                   >
                       <span className="relative z-10">前往全國落點主站</span>
                       <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </a>
               </div>
-              <div className="mt-6 sm:mt-7 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs sm:text-sm font-bold text-slate-500 lg:justify-start"><span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-emerald-500" />資料僅供參考</span><span className="inline-flex items-center gap-1.5"><Sparkles className="h-4 w-4 text-indigo-500" />持續更新中</span></div>
            </div>
 
            {/* Right side: Contribution Banner */}
