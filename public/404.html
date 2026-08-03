@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>正在開啟頁面…</title>
+    <script>
+      (function () {
+        var base = '/score';
+        var path = window.location.pathname;
+        var route = path.indexOf(base) === 0 ? path.slice(base.length) : path;
+        window.location.replace(base + '/?route=' + encodeURIComponent(route || '/'));
+      }());
+    </script>
+  </head>
+  <body></body>
+</html>

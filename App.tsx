@@ -184,6 +184,11 @@ const pathnameForRoute = (route: AppRoute) => {
   return `${basePath}${suffix[route]}` || '/';
 };
 
+const routeFromLocation = () => {
+  const fallbackPath = new URLSearchParams(window.location.search).get('route');
+  return routeFromPathname(fallbackPath || window.location.pathname);
+};
+
 const App: React.FC = () => {
   const generateInvitationCode = () => {
     var now = new Date();
@@ -256,7 +261,11 @@ const App: React.FC = () => {
   useEffect(() => {
     loadData();
     const handlePopState = () => {
-      applyRoute(routeFromPathname(window.location.pathname));
+      const route = routeFromLocation();
+      applyRoute(route);
+      if (new URLSearchParams(window.location.search).has('route')) {
+        window.history.replaceState(null, '', pathnameForRoute(route));
+      }
       window.scrollTo(0, 0);
     };
     handlePopState();
