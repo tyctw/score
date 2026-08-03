@@ -57,7 +57,7 @@ export const PersonalRankAnalysis = ({ data, onBack }: { data: ScoreData[]; onBa
     return { detail, profile, candidates, neighbours, exact, center, lower, upper, byYear, bands, subjectData };
   }, [data, region, grades, essayValue]);
 
-  return <main className="relative z-10 mx-auto w-full max-w-7xl flex-1 px-4 pb-24 pt-28 sm:px-6 lg:px-8">
+  return <main id="personal-rank-analysis" className="relative z-10 mx-auto w-full max-w-7xl flex-1 px-4 pb-24 pt-28 sm:px-6 lg:px-8">
     <button onClick={onBack} className="mb-7 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 shadow-sm transition hover:border-indigo-200 hover:text-indigo-700"><ArrowLeft className="h-4 w-4" />返回資料首頁</button>
     <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-900 px-6 py-10 text-white shadow-xl shadow-indigo-200 sm:px-10 sm:py-12">
       <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-fuchsia-500/30 blur-3xl" /><div className="relative max-w-3xl"><span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold text-indigo-100"><Sparkles className="h-3.5 w-3.5" />個人成績對照</span><h1 className="mt-4 text-3xl font-black tracking-tight sm:text-5xl">今年成績，放進歷年序位資料看一看</h1><p className="mt-4 max-w-2xl text-sm font-medium leading-7 text-indigo-100 sm:text-base">輸入五科等級與作文級分，系統會從相同就學區的匿名歷年資料，找出成績最接近的樣本並整理趨勢與參考區間。</p></div>
@@ -72,6 +72,7 @@ export const PersonalRankAnalysis = ({ data, onBack }: { data: ScoreData[]; onBa
         <section className="rounded-[1.75rem] border border-emerald-100 bg-emerald-50/60 p-5 sm:p-6"><div className="flex gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" /><div><h2 className="font-black text-emerald-950">怎麼解讀這份分析？</h2><ul className="mt-2 space-y-2 text-sm font-medium leading-6 text-emerald-900/80"><li>優先觀察「前百分比區間」與各年度趨勢，而非把單一數字當成結果。</li><li>完全相同組合的筆數越多，參考基礎通常越穩；樣本少時，請放大區間解讀。</li><li>志願選填前，仍須依當年度各區簡章、招生名額與超額比序規則確認。</li></ul></div></div></section>
       </div>}</div>
     </section>
+    <style>{`#personal-rank-analysis section > div.mt-6.grid.grid-cols-3 > div:last-child { display: none; } #personal-rank-analysis section > div.mt-6.grid.grid-cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }`}</style>
   </main>;
 };
 
