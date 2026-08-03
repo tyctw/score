@@ -4,10 +4,8 @@ import { REGIONS, YEARS } from '../constants';
 import { ScoreData } from '../types';
 import {
   compareByGradeRank,
-  detectRankOrderAnomalies,
   formatRankValue,
   getGradeCategory,
-  getGradeCounts,
   getGradeDetailScore,
   getGradePlusScore,
   parseRankNumber,
@@ -80,77 +78,6 @@ const chooseRepresentativeFromSameScore = (items: ScoreData[]) => {
   return candidates.reduce(chooseRepresentativeRecord);
 };
 
-const interpolateValue = (start: string | number, end: string | number, ratio: number) => {
-  const startValue = parseRankNumber(start);
-  const endValue = parseRankNumber(end);
-  if (!Number.isFinite(startValue) || !Number.isFinite(endValue)) return '';
-
-  const value = startValue + ((endValue - startValue) * ratio);
-  return Number.isInteger(value) ? String(value) : value.toFixed(2);
-};
-
-const interpolateIntegerValue = (start: string | number, end: string | number, ratio: number) => {
-  const startValue = parseRankNumber(start);
-  const endValue = parseRankNumber(end);
-  if (!Number.isFinite(startValue) || !Number.isFinite(endValue)) return '';
-
-  return String(Math.round(startValue + ((endValue - startValue) * ratio)));
-};
-
-const createInferredRows = (rows: ScoreData[]) => {
-  const inferredRows: PrintRow[] = [];
-  const groupMap = new Map<string, ScoreData[]>();
-
-  rows.forEach(item => {
-    const key = `${item.examYear}|${item.region}|${getGradeCategory(item)}`;
-    if (!groupMap.has(key)) groupMap.set(key, []);
-    groupMap.get(key)!.push(item);
-  });
-
-  groupMap.forEach(groupRows => {
-    const sortedGroup = [...groupRows].sort(compareByGradeRank);
-
-    for (let index = 0; index < sortedGroup.length - 1; index += 1) {
-      const current = sortedGroup[index];
-      const next = sortedGroup[index + 1];
-      const currentDetail = getGradeDetailScore(current);
-      const nextDetail = getGradeDetailScore(next);
-      const { aCount, bCount, cCount } = getGradeCounts(current);
-      const categoryBaseScore = (aCount * 30) + (bCount * 20) + (cCount * 10);
-      const gap = currentDetail - nextDetail;
-
-      if (gap <= 1) continue;
-
-      for (let missingDetail = currentDetail - 1; missingDetail > nextDetail; missingDetail -= 1) {
-        const ratio = (currentDetail - missingDetail) / gap;
-
-        inferredRows.push({
-          ...current,
-          id: `inferred-${current.id}-${next.id}-${missingDetail}`,
-          timestamp: '',
-          chineseScore: '-',
-          englishScore: '-',
-          mathScore: '-',
-          socialScore: '-',
-          scienceScore: '-',
-          essayScore: interpolateValue(current.essayScore, next.essayScore, ratio),
-          minRatio: interpolateValue(current.minRatio, next.minRatio, ratio),
-          maxRatio: interpolateValue(current.maxRatio, next.maxRatio, ratio),
-          minRankInterval: interpolateIntegerValue(current.minRankInterval, next.minRankInterval, ratio),
-          maxRankInterval: interpolateIntegerValue(current.maxRankInterval, next.maxRankInterval, ratio),
-          inferred: true,
-          inferredFrom: `${getGradeDetailScore(current)} / ${getGradeDetailScore(next)}`,
-          inferredCategory: getGradeCategory(current),
-          inferredDetailScore: missingDetail,
-          inferredPlusScore: Math.max(0, missingDetail - categoryBaseScore),
-        });
-      }
-    }
-  });
-
-  return inferredRows;
-};
-
 const getPrintCategoryRank = (item: PrintRow) => {
   const category = getPrintCategory(item);
   const match = category.match(/^(\d+)A(\d+)B(\d+)C$/);
@@ -172,13 +99,16 @@ const getPrintPlusScore = (item: PrintRow) => (
   item.inferredPlusScore ?? getGradePlusScore(item)
 );
 
-const getTrendKey = (item: PrintRow | ScoreData) => {
-  const category = 'inferredCategory' in item && item.inferredCategory ? item.inferredCategory : getGradeCategory(item);
-  const plusScore = 'inferredPlusScore' in item && item.inferredPlusScore !== undefined
-    ? item.inferredPlusScore
-    : getGradePlusScore(item);
+// Only compare the exact five-subject and writing-score combination across years.
+// A category such as 3A2B or a total number of '+' markers can describe many
+// different score combinations, so it is not a reliable key for trend estimates.
+const getExactScoreProfile = (item: ScoreData) => scoreIdentityKey(item)
+  .split('|')
+  .slice(2)
+  .join('|');
 
-  return `${item.examYear}|${item.region}|${category}|${plusScore}`;
+const getTrendKey = (item: PrintRow | ScoreData) => {
+  return `${item.examYear}|${item.region}|${getExactScoreProfile(item)}`;
 };
 
 const formatTrendDiff = (value: number, unit = '') => {
@@ -319,8 +249,8 @@ const buildStandalonePrintHtml = ({
       <div>
         <div class="eyebrow">TW會考落點分析</div>
         <h1>會考各區成績序位整理表</h1>
-        <div class="summary">${escapeHtml(selectedYear || '全部年度')} / ${escapeHtml(selectedRegion || '全部區域')}，已移除重複分數 ${Math.max(0, duplicateCount).toLocaleString('zh-TW')} 筆，推算缺失 ${inferredCount.toLocaleString('zh-TW')} 筆，序位倒掛 ${anomalyCount.toLocaleString('zh-TW')} 筆</div>
-        <div class="notice">僅供參考：本表依使用者回報資料自動整理、推算與比對，非官方公告資料。實際志願選填與錄取結果，仍應以各就學區及主管機關正式公告為準。</div>
+        <div class="summary">${escapeHtml(selectedYear || '全部年度')} / ${escapeHtml(selectedRegion || '全部區域')}，已移除重複分數 ${Math.max(0, duplicateCount).toLocaleString('zh-TW')} 筆；本表不以插值補出缺失序位。</div>
+        <div class="notice">僅供參考：本表僅整理使用者回報的原始資料，不會線性推算未回報成績或序位。跨年度趨勢僅比較五科與作文完全相同的組合，非官方公告資料。實際志願選填與錄取結果，仍應以各就學區及主管機關正式公告為準。</div>
       </div>
       <div class="qr">
         <div>
@@ -334,7 +264,7 @@ const buildStandalonePrintHtml = ({
     <section class="chips">
       <div class="chip">列印筆數：${rows.length.toLocaleString('zh-TW')}</div>
       <div class="chip">原始代表：${baseRowCount.toLocaleString('zh-TW')}</div>
-      <div class="chip">推算缺失：${inferredCount.toLocaleString('zh-TW')}</div>
+      <div class="chip">自動推算：已停用</div>
       <div class="chip">序位倒掛：${anomalyCount.toLocaleString('zh-TW')}</div>
       <div class="chip">去年對照：${showPreviousTrend ? '顯示' : '未顯示'}</div>
     </section>
@@ -351,7 +281,7 @@ const buildStandalonePrintHtml = ({
 </html>`;
 };
 
-export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) => {
+const LegacyRankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) => {
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
   const [showPreviousTrend, setShowPreviousTrend] = useState(false);
@@ -384,7 +314,11 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
     });
   }, [filteredSource]);
 
-  const inferredRows = useMemo(() => createInferredRows(baseRows), [baseRows]);
+  // Do not fabricate missing score rows by interpolation.  Individual sequence
+  // depends on the district's current rules and can also differ for records with
+  // the same broad grade category.  Showing only submitted records is safer and
+  // prevents an estimated number from being mistaken for an official result.
+  const inferredRows = useMemo<PrintRow[]>(() => [], []);
   const sortedRows: PrintRow[] = useMemo(() => (
     [...baseRows, ...inferredRows].sort((a, b) => {
       const yearDiff = String(b.examYear).localeCompare(String(a.examYear), 'zh-Hant');
@@ -405,7 +339,10 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
 
   const duplicateCount = filteredSource.length - baseRows.length;
   const inferredCount = inferredRows.length;
-  const rankOrderAnomalies = useMemo(() => detectRankOrderAnomalies(baseRows), [baseRows]);
+  // A score-total ordering is not a valid universal ranking rule: every district
+  // can apply different comparison items and sequences.  Do not flag a submitted
+  // row as an "anomaly" from this site-wide heuristic.
+  const rankOrderAnomalies = useMemo(() => new Map<string, { currentRank: number; higherScoreRank: number; higherScoreLabel: string }>(), []);
   const anomalyCount = rankOrderAnomalies.size;
   const previousTrendMap = useMemo(() => {
     const trendSource = data.filter(item => {
@@ -588,8 +525,8 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
               !
             </div>
             <div>
-              <div className="text-xs font-bold opacity-75">序位倒掛</div>
-              <div className="text-2xl font-black">{anomalyCount.toLocaleString('zh-TW')}</div>
+              <div className="text-xs font-bold opacity-75">規則推算</div>
+              <div className="text-sm font-black">不適用</div>
             </div>
           </div>
           <div className={`rounded-2xl p-4 flex items-center gap-3 border ${
@@ -602,7 +539,7 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
             </div>
             <div>
               <div className="text-xs font-bold opacity-75">自動推算</div>
-              <div className="text-2xl font-black">{inferredCount.toLocaleString('zh-TW')}</div>
+              <div className="text-sm font-black">已停用</div>
             </div>
           </div>
         </div>
@@ -614,7 +551,7 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
             className="w-4 h-4 accent-indigo-600"
           />
           <span className="text-sm font-bold text-slate-700">
-            顯示去年同區、同類別、同加數的最大排名人數與序位比率趨勢
+            顯示去年同區、五科與作文完全相同組合的觀察值與序位比率趨勢
           </span>
         </label>
       </div>
@@ -627,12 +564,12 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
                 <div className="text-xs font-black tracking-[0.2em] text-indigo-600 uppercase">TW會考落點分析</div>
                 <h3 className="text-2xl font-black text-slate-900 mt-1">會考各區成績序位整理表</h3>
                 <p className="text-sm text-slate-500 font-medium mt-1">
-                  {selectedYear || '全部年度'} / {selectedRegion || '全部區域'}，已移除重複分數 {Math.max(0, duplicateCount).toLocaleString('zh-TW')} 筆，推算缺失 {inferredCount.toLocaleString('zh-TW')} 筆，序位倒掛 {anomalyCount.toLocaleString('zh-TW')} 筆
+                  {selectedYear || '全部年度'} / {selectedRegion || '全部區域'}，已移除重複分數 {Math.max(0, duplicateCount).toLocaleString('zh-TW')} 筆；本表不以插值補出缺失序位。
                 </p>
               </div>
 
               <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800 max-w-3xl">
-                僅供參考：本表依使用者回報資料自動整理、推算與比對，非官方公告資料。實際志願選填與錄取結果，仍應以各就學區及主管機關正式公告為準。
+                僅供參考：本表僅整理使用者回報的原始資料，不會線性推算未回報成績或序位。跨年度趨勢僅比較五科與作文完全相同的組合，非官方公告資料。實際志願選填與錄取結果，仍應以各就學區及主管機關正式公告為準。
               </div>
             </div>
 
@@ -653,8 +590,8 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
           <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-2 text-xs font-bold text-slate-600">
             <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2">列印筆數：{sortedRows.length.toLocaleString('zh-TW')}</div>
             <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2">原始代表：{baseRows.length.toLocaleString('zh-TW')}</div>
-            <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2 text-amber-700">推算缺失：{inferredCount.toLocaleString('zh-TW')}</div>
-            <div className="rounded-xl bg-rose-50 border border-rose-100 px-3 py-2 text-rose-700">序位倒掛：{anomalyCount.toLocaleString('zh-TW')}</div>
+            <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2 text-amber-700">自動推算：已停用</div>
+            <div className="rounded-xl bg-rose-50 border border-rose-100 px-3 py-2 text-rose-700">規則推算：不適用</div>
             <div className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-2">去年對照：{showPreviousTrend ? '顯示' : '未顯示'}</div>
           </div>
         </div>
@@ -753,4 +690,84 @@ export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) =>
       </section>
     </main>
   );
+};
+
+const compactScore = (item: ScoreData) => [
+  item.chineseScore,
+  item.englishScore,
+  item.mathScore,
+  item.socialScore,
+  item.scienceScore,
+].join(' / ');
+
+export const RankPrintPage: React.FC<RankPrintPageProps> = ({ data, onBack }) => {
+  const [selectedYear, setSelectedYear] = useState(YEARS[0] || '');
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [showPreviousTrend, setShowPreviousTrend] = useState(false);
+
+  const sourceRows = useMemo(() => data.filter(item => (
+    (!selectedYear || item.examYear === selectedYear) &&
+    (!selectedRegion || item.region === selectedRegion)
+  )), [data, selectedRegion, selectedYear]);
+
+  const rows = useMemo(() => {
+    const grouped = new Map<string, ScoreData[]>();
+    sourceRows.forEach(item => {
+      const key = scoreIdentityKey(item);
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key)!.push(item);
+    });
+
+    return Array.from(grouped.values())
+      .map(chooseRepresentativeFromSameScore)
+      .sort((a, b) => {
+        const regionDiff = String(a.region).localeCompare(String(b.region), 'zh-Hant');
+        if (regionDiff !== 0) return regionDiff;
+        return compareByGradeRank(a, b);
+      });
+  }, [sourceRows]);
+
+  const previousTrendMap = useMemo(() => {
+    const allGroups = new Map<string, ScoreData[]>();
+    data.forEach(item => {
+      const key = scoreIdentityKey(item);
+      if (!allGroups.has(key)) allGroups.set(key, []);
+      allGroups.get(key)!.push(item);
+    });
+    const byTrendKey = new Map<string, ScoreData>();
+    Array.from(allGroups.values()).map(chooseRepresentativeFromSameScore).forEach(item => {
+      const key = getTrendKey(item);
+      const existing = byTrendKey.get(key);
+      byTrendKey.set(key, existing ? chooseRepresentativeRecord(existing, item) : item);
+    });
+
+    const trends = new Map<string, PreviousTrend>();
+    rows.forEach(item => {
+      const year = Number(item.examYear);
+      if (!Number.isInteger(year)) return;
+      const previous = byTrendKey.get(`${year - 1}|${item.region}|${getExactScoreProfile(item)}`);
+      const currentMaxRank = parseRankNumber(item.maxRankInterval);
+      const currentMinRatio = parseRankNumber(item.minRatio);
+      const previousMaxRank = previous ? parseRankNumber(previous.maxRankInterval) : 0;
+      const previousMinRatio = previous ? parseRankNumber(previous.minRatio) : 0;
+      if (!previous || !currentMaxRank || !currentMinRatio || !previousMaxRank || !previousMinRatio) return;
+      trends.set(item.id, {
+        previousYear: String(year - 1), previousMaxRank, currentMaxRank,
+        rankDiff: currentMaxRank - previousMaxRank,
+        previousMinRatio, currentMinRatio,
+        ratioDiff: Number((currentMinRatio - previousMinRatio).toFixed(2)),
+      });
+    });
+    return trends;
+  }, [data, rows]);
+
+  const duplicateCount = Math.max(0, sourceRows.length - rows.length);
+  const reportScope = `${selectedYear || '全部年度'} · ${selectedRegion || '全部區域'}`;
+
+  return <main className="relative z-10 mx-auto w-full max-w-7xl flex-1 px-4 pb-20 pt-28 sm:px-6 lg:px-8 print-report-page">
+    <style>{`@media print { @page { size: A4 landscape; margin: 9mm; } body { background:#fff !important; } header, footer, .no-print { display:none !important; } .print-report-page { max-width:none !important; padding:0 !important; } .report-sheet { border:0 !important; box-shadow:none !important; } .report-table { font-size:9px !important; } .report-table th, .report-table td { padding:4px 5px !important; } .report-table thead { display:table-header-group; } .report-table tr { break-inside:avoid; page-break-inside:avoid; } }`}</style>
+    <div className="no-print mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><button onClick={onBack} className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-indigo-700"><ArrowLeft className="h-4 w-4" />返回資料首頁</button><h1 className="text-3xl font-black tracking-tight text-slate-950">會考各區成績序位整理表</h1><p className="mt-2 max-w-3xl font-medium leading-7 text-slate-500">以年度與就學區整理原始回報資料；不補推算序位，讓列印內容清楚區分已回報資料與尚未掌握的範圍。</p></div><button onClick={() => window.print()} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 font-bold text-white shadow-lg transition hover:bg-slate-800"><Printer className="h-5 w-5" />列印此報表</button></div>
+    <section className="no-print mb-6 grid gap-4 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-[1fr_1fr_auto_auto]"><label className="text-sm font-bold text-slate-700">會考年度<select value={selectedYear} onChange={event => setSelectedYear(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-bold outline-none focus:border-indigo-500"><option value="">全部年度</option>{YEARS.map(year => <option key={year} value={year}>{year} 年</option>)}</select></label><label className="text-sm font-bold text-slate-700">就學區<select value={selectedRegion} onChange={event => setSelectedRegion(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-bold outline-none focus:border-indigo-500"><option value="">全部區域</option>{REGIONS.map(region => <option key={region} value={region}>{region}</option>)}</select></label><div className="rounded-xl bg-indigo-50 px-4 py-3"><p className="text-xs font-bold text-indigo-600">原始代表資料</p><p className="mt-1 text-2xl font-black text-indigo-950">{rows.length.toLocaleString('zh-TW')}</p></div><div className="rounded-xl bg-slate-50 px-4 py-3"><p className="text-xs font-bold text-slate-500">合併重複回報</p><p className="mt-1 text-2xl font-black text-slate-800">{duplicateCount.toLocaleString('zh-TW')}</p></div><label className="md:col-span-4 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700"><input type="checkbox" checked={showPreviousTrend} onChange={event => setShowPreviousTrend(event.target.checked)} className="h-4 w-4 accent-indigo-600" />顯示上一年度相同區域、五科與作文完全相同組合的觀察差異</label></section>
+    <section className="report-sheet overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm"><header className="border-b border-slate-200 px-6 py-6 print-break-avoid"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-black tracking-[0.18em] text-indigo-600">TW EXAM RANK REPORT</p><h2 className="mt-2 text-2xl font-black text-slate-950">會考各區成績序位整理表</h2><p className="mt-1 font-bold text-slate-500">{reportScope} · 原始代表資料 {rows.length.toLocaleString('zh-TW')} 筆</p></div><div className="rounded-xl bg-amber-50 px-4 py-3 text-right text-xs font-bold leading-5 text-amber-900">不以線性插值補推算<br />跨年度僅比較完全相同成績組合</div></div><p className="mt-4 text-sm font-medium leading-6 text-slate-500">本表僅供資料整理與志願討論。招生名額、超額比序、志願序及校科條件均以當年度各就學區公告為準。</p></header><div className="overflow-x-auto"><table className="report-table w-full min-w-[900px] text-sm"><thead className="bg-slate-950 text-left text-xs font-black tracking-wide text-white"><tr><th className="px-4 py-3">序</th><th className="px-4 py-3">年度／區域</th><th className="px-4 py-3">五科成績組合</th><th className="px-4 py-3">作文</th><th className="px-4 py-3">加數</th><th className="px-4 py-3">序位比率</th><th className="px-4 py-3">累積人數區間</th>{showPreviousTrend && <th className="px-4 py-3">去年同組合觀察</th>}<th className="px-4 py-3">資料狀態</th></tr></thead><tbody>{rows.map((item, index) => { const trend = showPreviousTrend ? previousTrendMap.get(item.id) : undefined; return <tr key={item.id} className="border-b border-slate-100 odd:bg-white even:bg-slate-50/70"><td className="px-4 py-3 font-bold text-slate-400">{index + 1}</td><td className="px-4 py-3"><p className="font-black text-slate-900">{item.examYear} 年</p><p className="mt-0.5 text-xs font-bold text-slate-500">{item.region}</p></td><td className="px-4 py-3 font-mono text-xs font-bold text-slate-700">{compactScore(item)}</td><td className="px-4 py-3 font-bold text-slate-700">{item.essayScore}</td><td className="px-4 py-3 font-mono font-bold text-indigo-700">+{getGradePlusScore(item)}</td><td className="px-4 py-3 font-bold text-slate-700">{getRatioText(item)}</td><td className="px-4 py-3 font-mono text-xs font-bold text-slate-600">{getRankIntervalText(item)}</td>{showPreviousTrend && <td className="px-4 py-3 text-xs font-bold text-slate-600">{trend ? <><p>{trend.previousYear} 年：{formatRankValue(trend.previousMaxRank)} 人</p><p className={trend.ratioDiff > 0 ? 'text-rose-700' : trend.ratioDiff < 0 ? 'text-emerald-700' : 'text-slate-500'}>{trend.previousMinRatio}% → {trend.currentMinRatio}% ({formatTrendDiff(trend.ratioDiff, '%')})</p></> : <span className="text-slate-300">無可比對資料</span>}</td>}<td className="px-4 py-3"><span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-700">原始回報</span></td></tr>; })}</tbody></table></div>{rows.length === 0 && <div className="px-6 py-16 text-center text-sm font-bold text-slate-400">此篩選條件目前沒有可列印的原始回報資料。</div>}<footer className="border-t border-slate-100 px-6 py-4 text-xs font-medium text-slate-400">列印時間：{new Date().toLocaleString('zh-TW')} · 資料僅供參考</footer></section>
+  </main>;
 };
