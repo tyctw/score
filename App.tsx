@@ -925,7 +925,7 @@ const App: React.FC = () => {
                       <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </a>
                   <a
-                      href="https://rcpett.vercel.app/"
+                      href="https://tyctw.github.io/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group relative flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white/80 px-6 py-4 text-base font-bold text-slate-800 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-indigo-200 hover:text-indigo-700 hover:shadow-lg sm:w-auto"
