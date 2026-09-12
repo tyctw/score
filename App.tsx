@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { HomeHero } from './components/HomeHero';
+import { SiteHeader } from './components/SiteHeader';
+import { SiteFooter } from './components/SiteFooter';
 import { fetchScores } from './services/api';
 import { ScoreData, FilterState, SortConfig, SortField } from './types';
 import { ScoreTable } from './components/ScoreTable';
@@ -39,27 +42,6 @@ const DataLoadingAnimation = () => (
     </h3>
     <p className="text-slate-500 font-medium">即將為您呈現各區會考序位與落點區間</p>
   </div>
-);
-
-// New CTA Component for Contribution
-const ContributionBanner = ({ onSubmitClick }: { onSubmitClick: () => void }) => (
-  <aside className="relative isolate w-full overflow-hidden rounded-[2rem] border border-slate-800 bg-slate-950 p-6 text-white shadow-2xl shadow-indigo-200/70 sm:p-8 lg:p-9">
-    <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-fuchsia-500/35 blur-3xl" />
-    <div className="absolute -bottom-28 -left-20 h-64 w-64 rounded-full bg-indigo-500/35 blur-3xl" />
-    <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(rgba(255,255,255,.9)_1px,transparent_1px)] [background-size:18px_18px]" />
-    <div className="relative">
-      <div className="mb-8 flex items-center justify-between">
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold tracking-wide text-indigo-100"><Database className="h-3.5 w-3.5" />資料募集計畫</span>
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-400/15 text-amber-300"><Gift className="h-5 w-5" aria-hidden="true" /></span>
-      </div>
-      <h3 className="max-w-sm text-[1.85rem] font-black leading-[1.12] tracking-tight sm:text-4xl">你的成績，<br /><span className="bg-gradient-to-r from-indigo-300 via-violet-200 to-fuchsia-300 bg-clip-text text-transparent">是學弟妹的燈塔</span></h3>
-      <p className="mt-4 max-w-md text-sm font-medium leading-7 text-slate-300 sm:text-base">每一筆匿名回報，都讓未來考生的落點分析更接近真實。</p>
-      <button onClick={onSubmitClick} className="group mt-7 flex w-full items-center justify-between rounded-2xl bg-white px-5 py-4 font-black text-slate-900 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-indigo-50 active:translate-y-0">
-        <span>立即回報序位</span><span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-white transition-transform group-hover:translate-x-1"><ArrowUpRight className="h-4 w-4" /></span>
-      </button>
-      <p className="mt-3 text-center text-xs font-bold text-amber-200">🎁 完成填寫送「全國落點分析」專屬邀請碼</p>
-    </div>
-  </aside>
 );
 
 const InformationPage = ({ page, onBack }: { page: 'usage' | 'disclaimer'; onBack: () => void }) => {
@@ -150,7 +132,7 @@ const FaqPage = ({ onBack }: { onBack: () => void }) => {
   return <main className="relative z-10 mx-auto w-full max-w-4xl flex-1 px-4 pb-24 pt-28 sm:px-6"><button onClick={onBack} className="mb-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 shadow-sm transition hover:border-indigo-200 hover:text-indigo-700"><ArrowLeft className="h-4 w-4" />返回資料首頁</button><section className="rounded-[2rem] bg-gradient-to-br from-indigo-700 via-violet-700 to-fuchsia-700 px-7 py-10 text-white shadow-xl shadow-indigo-200 sm:px-10"><span className="inline-flex rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold">FAQ</span><h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">常見問題</h1><p className="mt-4 max-w-2xl font-medium leading-7 text-indigo-100">先看懂資料的用途與限制，再把官方公告、輔導建議和自己的選擇放在一起判斷。</p></section><section className="mt-8 space-y-3">{faqs.map(([question, answer], index) => <details key={question} className="group rounded-2xl border border-slate-100 bg-white px-5 shadow-sm open:border-indigo-100 open:shadow-md"><summary className="flex cursor-pointer list-none items-center justify-between gap-5 py-5 text-lg font-black text-slate-900"><span><span className="mr-3 text-sm text-indigo-500">{String(index + 1).padStart(2, '0')}</span>{question}</span><span className="text-xl text-indigo-500 transition group-open:rotate-45">+</span></summary><p className="border-t border-slate-100 pb-5 pt-4 font-medium leading-8 text-slate-600">{answer}</p></details>)}</section><section className="mt-8 rounded-2xl border border-amber-100 bg-amber-50 p-6"><h2 className="font-black text-amber-950">最後提醒</h2><p className="mt-2 font-medium leading-7 text-amber-900/80">本頁為一般資訊整理，不取代各區免試入學委員會、招生學校或輔導人員的個別建議。選填前請再次確認當年度簡章、實際招生名額與作業期限。</p></section></main>;
 };
 
-const SiteFooter = ({ onNavigate, onContact }: { onNavigate: (route: AppRoute) => void; onContact: () => void }) => <footer className="relative z-10 mt-auto overflow-hidden bg-slate-950 text-slate-300"><div className="pointer-events-none absolute inset-0"><div className="absolute -left-24 top-0 h-64 w-64 rounded-full bg-indigo-600/25 blur-3xl" /><div className="absolute -right-20 bottom-0 h-72 w-72 rounded-full bg-violet-600/20 blur-3xl" /><div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.7)_1px,transparent_1px)] [background-size:32px_32px]" /></div><div className="relative mx-auto max-w-7xl px-5 py-14 sm:px-6"><div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.35fr_1fr_1fr]"><section><div className="flex items-center gap-3"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-400 to-violet-500 text-white shadow-lg shadow-indigo-900/40"><BarChart3 className="h-6 w-6" /></div><div><p className="text-lg font-black tracking-tight text-white">全國會考序位分享</p><p className="mt-0.5 text-xs font-bold tracking-[0.14em] text-indigo-200">TW EXAM RANK INSIGHTS</p></div></div><p className="mt-5 max-w-md text-sm font-medium leading-7 text-slate-400">匯集匿名回報資料，協助考生、家長與輔導者以更完整的脈絡理解序位。資料是討論的起點，適性選擇才是目的。</p><div className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-bold text-emerald-200"><ShieldCheck className="h-3.5 w-3.5" />資料僅供志願規劃參考</div></section><section><h2 className="text-sm font-black tracking-[0.16em] text-white">探索網站</h2><div className="mt-4 grid gap-1.5 text-sm font-bold"><button onClick={() => onNavigate('guide')} className="w-fit rounded-lg px-3 py-2 text-left text-slate-400 transition hover:bg-white/10 hover:text-white">升學指南</button><button onClick={() => onNavigate('faq')} className="w-fit rounded-lg px-3 py-2 text-left text-slate-400 transition hover:bg-white/10 hover:text-white">常見問題</button><button onClick={() => onNavigate('print')} className="w-fit rounded-lg px-3 py-2 text-left text-slate-400 transition hover:bg-white/10 hover:text-white">各區序位整理列印</button><button onClick={() => onNavigate('stats')} className="w-fit rounded-lg px-3 py-2 text-left text-slate-400 transition hover:bg-white/10 hover:text-white">資料趨勢分析</button></div></section><section><h2 className="text-sm font-black tracking-[0.16em] text-white">使用與聯絡</h2><div className="mt-4 grid gap-1.5 text-sm font-bold"><button onClick={() => onNavigate('usage')} className="w-fit rounded-lg px-3 py-2 text-left text-slate-400 transition hover:bg-white/10 hover:text-white">使用說明</button><button onClick={() => onNavigate('privacy')} className="w-fit rounded-lg px-3 py-2 text-left text-slate-400 transition hover:bg-white/10 hover:text-white">隱私權政策</button><button onClick={() => onNavigate('disclaimer')} className="w-fit rounded-lg px-3 py-2 text-left text-slate-400 transition hover:bg-white/10 hover:text-white">免責聲明</button><button onClick={onContact} className="mt-2 inline-flex w-fit items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-slate-900 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-indigo-50"><Mail className="h-4 w-4 text-indigo-600" />聯絡我們</button></div></section></div><div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs font-medium text-slate-500 sm:flex-row sm:items-center sm:justify-between"><p>© {new Date().getFullYear()} 全國會考序位分享 · 非官方招生資訊平台</p><p>最終招生結果請以各就學區免試入學委員會公告為準。</p></div></div></footer>;
+
 
 type AppRoute = 'home' | 'stats' | 'submit' | 'print' | 'analysis' | 'usage' | 'disclaimer' | 'privacy' | 'faq' | 'guide' | 'guide-rank' | 'guide-help';
 
@@ -764,88 +746,7 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Brand New Header Style: Floating Glass Pill Navbar */}
-      <header 
-        className={`fixed inset-x-0 z-50 transition-all duration-500 ease-out flex justify-center px-4 ${
-          scrolled 
-          ? 'top-4' 
-          : 'top-6'
-        }`}
-      >
-        <div className={`w-full max-w-6xl mx-auto flex items-center justify-between transition-all duration-500 rounded-3xl ${
-          scrolled
-          ? 'bg-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] px-6 py-3'
-          : 'bg-white/40 backdrop-blur-md border border-white/40 shadow-sm px-6 py-4'
-        }`}>
-          {/* Logo */}
-          <button 
-            type="button"
-            aria-label="回到全國會考序位分享首頁"
-            className="flex items-center gap-3 cursor-pointer group select-none text-left" 
-            onClick={() => navigate('home')}
-          >
-             <div className="relative overflow-hidden w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-[0_4px_20px_rgba(99,102,241,0.4)] group-hover:shadow-[0_4px_25px_rgba(99,102,241,0.6)] group-hover:scale-105 transition-all duration-300">
-                <div className="absolute inset-0 bg-white/20 blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <svg className="w-6 h-6 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-             </div>
-             <div className="flex flex-col">
-                <h1 className={`font-black tracking-tight leading-none transition-all duration-300 ${scrolled ? 'text-lg text-slate-800' : 'text-xl text-slate-900'}`}>
-                  會考全國<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">序位</span>分享
-                </h1>
-                <span className={`text-[10px] font-bold text-slate-400 tracking-widest transition-all duration-300 ${scrolled ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100 h-auto mt-0.5'}`}>
-                    TW會考落點分析所屬網站
-                </span>
-             </div>
-          </button>
-
-          {/* Desktop Nav (Centered Pill) */}
-          <nav className="hidden">
-             <button onClick={() => navigate('stats')} className="px-5 py-2 rounded-full text-sm font-bold text-indigo-700 hover:bg-indigo-50 transition-all duration-300 flex items-center gap-1.5">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                趨勢分析
-             </button>
-             <button onClick={() => navigate('print')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300 flex items-center gap-1.5">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" /></svg>
-                序位列印
-             </button>
-             <button onClick={() => navigate('analysis')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300 flex items-center gap-1.5"><Sparkles className="h-4 w-4" />個人分析</button>
-             <button onClick={() => navigate('usage')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">使用說明</button>
-             <button onClick={() => navigate('disclaimer')} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300">免責聲明</button>
-             
-             <div className="w-px h-4 bg-slate-300 mx-2"></div>
-
-             <button onClick={() => setIsMenuOpen(true)} className="px-5 py-2 rounded-full text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all duration-300 flex items-center gap-1.5">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
-                相關資源
-             </button>
-          </nav>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-             <button 
-                onClick={() => navigate('submit')}
-                className="hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm bg-slate-900 border border-slate-700 text-white shadow-lg shadow-indigo-500/20 hover:scale-105 hover:shadow-indigo-500/30 transition-all duration-300 group relative overflow-hidden"
-             >
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform">
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
-                </div>
-                <span className="relative z-10">立即回報成績</span>
-             </button>
-
-             <button 
-                onClick={() => setIsMenuOpen(true)}
-                className="p-2.5 rounded-xl text-slate-500 hover:bg-white/80 backdrop-blur transition-all focus:outline-none hover:text-indigo-600 shadow-sm"
-                title="開啟相關資源"
-                aria-label="開啟選單"
-                aria-expanded={isMenuOpen}
-                aria-controls="navigation-menu-title"
-             >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
-             </button>
-          </div>
-        </div>
-      </header>
+      <SiteHeader scrolled={scrolled} menuOpen={isMenuOpen} activeRoute={routeFromLocation()} onNavigate={navigate} onMenuOpen={() => setIsMenuOpen(true)} />
 
       {guidePage ? (
         <ExpandedGuidePage page={guidePage} onBack={() => navigate('home')} onOpen={(page) => navigate(page === 'index' ? 'guide' : `guide-${page}` as AppRoute)} />
@@ -884,63 +785,7 @@ const App: React.FC = () => {
       ) : (
         <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full z-10 relative">
         
-        {/* Integrated Hero & Contribution Section */}
-        <div className="mb-12 grid grid-cols-1 items-stretch gap-6 pb-2 pt-3 sm:mb-16 sm:pt-6 lg:grid-cols-12 lg:gap-8 lg:pt-10" id="hero-section">
-           
-           {/* Left side: Main Title */}
-           <div className="relative z-10 flex flex-col items-center justify-center overflow-hidden rounded-[2rem] border border-white/80 bg-white/75 p-7 text-center shadow-xl shadow-indigo-100/50 backdrop-blur-sm sm:p-10 lg:col-span-7 lg:items-start lg:text-left">
-              {/* Abstract background blobs (constrained) */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-40 pointer-events-none -z-10">
-                <div className="absolute -left-20 top-0 h-[300px] w-[300px] animate-pulse rounded-full bg-indigo-200/70 blur-3xl sm:h-[400px] sm:w-[400px]"></div><div className="absolute -bottom-28 -right-24 h-72 w-72 rounded-full bg-fuchsia-200/55 blur-3xl"></div>
-              </div>
-
-              <div className="mb-7 inline-flex items-center justify-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-4 py-2 text-sm font-bold text-indigo-700 shadow-sm">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-600"></span>
-                  </span>
-                  <span className="text-sm tracking-wide">更新至 115 年會考資料</span>
-              </div>
-              
-              <h2 className="mb-6 w-full text-[2.85rem] font-black leading-[1.02] tracking-[-0.06em] text-slate-950 sm:mb-7 sm:text-6xl xl:text-[4.6rem]">
-                  <span>全國會考</span> <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 leading-normal pb-2 block relative">
-                     序位分享
-                     <div className="absolute -bottom-2 sm:-bottom-4 left-1/2 lg:left-0 -translate-x-1/2 lg:translate-x-0 w-32 h-1.5 sm:w-48 sm:h-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-60"></div>
-                  </span>
-              </h2>
-
-              <p className="mb-7 max-w-xl text-[15px] font-medium leading-7 text-slate-600 sm:mb-8 sm:text-lg">匯集全國考生回報資料，快速對照你的序位與歷年落點，讓每一次選擇更有依據。</p>
-
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
-                  <a 
-                      href="https://tyctw.github.io/volunteer/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-slate-950 px-6 py-4 text-base font-bold text-white shadow-xl shadow-slate-900/15 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-indigo-500/20 sm:w-auto"
-                  >
-                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-duration-500"></div>
-                      <BarChart3 className="relative z-10 h-5 w-5" />
-                      <span className="relative z-10">立即查詢個人序位</span>
-                      <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </a>
-                  <a
-                      href="https://tyctw.github.io/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white/80 px-6 py-4 text-base font-bold text-slate-800 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-indigo-200 hover:text-indigo-700 hover:shadow-lg sm:w-auto"
-                  >
-                      <span className="relative z-10">前往全國落點主站</span>
-                      <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </a>
-              </div>
-           </div>
-
-           {/* Right side: Contribution Banner */}
-           <div className="lg:col-span-5 flex-1 w-full relative z-10 flex">
-              <ContributionBanner onSubmitClick={() => navigate('submit')} />
-           </div>
-        </div>
+        <HomeHero onSubmitClick={() => navigate('submit')} />
 
         <div id="filter-section">
           <FilterBar 
